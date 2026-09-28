@@ -61,6 +61,18 @@ class Activity extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        // Logging an activity on an enquiry counts as its first response.
+        static::created(function (Activity $activity): void {
+            $subject = $activity->subject;
+
+            if ($subject instanceof Enquiry) {
+                $subject->markResponded();
+            }
+        });
+    }
+
     public static function crmModule(): string
     {
         return 'activities';

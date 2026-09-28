@@ -5,26 +5,36 @@ declare(strict_types=1);
 namespace LiteCrm;
 
 use Illuminate\Auth\Events\Login;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use LiteCrm\Console\CreateAdminCommand;
 use LiteCrm\Console\InstallCommand;
 use LiteCrm\CustomFields\CustomFieldRegistry;
 use LiteCrm\CustomFields\CustomFieldValidator;
+use LiteCrm\Events\EnquiryAssigned;
+use LiteCrm\Events\EnquiryCaptured;
 use LiteCrm\Events\TaskAssigned;
 use LiteCrm\Filament\Pages\AcceptInvitation;
+use LiteCrm\Listeners\NotifyEnquiryAssignee;
+use LiteCrm\Listeners\NotifyNewEnquiry;
 use LiteCrm\Listeners\NotifyTaskAssignee;
 use LiteCrm\Listeners\RecordLogin;
+use LiteCrm\Livewire\EnquiryForm;
 use LiteCrm\Models\Activity;
 use LiteCrm\Models\Contact;
 use LiteCrm\Models\Document;
+use LiteCrm\Models\Enquiry;
 use LiteCrm\Models\Organisation;
 use LiteCrm\Models\Task;
 use LiteCrm\Policies\ActivityPolicy;
 use LiteCrm\Policies\ContactPolicy;
 use LiteCrm\Policies\DocumentPolicy;
+use LiteCrm\Policies\EnquiryPolicy;
 use LiteCrm\Policies\OrganisationPolicy;
 use LiteCrm\Policies\TaskPolicy;
 use LiteCrm\Support\CrmSettings;
@@ -68,6 +78,7 @@ class LiteCrmServiceProvider extends ServiceProvider
             Activity::class => ActivityPolicy::class,
             Task::class => TaskPolicy::class,
             Document::class => DocumentPolicy::class,
+            Enquiry::class => EnquiryPolicy::class,
         ] as $model => $policy) {
             Gate::policy(LiteCrm::model($model), $policy);
         }
@@ -76,8 +87,14 @@ class LiteCrmServiceProvider extends ServiceProvider
 
         Event::listen(Login::class, RecordLogin::class);
         Event::listen(TaskAssigned::class, NotifyTaskAssignee::class);
+        Event::listen(EnquiryCaptured::class, NotifyNewEnquiry::class);
+        Event::listen(EnquiryAssigned::class, NotifyEnquiryAssignee::class);
+
+        RateLimiter::for('lite-crm-enquiry-api', fn (Request $request): Limit => Limit::perMinute((int) config('lite-crm.enquiry_api.requests_per_minute', 30))->by((string) $request->ip()));
+        $this->loadRoutesFrom($this->packagePath('routes/api.php'));
 
         Livewire::component('lite-crm.accept-invitation', AcceptInvitation::class);
+        Livewire::component('lite-crm.enquiry-form', EnquiryForm::class);
 
         if ($this->app->runningInConsole()) {
             $this->commands([

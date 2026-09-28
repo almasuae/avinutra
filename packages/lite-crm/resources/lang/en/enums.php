@@ -9,6 +9,14 @@ return [
         'done' => 'Done',
         'cancelled' => 'Cancelled',
     ],
+    'enquiry_status' => [
+        'new' => 'New',
+        'assigned' => 'Assigned',
+        'in_progress' => 'In progress',
+        'converted' => 'Converted',
+        'closed' => 'Closed',
+        'spam' => 'Spam',
+    ],
     'task_priority' => [
         'low' => 'Low',
         'normal' => 'Normal',

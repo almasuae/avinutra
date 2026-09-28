@@ -90,14 +90,43 @@ return [
     | Enquiry intake endpoint
     |--------------------------------------------------------------------------
     |
-    | An optional, token-protected HTTP endpoint so that other websites can
-    | post enquiries into this CRM.
+    | An optional HTTP endpoint (POST /crm-api/enquiries) so that other websites
+    | can post enquiries into this CRM. OFF by default. When on, callers need
+    | the token generated in CRM › Settings (only its hash is stored; rotate it
+    | there), and requests are rate-limited per IP.
     |
     */
 
     'enquiry_api' => [
         'enabled' => (bool) env('LITE_CRM_ENQUIRY_API', false),
-        'token' => env('LITE_CRM_ENQUIRY_API_TOKEN'),
+        'path' => 'crm-api/enquiries',
+        'requests_per_minute' => 30,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enquiries
+    |--------------------------------------------------------------------------
+    |
+    | Spam protection without external services: a honeypot field, a minimum
+    | time to fill the form, and a per-IP limit. Honeypot and timing failures
+    | are stored with the Spam status for review; submissions over the limit are
+    | refused. New enquiries are e-mailed to the roles below and to the mailbox
+    | set on the enquiry type (meta "mailbox"). The acknowledgement mentions a
+    | response time only when one is configured here.
+    |
+    */
+
+    'enquiries' => [
+        'min_fill_seconds' => 3,
+        'rate_limit' => [
+            'attempts' => 5,
+            'decay_seconds' => 600,
+        ],
+        'notify_roles' => ['admin', 'manager'],
+        'acknowledge' => true,
+        'response_time' => null,
+        'max_uploads' => 5,
     ],
 
     /*

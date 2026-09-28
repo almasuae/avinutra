@@ -15,9 +15,11 @@ use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
+use LiteCrm\Enquiries\ApiToken;
 use LiteCrm\LiteCrm;
 use LiteCrm\LiteCrmPlugin;
 use LiteCrm\Support\CrmSettings;
@@ -107,7 +109,68 @@ class CrmSettingsPage extends Page
                         Action::make('save')->label(__('lite-crm::settings.save'))->submit('save'),
                     ])->key('form-actions'),
                 ]),
+            $this->enquiryApiSection(),
         ]);
+    }
+
+    /**
+     * The token for the enquiry endpoint: only its hash is stored, so a new
+     * token is shown once, when it is generated.
+     */
+    protected function enquiryApiSection(): Section
+    {
+        $token = app(ApiToken::class);
+
+        return Section::make(__('lite-crm::settings.sections.enquiry_api'))
+            ->description(__('lite-crm::settings.enquiry_api.description', ['path' => '/'.ltrim((string) config('lite-crm.enquiry_api.path'), '/')]))
+            ->schema([
+                Text::make(fn (): string => config('lite-crm.enquiry_api.enabled')
+                    ? __('lite-crm::settings.enquiry_api.enabled')
+                    : __('lite-crm::settings.enquiry_api.disabled')),
+                Text::make(fn (): string => $token->exists()
+                    ? __('lite-crm::settings.enquiry_api.token_set', ['date' => $token->createdAt()?->toFormattedDateString() ?? '—'])
+                    : __('lite-crm::settings.enquiry_api.no_token')),
+            ]);
+    }
+
+    /**
+     * Generate / replace / revoke the enquiry API token (header actions).
+     */
+    protected function getHeaderActions(): array
+    {
+        $token = app(ApiToken::class);
+
+        return [
+            Action::make('rotateApiToken')
+                ->label(fn (): string => $token->exists()
+                    ? __('lite-crm::settings.enquiry_api.rotate')
+                    : __('lite-crm::settings.enquiry_api.generate'))
+                ->icon(Heroicon::OutlinedKey)
+                ->requiresConfirmation()
+                ->modalDescription(__('lite-crm::settings.enquiry_api.rotate_confirm'))
+                ->action(function () use ($token): void {
+                    abort_unless(static::canAccess(), 403);
+
+                    Notification::make()
+                        ->title(__('lite-crm::settings.enquiry_api.new_token'))
+                        ->body($token->rotate())
+                        ->persistent()
+                        ->success()
+                        ->send();
+                }),
+            Action::make('revokeApiToken')
+                ->label(__('lite-crm::settings.enquiry_api.revoke'))
+                ->color('danger')
+                ->requiresConfirmation()
+                ->visible(fn (): bool => $token->exists())
+                ->action(function () use ($token): void {
+                    abort_unless(static::canAccess(), 403);
+
+                    $token->revoke();
+
+                    Notification::make()->title(__('lite-crm::settings.enquiry_api.revoked'))->success()->send();
+                }),
+        ];
     }
 
     public function save(): void

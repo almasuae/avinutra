@@ -28,3 +28,6 @@ Thumbs.db
 /packages/*/vendor
 /packages/*/composer.lock
 /storage/framework/cache/phpstan
+
+# Claude Code personal settings (permissions, local paths) — never commit
+**/.claude/settings.local.json

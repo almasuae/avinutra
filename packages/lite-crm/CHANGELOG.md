@@ -6,6 +6,28 @@ package uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (enquiries)
+- **Enquiries** inbox (New · Mine · Open · All · Spam) with Assign, Start work, Close,
+  Reopen, Mark as spam / Not spam, Log activity and **Convert**; first-response time;
+  partners see only enquiries assigned to them; manual logging of phone enquiries.
+- `<livewire:lite-crm.enquiry-form>`: configurable standard and extra fields, consent
+  checkbox, optional uploads (stored as private documents), accessible markup.
+- `LiteCrm::captureEnquiry()` and the `EnquiryCaptured` / `EnquiryAssigned` events.
+- `POST /crm-api/enquiries`: off by default; bearer token generated, replaced and
+  revoked in CRM › Settings (only its SHA-256 hash is stored); per-IP rate limit;
+  same validation and spam checks as the form.
+- Spam protection: honeypot, minimum fill time, per-IP limit; spam kept with the Spam
+  status and the reason, without e-mails or files.
+- E-mails: new enquiry to Admins/Managers and the enquiry type's mailbox (new
+  "Mailbox" field on enquiry types), acknowledgement to the sender (response time
+  only when configured), assignment to the assignee.
+- Convert without duplicates: existing matches offered first (organisation by name,
+  contact by e-mail); new records refused when an identical one exists (name + city /
+  e-mail, case- and space-insensitive), even if hidden from the user.
+
+### Fixed
+- The task-assignment e-mail went to the previous assignee after a reassignment.
+
 ### Added (record modules)
 - **Organisations** (type, status, territory, location, source, notes, tags, custom
   fields, and a dated "permission to name publicly" with an evidence document) and

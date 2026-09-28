@@ -23,6 +23,7 @@ and move the row to "Resolved" with the date.
 | 9 | Legal pages | Review by a qualified lawyer | Published as sensible drafts | Owner / lawyer |
 | 10 | Knowledge | Authors and reviewers for articles 2–8 | Articles kept as CRM drafts | Nutrition panel |
 | 11 | Header, favicon | Logo approval (or acceptance of the wordmark) | Wordmark and abstract mark used | Owner |
+| 12 | Enquiry acknowledgement e-mail | The response time AviNutra commits to (e.g. "two working days") | Acknowledgement sent without a response-time line (`lite-crm.enquiries.response_time` = null) | Owner |
 
 ## Resolved
 

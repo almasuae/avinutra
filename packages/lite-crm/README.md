@@ -4,10 +4,11 @@ A light, industry-neutral CRM for Laravel, delivered as a Filament plugin.
 Industry-specific fields, pipelines and lists are loaded from **presets** and
 **custom fields**, so the same package can serve any website on the same stack.
 
-> **Status: 0.3.0-dev.** Foundations (installer, users and invitations, MFA, roles and
-> permissions, lists, pipelines, tags, custom fields, audit log) and the first record
-> modules (organisations, contacts, activities, tasks, documents) are in place.
-> Enquiries, opportunities and the remaining modules follow in the next releases.
+> **Status: 0.4.0-dev.** Foundations (installer, users and invitations, MFA, roles and
+> permissions, lists, pipelines, tags, custom fields, audit log), the record modules
+> (organisations, contacts, activities, tasks, documents) and enquiries (form
+> component, PHP and HTTP intake, inbox, Convert) are in place. Opportunities and the
+> remaining modules follow in the next releases.
 
 ## Requirements
 
@@ -178,6 +179,77 @@ trait also defines `activities()`, resolve the clash with
 `LogsCrmActivity { HasRelatedRecords::activities insteadof LogsCrmActivity; }`; the
 audit trail is then `auditLog()`. Register a policy extending `RecordPolicy`.
 
+## Enquiries
+
+Enquiries arrive from three places and land in the CRM inbox (CRM › Enquiries):
+
+1. **The Livewire form component**, on any page of the host site:
+
+   ```blade
+   <livewire:lite-crm.enquiry-form
+       type="general"
+       :fields="['name' => ['required' => true], 'email' => ['required' => true], 'company', 'message' => ['required' => true],
+                 'topic' => ['label' => 'Topic', 'type' => 'select', 'options' => ['a' => 'A', 'b' => 'B']]]"
+       :uploads="3"
+       privacy-url="/legal/privacy"
+       :values="['topic' => 'a']"
+   />
+   ```
+
+   Standard fields (`name`, `company`, `email`, `phone`, `country`, `city`, `message`)
+   have their own columns; extra questions are stored in the enquiry's payload. A
+   consent checkbox is always shown (linked to `privacy-url` when given). The
+   component uses Tailwind classes, so add
+   `@source '.../packages/lite-crm/resources/views/**/*.blade.php'` to the host's CSS,
+   or publish and restyle the view.
+
+2. **PHP**: `LiteCrm::captureEnquiry(array $data, string $type, ?string $sourceUrl)`
+   returns the `Enquiry` and fires `EnquiryCaptured`.
+
+3. **HTTP** (off by default): `POST /crm-api/enquiries` with
+   `Authorization: Bearer <token>` and a JSON body such as
+   `{"type": "general", "name": "…", "email": "…", "message": "…", "consent": true,
+   "source_url": "…", "_honeypot": "", "_started_at": 1759140000}`. Switch it on with
+   `LITE_CRM_ENQUIRY_API=true` and generate the token in CRM › Settings (only its
+   SHA-256 hash is stored; "Replace token" revokes the old one). Responses: 202
+   received, 401 bad token, 422 invalid, 429 too many, 404 switched off. The endpoint
+   is also rate-limited per IP (`enquiry_api.requests_per_minute`).
+
+**Spam**, without external services: a honeypot field, a minimum fill time
+(`enquiries.min_fill_seconds`, default 3) and a per-IP limit (5 per 10 minutes).
+Honeypot and timing failures are stored with the **Spam** status (tab "Spam", with
+the reason) and trigger no e-mails; files sent with spam are discarded. Submissions
+over the per-IP limit are refused and not stored, so a flood cannot fill the
+database. The sender always sees the same thanks, so bots learn nothing.
+
+**Uploads** follow the document rules: PDF, DOCX, XLSX, JPG or PNG, at most 10 MB each
+and 5 per enquiry (MIME type checked), stored as documents on the private disk and
+downloaded only through signed links.
+
+**E-mails** (queued; they go out when the queue runs):
+- new enquiry → users with the roles in `enquiries.notify_roles` (Admin, Manager) and
+  the mailbox set on the enquiry type (CRM › Settings › Lists, "Mailbox");
+- acknowledgement → the sender, from `MAIL_FROM_ADDRESS`; it mentions a response time
+  only if `enquiries.response_time` is set;
+- assignment → the assignee.
+
+In development set `MAIL_MAILER=log` and the e-mails are written to
+`storage/logs/laravel.log`; tests use `Notification::fake()`.
+
+**The inbox**: tabs New · Mine · Open · All · Spam; actions Assign, Start work, Close,
+Reopen, Mark as spam / Not spam, Log activity, and **Convert**. The first response
+time is recorded when work starts, the enquiry is closed or converted, or an activity
+is logged. Partners see only enquiries assigned to them.
+
+**Convert** never creates duplicates. It lists existing organisations with the same
+name (showing their city) and contacts with the same e-mail address, pre-selects the
+best match, and creates nothing until the user confirms. Creating a new organisation
+is refused when one with the same name **and** city exists, and a new contact when
+one with the same e-mail exists (case and spaces ignored), even if that record is
+hidden from the user. It then links the enquiry, logs a note on the contact or
+organisation, and can add a follow-up task. (Creating an opportunity arrives with the
+opportunities module.)
+
 ## Lists, pipelines and tags
 
 Lookups are database rows, edited in CRM settings, never hard-coded:
@@ -249,7 +321,8 @@ in CRM settings › Audit log.
 | `models` | `[]` | Map a package model to a subclass, e.g. `Lookup::class => App\Models\Lookup::class` |
 | `modules` | all `true` | Toggle each module per site |
 | `currencies`, `base_currency`, `territories` | `['USD']`, `USD`, `[]` | Commercial settings |
-| `enquiry_api` | disabled | Token-protected HTTP intake endpoint |
+| `enquiry_api` | disabled, `crm-api/enquiries`, 30/min | Token-protected HTTP intake endpoint (token managed in CRM › Settings) |
+| `enquiries` | 3 s, 5 per 10 min, Admin + Manager, acknowledge, no response time, 5 uploads | Spam timing and per-IP limit, who is notified, acknowledgement, upload count |
 | `notifications` | 08:00, 21 days, 60 days | Digest hour, stale-opportunity and expiry windows |
 | `auth` | 12 chars, 480 min, 72 h, `admin`, `['admin']` | Password length, session limit, invitation expiry, super-admin role, roles that must use MFA |
 | `documents` | `local`, `crm/documents`, 10 MB, five types, 5 min | Private disk, folder, size limit, accepted MIME types, download-link lifetime |

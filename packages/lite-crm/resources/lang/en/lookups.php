@@ -22,5 +22,7 @@ return [
         'key_help' => 'A short, permanent identifier (lower case, digits, "_", "-" or "."). It cannot be changed later.',
         'sort' => 'Order',
         'is_active' => 'Active',
+        'mailbox' => 'Mailbox',
+        'mailbox_help' => 'New enquiries of this type are also e-mailed here.',
     ],
 ];

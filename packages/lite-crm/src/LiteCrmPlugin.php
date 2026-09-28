@@ -21,6 +21,7 @@ use LiteCrm\Filament\Resources\AuditLog\AuditLogResource;
 use LiteCrm\Filament\Resources\Contacts\ContactResource;
 use LiteCrm\Filament\Resources\CustomFields\CustomFieldResource;
 use LiteCrm\Filament\Resources\Documents\DocumentResource;
+use LiteCrm\Filament\Resources\Enquiries\EnquiryResource;
 use LiteCrm\Filament\Resources\Lookups\LookupResource;
 use LiteCrm\Filament\Resources\Organisations\OrganisationResource;
 use LiteCrm\Filament\Resources\Pipelines\PipelineResource;
@@ -131,6 +132,7 @@ class LiteCrmPlugin implements Plugin
         config(['lite-crm.modules' => $this->getModules()]);
 
         $records = array_keys(array_filter([
+            EnquiryResource::class => $this->isModuleEnabled('enquiries'),
             OrganisationResource::class => $this->isModuleEnabled('organisations'),
             ContactResource::class => $this->isModuleEnabled('contacts'),
             ActivityResource::class => $this->isModuleEnabled('activities'),

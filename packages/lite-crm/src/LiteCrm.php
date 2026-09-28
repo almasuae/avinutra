@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace LiteCrm;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use LiteCrm\Contracts\CrmUser;
+use LiteCrm\Enquiries\EnquiryIntake;
+use LiteCrm\Enquiries\Submission;
+use LiteCrm\Events\EnquiryCaptured;
 use LiteCrm\Models\Activity;
 use LiteCrm\Models\Contact;
 use LiteCrm\Models\Document;
+use LiteCrm\Models\Enquiry;
 use LiteCrm\Models\Organisation;
 use LiteCrm\Models\Task;
 use Spatie\Permission\Models\Role;
@@ -85,6 +90,7 @@ class LiteCrm
         return [
             self::model(Organisation::class),
             self::model(Contact::class),
+            self::model(Enquiry::class),
         ];
     }
 
@@ -101,7 +107,22 @@ class LiteCrm
             'crm_activity' => self::model(Activity::class),
             'crm_task' => self::model(Task::class),
             'crm_document' => self::model(Document::class),
+            'crm_enquiry' => self::model(Enquiry::class),
         ];
+    }
+
+    /**
+     * Store an enquiry from host code and fire {@see EnquiryCaptured} (which
+     * e-mails the team). Code is trusted: no spam checks apply.
+     *
+     * @param  array<string, mixed>  $data  name, company, email, phone, country, city, message; other keys go into the payload
+     * @param  string  $type  the key of an enquiry type (crm_lookups, type "enquiry_type")
+     *
+     * @throws ValidationException
+     */
+    public static function captureEnquiry(array $data, string $type, ?string $sourceUrl = null): Enquiry
+    {
+        return app(EnquiryIntake::class)->capture($data, $type, $sourceUrl, Submission::trusted(consent: (bool) ($data['consent'] ?? false)));
     }
 
     /**

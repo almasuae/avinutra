@@ -87,6 +87,12 @@ class LookupResource extends CrmResource
                 ->regex('/^[a-z0-9][a-z0-9_.-]*$/')
                 ->unique(ignoreRecord: true, modifyRuleUsing: fn (Unique $rule, Get $get): Unique => $rule->where('type', $get('type')))
                 ->disabledOn('edit'),
+            TextInput::make('meta.mailbox')
+                ->label(__('lite-crm::lookups.fields.mailbox'))
+                ->helperText(__('lite-crm::lookups.fields.mailbox_help'))
+                ->email()
+                ->maxLength(255)
+                ->visible(fn (Get $get): bool => $get('type') === 'enquiry_type'),
             TextInput::make('sort')
                 ->label(__('lite-crm::lookups.fields.sort'))
                 ->integer()
