@@ -6,6 +6,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -13,22 +15,22 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use LiteCrm\Concerns\InteractsWithCrm;
+use LiteCrm\Contracts\CrmUser;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements CrmUser, FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, InteractsWithCrm, Notifiable;
 
     /**
-     * The CRM is invite-only and there is no public registration, so every
-     * user account belongs to the team. Roles and deactivation arrive with
-     * the package foundations (Phase 2).
+     * Invite-only: an active CRM profile and at least one role are required.
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return $panel->getId() === 'crm';
+        return $panel->getId() === 'crm' && $this->canAccessCrm();
     }
 
     /**

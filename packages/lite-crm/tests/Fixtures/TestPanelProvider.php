@@ -7,6 +7,7 @@ namespace LiteCrm\Tests\Fixtures;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -29,6 +30,7 @@ class TestPanelProvider extends PanelProvider
             ->id('crm')
             ->path(config('lite-crm.path', 'crm'))
             ->login()
+            ->pages([Dashboard::class])
             ->plugin(LiteCrmPlugin::make())
             ->middleware([
                 EncryptCookies::class,

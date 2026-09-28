@@ -7,11 +7,29 @@ package uses [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
-- Package skeleton: `LiteCrmServiceProvider`, `config/lite-crm.php` (path, table prefix,
-  user model, model map, module toggles, currencies, enquiry API, notification timings)
-  and English translations.
-- `LiteCrmPlugin` Filament plugin with per-panel module overrides and a configurable
-  navigation group.
-- `NoIndex` middleware: every panel response carries `X-Robots-Tag: noindex, nofollow`.
-- Testbench + Pest test harness, and an architecture test that keeps industry terms
-  out of the package.
+- `lite-crm:install` (publish config, migrate, seed roles, permissions and neutral lists;
+  idempotent) and `lite-crm:create-admin {email}` (interactive password or `--invite`).
+  No users are ever seeded.
+- Users: invite-only accounts with signed, expiring invitation links (resending
+  invalidates older links); CRM profile in `crm_user_profiles` (job title, city,
+  country, time zone, phone, WhatsApp, territory, digest opt-out, active flag);
+  users are deactivated, never deleted.
+- Security: authenticator-app MFA with recovery codes, required for Admins and
+  optionally for everyone; 8-hour session limit; 12-character minimum password;
+  dates shown in each user's time zone.
+- Roles (Admin, Manager, Commercial, Specialist, Partner, Viewer) and a
+  `{module}.{ability}` permission catalogue via spatie/laravel-permission; Admin-only
+  soft deletion; editable role labels.
+- Lists (`crm_lookups`), pipelines with stages, and tags, with neutral defaults.
+- Custom-field engine: definitions, validation and casting on save, dynamic Filament
+  form fields, table columns, filters and infolist entries; `HasCustomFields` and
+  `HasTags` model traits.
+- Audit log in `crm_activity_log` via spatie/laravel-activitylog, with a read-only
+  screen; logins, invitations and role changes are recorded; MFA secrets are
+  encrypted and never logged.
+- `LiteCrm\Contracts\CrmUser` and the `InteractsWithCrm` trait for host user models.
+- `LiteCrm::model()` resolves package models through `lite-crm.models`, keyed by the
+  package class.
+- Package skeleton: `LiteCrmServiceProvider`, `config/lite-crm.php`, English
+  translations, `LiteCrmPlugin` with per-panel module overrides, `NoIndex` middleware,
+  Testbench + Pest harness, and the industry-neutrality architecture test.

@@ -21,7 +21,8 @@
         "filament/filament": "^5.9",
         "gotrade/lite-crm": "@dev",
         "laravel/framework": "^13.17",
-        "laravel/tinker": "^3.0"
+        "laravel/tinker": "^3.0",
+        "spatie/laravel-settings": "^3.9"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -84,10 +85,15 @@
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
         ],
         "test:package": [
+            "Composer\\Config::disableProcessTimeout",
             "@php vendor/bin/pest --configuration packages/lite-crm/phpunit.xml"
         ],
         "analyse": [
             "@php vendor/bin/phpstan analyse --memory-limit=1G"
+        ],
+        "test:mariadb": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php scripts/test-mariadb.php"
         ]
     },
     "extra": {

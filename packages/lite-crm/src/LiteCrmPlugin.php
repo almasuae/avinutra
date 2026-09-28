@@ -4,9 +4,28 @@ declare(strict_types=1);
 
 namespace LiteCrm;
 
+use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Contracts\Plugin;
+use Filament\Facades\Filament;
 use Filament\Panel;
+use Filament\Support\Facades\FilamentTimezone;
+use Illuminate\Routing\Middleware\ValidateSignature;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\Rules\Password;
+use LiteCrm\Contracts\CrmUser;
+use LiteCrm\Filament\Pages\AcceptInvitation;
+use LiteCrm\Filament\Pages\CrmSettingsPage;
+use LiteCrm\Filament\Pages\EditProfile;
+use LiteCrm\Filament\Resources\AuditLog\AuditLogResource;
+use LiteCrm\Filament\Resources\CustomFields\CustomFieldResource;
+use LiteCrm\Filament\Resources\Lookups\LookupResource;
+use LiteCrm\Filament\Resources\Pipelines\PipelineResource;
+use LiteCrm\Filament\Resources\Roles\RoleResource;
+use LiteCrm\Filament\Resources\Tags\TagResource;
+use LiteCrm\Filament\Resources\Users\UserResource;
+use LiteCrm\Http\Middleware\EnforceSessionLifetime;
 use LiteCrm\Http\Middleware\NoIndex;
+use LiteCrm\Http\Middleware\RequireMultiFactorAuthentication;
 
 /**
  * Registers the CRM in a host's Filament panel.
@@ -76,13 +95,50 @@ class LiteCrmPlugin implements Plugin
         return $this->navigationGroup ?? __('lite-crm::lite-crm.navigation.group');
     }
 
+    public static function settingsNavigationGroup(): string
+    {
+        return __('lite-crm::lite-crm.navigation.settings');
+    }
+
     public function register(Panel $panel): void
     {
-        $panel->middleware([NoIndex::class], isPersistent: true);
+        LiteCrm::setPanelId($panel->getId());
+
+        $panel
+            ->resources([
+                UserResource::class,
+                RoleResource::class,
+                LookupResource::class,
+                PipelineResource::class,
+                TagResource::class,
+                CustomFieldResource::class,
+                AuditLogResource::class,
+            ])
+            ->pages([
+                CrmSettingsPage::class,
+            ])
+            ->profile(EditProfile::class, isSimple: false)
+            // MFA is offered to everyone; RequireMultiFactorAuthentication decides who must set it up.
+            ->multiFactorAuthentication([AppAuthentication::make()->recoverable()], isRequired: true)
+            ->multiFactorAuthenticationRequiredMiddlewareName(RequireMultiFactorAuthentication::class)
+            ->routes(function (): void {
+                Route::get('invitation/{user}', AcceptInvitation::class)
+                    ->middleware(ValidateSignature::class)
+                    ->name('lite-crm.invitation');
+            })
+            ->middleware([NoIndex::class], isPersistent: true)
+            ->authMiddleware([EnforceSessionLifetime::class], isPersistent: true);
     }
 
     public function boot(Panel $panel): void
     {
-        //
+        // Dates are stored in UTC and shown in each user's own time zone.
+        FilamentTimezone::set(function (): ?string {
+            $user = Filament::auth()->user();
+
+            return $user instanceof CrmUser ? $user->crmTimezone() : null;
+        });
+
+        Password::defaults(fn (): Password => Password::min((int) config('lite-crm.auth.password_min_length', 12)));
     }
 }

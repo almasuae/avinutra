@@ -6,5 +6,6 @@ return [
     'name' => 'CRM',
     'navigation' => [
         'group' => 'CRM',
+        'settings' => 'CRM settings',
     ],
 ];

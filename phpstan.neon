@@ -11,6 +11,8 @@ parameters:
         - packages/lite-crm/src
         - packages/lite-crm/config
         - packages/lite-crm/database
+        # Fixtures use the model traits the way host entities will.
+        - packages/lite-crm/tests/Fixtures
     excludePaths:
         analyseAndScan:
             - packages/lite-crm/vendor (?)

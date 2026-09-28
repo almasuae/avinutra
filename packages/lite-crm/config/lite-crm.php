@@ -31,9 +31,10 @@ return [
     | Models
     |--------------------------------------------------------------------------
     |
-    | The user model of the host application, and a class map of the package
-    | models. A host can extend any package model and register its own class
-    | here. Package models are added to this map as the modules are built.
+    | The user model of the host application (it must implement
+    | LiteCrm\Contracts\CrmUser, e.g. with the InteractsWithCrm trait), and a
+    | class map for extending package models: map a package model to a
+    | subclass of it, e.g. LiteCrm\Models\Lookup::class => App\Models\Lookup::class.
     |
     */
 
@@ -110,5 +111,86 @@ return [
         'stale_opportunity_days' => 21,
         'expiry_warning_days' => 60,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication and access
+    |--------------------------------------------------------------------------
+    |
+    | Login is throttled by Filament (5 attempts per minute). Sessions end a
+    | fixed number of minutes after login, whatever the activity. Roles listed
+    | in "mfa_required_roles" must set up app-based MFA; an Admin can extend
+    | that to every user in CRM › Settings.
+    |
+    */
+
+    'auth' => [
+        'password_min_length' => 12,
+        'session_lifetime_minutes' => 480,
+        'invitation_expiry_hours' => 72,
+        'super_admin_role' => 'admin',
+        'mfa_required_roles' => ['admin'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom fields
+    |--------------------------------------------------------------------------
+    |
+    | The entities that accept custom fields. Values are stored in each
+    | entity's "custom" JSON column.
+    |
+    */
+
+    'custom_field_entities' => [
+        'organisation',
+        'contact',
+        'opportunity',
+        'product',
+        'trial',
+        'sample',
+    ],
+
+    // The lookup type that classifies each entity's records. A custom field can
+    // be limited to some of these types ("visible_for_types").
+    'custom_field_type_lookups' => [
+        'organisation' => 'organisation_type',
+        'product' => 'product_category',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Lookup types
+    |--------------------------------------------------------------------------
+    |
+    | Simple lists kept in the crm_lookups table and edited in CRM › Settings.
+    | Pipelines (with stages) and tags have their own tables.
+    |
+    */
+
+    'lookup_types' => [
+        'organisation_type',
+        'organisation_status',
+        'activity_type',
+        'document_type',
+        'lost_reason',
+        'territory',
+        'enquiry_type',
+        'product_category',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Third-party tables
+    |--------------------------------------------------------------------------
+    |
+    | When true, the package stores roles, permissions and the audit log in
+    | crm_-prefixed tables (crm_roles, crm_permissions, crm_activity_log ...).
+    | Set to false if the host already uses spatie/laravel-permission or
+    | spatie/laravel-activitylog with its own tables.
+    |
+    */
+
+    'prefix_third_party_tables' => true,
 
 ];

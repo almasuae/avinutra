@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers\Filament;
 
+use App\Settings\SiteSettings;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -19,6 +20,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use LiteCrm\LiteCrmPlugin;
+use Throwable;
 
 class CrmPanelProvider extends PanelProvider
 {
@@ -32,8 +34,7 @@ class CrmPanelProvider extends PanelProvider
             ->id('crm')
             ->path(config('lite-crm.path', 'crm'))
             ->login()
-            // Brand name moves to the Site settings (spatie/laravel-settings) in a later phase.
-            ->brandName(config('app.name'))
+            ->brandName(fn (): string => $this->brandName())
             ->colors([
                 'primary' => Color::hex('#1F4E5F'),
             ])
@@ -61,5 +62,18 @@ class CrmPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    /**
+     * The brand from Site settings; falls back to APP_NAME before the settings exist
+     * (e.g. while migrations are running on a fresh install).
+     */
+    protected function brandName(): string
+    {
+        try {
+            return app(SiteSettings::class)->brand;
+        } catch (Throwable) {
+            return (string) config('app.name');
+        }
     }
 }
