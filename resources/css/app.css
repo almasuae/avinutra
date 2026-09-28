@@ -1,0 +1,30 @@
+@import '@fontsource-variable/inter/wght.css';
+@import '@fontsource-variable/source-serif-4/wght.css';
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-serif: 'Source Serif 4 Variable', ui-serif, Georgia, serif;
+
+    /* AviNutra palette (v5 §E1). Use the accent sparingly. */
+    --color-primary: #1f4e5f;
+    --color-primary-dark: #163a47;
+    --color-accent: #c8a24a;
+    --color-ink: #1c2226;
+    --color-muted: #5b6770;
+    --color-surface: #f6f8f8;
+    --color-line: #dde3e5;
+}
+
+@layer base {
+    html {
+        @apply bg-white font-sans text-ink antialiased;
+    }
+
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-primary;
+    }
+}
