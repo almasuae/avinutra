@@ -60,6 +60,29 @@ with `php artisan lite-crm:create-admin {email}` (it asks for a password of at l
 authenticator-app MFA at their first sign-in; further users are invited from
 CRM › CRM settings › Users.
 
+## Deployment and backups: the APP_KEY
+
+> **Production's `APP_KEY` must be stored safely off-server (for example in the
+> owner's password manager), and must never be regenerated on an existing
+> installation.**
+
+The key in `.env` encrypts every user's MFA secret and recovery codes (and Laravel's
+encrypted cookies and sessions). If it is lost or replaced:
+
+- nobody can complete MFA, so every Admin is locked out of the CRM;
+- a database backup restored with a different key has the same problem.
+
+Therefore:
+
+- Run `php artisan key:generate` **only once**, on the first installation, before any
+  user exists. `deploy.sh` never touches it.
+- Keep a copy of the key off-server, separately from the database backups, and check it
+  whenever a backup is test-restored.
+- If a key is ever compromised, rotate it with Laravel's `APP_PREVIOUS_KEYS` (the old key
+  stays readable) instead of overwriting it, and ask users to set up MFA again.
+
+The full deployment and backup procedure follows in Phase 9.
+
 ## Quality checks (run after every phase)
 
 ```bash

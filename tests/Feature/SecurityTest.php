@@ -7,14 +7,20 @@ use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use LiteCrm\Database\Seeders\LiteCrmSeeder;
+use LiteCrm\LiteCrm;
 
 uses(RefreshDatabase::class);
 
 it('seeds no users, so there is no default account or known password', function (): void {
     $this->seed(DatabaseSeeder::class);
-    $this->seed(LiteCrmSeeder::class);
 
     expect(User::query()->count())->toBe(0);
+});
+
+it('seeds the CRM roles and lists with migrate --seed', function (): void {
+    $this->seed(DatabaseSeeder::class);
+
+    expect(LiteCrm::roleModel()::query()->where('name', 'admin')->exists())->toBeTrue();
 });
 
 it('rejects the well-known factory password for any seeded account', function (): void {
