@@ -41,6 +41,8 @@ class Permissions
         'import.run',
         'website.manage',
         'technical_content.approve',
+        // Confidential documents are otherwise visible only to their owner.
+        'documents.view_confidential',
     ];
 
     /**
@@ -78,7 +80,7 @@ class Permissions
             'manager' => array_merge(
                 self::abilities(self::RECORD_MODULES, ['view', 'view_all', 'create', 'update', 'export']),
                 $everyone,
-                ['users.view', 'audit_log.view', 'import.run', 'website.manage'],
+                ['users.view', 'audit_log.view', 'import.run', 'website.manage', 'documents.view_confidential'],
             ),
 
             'commercial' => array_merge(
@@ -93,7 +95,7 @@ class Permissions
                 self::defaultsFor('commercial'),
                 self::abilities(['trials'], ['view', 'view_all', 'create', 'update', 'export']),
                 self::abilities(['products'], ['create', 'update']),
-                ['technical_content.approve'],
+                ['technical_content.approve', 'documents.view_confidential'],
             ),
 
             // Own, assigned or territory records only; no exports, no price log.

@@ -86,6 +86,21 @@ class Lookup extends Model
     }
 
     /**
+     * The key of a lookup id (e.g. to evaluate custom-field conditions in a form).
+     */
+    public static function keyFor(mixed $id): ?string
+    {
+        if (blank($id)) {
+            return null;
+        }
+
+        /** @var string|null $key */
+        $key = static::query()->whereKey($id)->value('key');
+
+        return $key;
+    }
+
+    /**
      * Human-readable name of a lookup type, e.g. "organisation_type" → "Organisation types".
      */
     public static function typeLabel(string $type): string

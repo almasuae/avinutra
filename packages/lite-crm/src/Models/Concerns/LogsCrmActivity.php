@@ -12,7 +12,11 @@ use Spatie\Activitylog\Traits\LogsActivity;
  */
 trait LogsCrmActivity
 {
-    use LogsActivity;
+    use LogsActivity {
+        // Spatie calls its relation "activities"; record models use that name for
+        // CRM interactions (HasRelatedRecords), so the audit trail is auditLog().
+        activities as auditLog;
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

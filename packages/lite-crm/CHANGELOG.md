@@ -6,7 +6,31 @@ package uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### Added
+### Added (record modules)
+- **Organisations** (type, status, territory, location, source, notes, tags, custom
+  fields, and a dated "permission to name publicly" with an evidence document) and
+  **Contacts** (organisation, job, channels, languages, time zone, legal basis and date
+  for holding their data, tags, custom fields), each with list, create, view and edit
+  pages and relation managers.
+- **Activities** (polymorphic; type, when, duration, team and contact participants,
+  summary, outcome, next step) with a "Log activity" action on every record page.
+- **Tasks** (polymorphic; assignee, due date, priority, status, completion time) with
+  My tasks · Team · Overdue · All tabs and a "Mark done" action; the `TaskAssigned`
+  event and an e-mail to the assignee.
+- **Documents** (polymorphic) on the private disk: type, issuer, certificate number,
+  issue and expiry dates, verification (who, when, how), confidential flag; PDF/DOCX/
+  XLSX/JPG/PNG up to 10 MB; downloads only through signed links valid for 5 minutes,
+  behind login and a permission check, and written to the audit log.
+- Every record has owner, created-by and updated-by, soft deletes and an audit trail.
+- Record visibility: users without `{module}.view_all` (e.g. Partners) see only their
+  own, assigned or territory records; confidential documents need
+  `documents.view_confidential` (new permission, granted to Manager and Specialist).
+- Model policies for the record models; nobody, not even an Admin, can hard-delete.
+- Stable morph aliases (`crm_organisation`, `crm_contact` ...).
+- `HasAuthors`, `HasVisibility` and `HasRelatedRecords` model traits;
+  `LiteCrm\Support\Visibility::apply()`.
+
+### Added (foundations)
 - `lite-crm:install` (publish config, migrate, seed roles, permissions and neutral lists;
   idempotent) and `lite-crm:create-admin {email}` (interactive password or `--invite`).
   No users are ever seeded.

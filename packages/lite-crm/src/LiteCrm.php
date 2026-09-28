@@ -7,6 +7,11 @@ namespace LiteCrm;
 use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 use LiteCrm\Contracts\CrmUser;
+use LiteCrm\Models\Activity;
+use LiteCrm\Models\Contact;
+use LiteCrm\Models\Document;
+use LiteCrm\Models\Organisation;
+use LiteCrm\Models\Task;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Traits\HasRoles;
@@ -68,6 +73,52 @@ class LiteCrm
         }
 
         return $class;
+    }
+
+    /**
+     * Record models that activities, tasks and documents can be attached to.
+     *
+     * @return list<class-string<Model>>
+     */
+    public static function recordModels(): array
+    {
+        return [
+            self::model(Organisation::class),
+            self::model(Contact::class),
+        ];
+    }
+
+    /**
+     * Stable morph aliases, so stored types survive class renames and host subclasses.
+     *
+     * @return array<string, class-string<Model>>
+     */
+    public static function morphMap(): array
+    {
+        return [
+            'crm_organisation' => self::model(Organisation::class),
+            'crm_contact' => self::model(Contact::class),
+            'crm_activity' => self::model(Activity::class),
+            'crm_task' => self::model(Task::class),
+            'crm_document' => self::model(Document::class),
+        ];
+    }
+
+    /**
+     * Active CRM users for select fields, as id => name.
+     *
+     * @return array<int|string, string>
+     */
+    public static function userOptions(): array
+    {
+        /** @var array<int|string, string> $options */
+        $options = self::userModel()::query()
+            ->whereHas('crmProfile', fn ($query) => $query->where('is_active', true))
+            ->orderBy('name')
+            ->pluck('name', (new (self::userModel()))->getKeyName())
+            ->all();
+
+        return $options;
     }
 
     /**

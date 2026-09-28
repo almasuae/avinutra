@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LiteCrm;
 
 use Illuminate\Auth\Events\Login;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -12,8 +13,20 @@ use LiteCrm\Console\CreateAdminCommand;
 use LiteCrm\Console\InstallCommand;
 use LiteCrm\CustomFields\CustomFieldRegistry;
 use LiteCrm\CustomFields\CustomFieldValidator;
+use LiteCrm\Events\TaskAssigned;
 use LiteCrm\Filament\Pages\AcceptInvitation;
+use LiteCrm\Listeners\NotifyTaskAssignee;
 use LiteCrm\Listeners\RecordLogin;
+use LiteCrm\Models\Activity;
+use LiteCrm\Models\Contact;
+use LiteCrm\Models\Document;
+use LiteCrm\Models\Organisation;
+use LiteCrm\Models\Task;
+use LiteCrm\Policies\ActivityPolicy;
+use LiteCrm\Policies\ContactPolicy;
+use LiteCrm\Policies\DocumentPolicy;
+use LiteCrm\Policies\OrganisationPolicy;
+use LiteCrm\Policies\TaskPolicy;
 use LiteCrm\Support\CrmSettings;
 use Livewire\Livewire;
 
@@ -40,10 +53,29 @@ class LiteCrmServiceProvider extends ServiceProvider
         $this->loadViewsFrom($this->packagePath('resources/views'), 'lite-crm');
         $this->loadMigrationsFrom($this->packagePath('database/migrations'));
 
-        // Admins hold every permission (v5 §D1).
-        Gate::before(fn (mixed $user): ?bool => LiteCrm::isSuperAdmin($user) ? true : null);
+        // Admins hold every permission (v5 §D1), except hard deletion, which nobody has.
+        Gate::before(function (mixed $user, string $ability): ?bool {
+            if (str_starts_with($ability, 'forceDelete')) {
+                return null;
+            }
+
+            return LiteCrm::isSuperAdmin($user) ? true : null;
+        });
+
+        foreach ([
+            Organisation::class => OrganisationPolicy::class,
+            Contact::class => ContactPolicy::class,
+            Activity::class => ActivityPolicy::class,
+            Task::class => TaskPolicy::class,
+            Document::class => DocumentPolicy::class,
+        ] as $model => $policy) {
+            Gate::policy(LiteCrm::model($model), $policy);
+        }
+
+        Relation::morphMap(LiteCrm::morphMap());
 
         Event::listen(Login::class, RecordLogin::class);
+        Event::listen(TaskAssigned::class, NotifyTaskAssignee::class);
 
         Livewire::component('lite-crm.accept-invitation', AcceptInvitation::class);
 

@@ -4,10 +4,10 @@ A light, industry-neutral CRM for Laravel, delivered as a Filament plugin.
 Industry-specific fields, pipelines and lists are loaded from **presets** and
 **custom fields**, so the same package can serve any website on the same stack.
 
-> **Status: 0.2.0-dev.** Foundations are in place: installer, users and invitations,
-> MFA, roles and permissions, lists (lookups), pipelines, tags, the custom-field
-> engine and the audit log. The record modules (organisations, contacts, enquiries,
-> opportunities ...) follow in the next releases.
+> **Status: 0.3.0-dev.** Foundations (installer, users and invitations, MFA, roles and
+> permissions, lists, pipelines, tags, custom fields, audit log) and the first record
+> modules (organisations, contacts, activities, tasks, documents) are in place.
+> Enquiries, opportunities and the remaining modules follow in the next releases.
 
 ## Requirements
 
@@ -143,6 +143,41 @@ that should have them, but never re-adds a permission an Admin removed.
 Deletion is soft and restorable, and only Admins can delete. Nothing can be
 hard-deleted from the panel.
 
+## Records
+
+Each module appears in the panel's CRM navigation group when it is enabled in
+`lite-crm.modules`, and its policy denies everything when it is off.
+
+| Module | What it holds |
+|---|---|
+| Organisations | Companies with type, status, territory, location, tags, custom fields, and a dated permission (with evidence) before naming them publicly |
+| Contacts | People, optionally linked to an organisation, with channels, languages, time zone and the legal basis for holding their data |
+| Activities | Calls, meetings, e-mails ... on an organisation or contact, with team and contact participants ("Log activity" on every record page) |
+| Tasks | To-dos with assignee, due date, priority and status; My tasks · Team · Overdue · All; the assignee is e-mailed |
+| Documents | Files on the private disk with expiry, verification and a confidential flag |
+
+Every record has an owner (defaulting to its creator), `created_by` and `updated_by`,
+soft deletes and an audit trail.
+
+**Who sees what.** Users with `{module}.view_all` see every record. Others (the
+Partner role) see only records they own, records assigned to them, records in their
+territory (organisations, and the contacts, activities, tasks and documents that
+belong to them), and activities they took part in. Confidential documents are visible
+only to their owner and to users with `documents.view_confidential`. Lists, pages,
+relation managers and download links all apply the same rules.
+
+**Documents** are stored on `lite-crm.documents.disk` (default `local`, which is
+private). Accepted types are PDF, DOCX, XLSX, JPG and PNG, up to 10 MB, and the MIME
+type is checked. A download link is signed and valid for 5 minutes; the route also
+requires login and re-checks access, and each download is audit-logged.
+
+**Adding a record type** (for a later module or a host): use `HasAuthors`,
+`HasVisibility` (implement `crmModule()` and `restrictToUser()`), `HasRelatedRecords`,
+`HasTags`, `HasCustomFields`, `SoftDeletes` and `LogsCrmActivity`. Because spatie's
+trait also defines `activities()`, resolve the clash with
+`LogsCrmActivity { HasRelatedRecords::activities insteadof LogsCrmActivity; }`; the
+audit trail is then `auditLog()`. Register a policy extending `RecordPolicy`.
+
 ## Lists, pipelines and tags
 
 Lookups are database rows, edited in CRM settings, never hard-coded:
@@ -217,6 +252,7 @@ in CRM settings › Audit log.
 | `enquiry_api` | disabled | Token-protected HTTP intake endpoint |
 | `notifications` | 08:00, 21 days, 60 days | Digest hour, stale-opportunity and expiry windows |
 | `auth` | 12 chars, 480 min, 72 h, `admin`, `['admin']` | Password length, session limit, invitation expiry, super-admin role, roles that must use MFA |
+| `documents` | `local`, `crm/documents`, 10 MB, five types, 5 min | Private disk, folder, size limit, accepted MIME types, download-link lifetime |
 | `custom_field_entities` | six entities | Entities that accept custom fields |
 | `custom_field_type_lookups` | organisation, product | The list that classifies each entity's records |
 | `lookup_types` | eight lists | The lists shown in CRM settings › Lists |

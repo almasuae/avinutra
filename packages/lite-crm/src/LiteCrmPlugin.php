@@ -16,13 +16,19 @@ use LiteCrm\Contracts\CrmUser;
 use LiteCrm\Filament\Pages\AcceptInvitation;
 use LiteCrm\Filament\Pages\CrmSettingsPage;
 use LiteCrm\Filament\Pages\EditProfile;
+use LiteCrm\Filament\Resources\Activities\ActivityResource;
 use LiteCrm\Filament\Resources\AuditLog\AuditLogResource;
+use LiteCrm\Filament\Resources\Contacts\ContactResource;
 use LiteCrm\Filament\Resources\CustomFields\CustomFieldResource;
+use LiteCrm\Filament\Resources\Documents\DocumentResource;
 use LiteCrm\Filament\Resources\Lookups\LookupResource;
+use LiteCrm\Filament\Resources\Organisations\OrganisationResource;
 use LiteCrm\Filament\Resources\Pipelines\PipelineResource;
 use LiteCrm\Filament\Resources\Roles\RoleResource;
 use LiteCrm\Filament\Resources\Tags\TagResource;
+use LiteCrm\Filament\Resources\Tasks\TaskResource;
 use LiteCrm\Filament\Resources\Users\UserResource;
+use LiteCrm\Http\Controllers\DownloadDocument;
 use LiteCrm\Http\Middleware\EnforceSessionLifetime;
 use LiteCrm\Http\Middleware\NoIndex;
 use LiteCrm\Http\Middleware\RequireMultiFactorAuthentication;
@@ -95,6 +101,23 @@ class LiteCrmPlugin implements Plugin
         return $this->navigationGroup ?? __('lite-crm::lite-crm.navigation.group');
     }
 
+    /**
+     * The navigation group of record screens on the current panel.
+     */
+    public static function recordNavigationGroup(): string
+    {
+        $panel = Filament::getCurrentPanel();
+
+        if ($panel !== null && $panel->hasPlugin('lite-crm')) {
+            /** @var static $plugin */
+            $plugin = $panel->getPlugin('lite-crm');
+
+            return $plugin->getNavigationGroup();
+        }
+
+        return __('lite-crm::lite-crm.navigation.group');
+    }
+
     public static function settingsNavigationGroup(): string
     {
         return __('lite-crm::lite-crm.navigation.settings');
@@ -104,8 +127,20 @@ class LiteCrmPlugin implements Plugin
     {
         LiteCrm::setPanelId($panel->getId());
 
+        // One source of truth: policies and resources read the effective toggles from config.
+        config(['lite-crm.modules' => $this->getModules()]);
+
+        $records = array_keys(array_filter([
+            OrganisationResource::class => $this->isModuleEnabled('organisations'),
+            ContactResource::class => $this->isModuleEnabled('contacts'),
+            ActivityResource::class => $this->isModuleEnabled('activities'),
+            TaskResource::class => $this->isModuleEnabled('tasks'),
+            DocumentResource::class => $this->isModuleEnabled('documents'),
+        ]));
+
         $panel
             ->resources([
+                ...$records,
                 UserResource::class,
                 RoleResource::class,
                 LookupResource::class,
@@ -125,6 +160,12 @@ class LiteCrmPlugin implements Plugin
                 Route::get('invitation/{user}', AcceptInvitation::class)
                     ->middleware(ValidateSignature::class)
                     ->name('lite-crm.invitation');
+            })
+            // Signed, short-lived and still behind login and a permission check.
+            ->authenticatedRoutes(function (): void {
+                Route::get('documents/{document}/download', DownloadDocument::class)
+                    ->middleware(ValidateSignature::class)
+                    ->name('lite-crm.documents.download');
             })
             ->middleware([NoIndex::class], isPersistent: true)
             ->authMiddleware([EnforceSessionLifetime::class], isPersistent: true);

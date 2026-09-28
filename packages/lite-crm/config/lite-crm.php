@@ -134,6 +134,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Documents
+    |--------------------------------------------------------------------------
+    |
+    | Files are kept on a private disk and served only through short-lived
+    | signed links, after a permission check.
+    |
+    */
+
+    'documents' => [
+        'disk' => env('LITE_CRM_DOCUMENTS_DISK', 'local'),
+        'directory' => 'crm/documents',
+        'max_size_kb' => 10240,
+        'accepted_mime_types' => [
+            'application/pdf',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'image/jpeg',
+            'image/png',
+        ],
+        'download_link_minutes' => 5,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Custom fields
     |--------------------------------------------------------------------------
     |
