@@ -6,7 +6,7 @@ declare(strict_types=1);
 // Sizes are CSS pixels (the 1x files); @2x files have twice as many pixels.
 
 return [
-    'version' => '83325a0d82',
+    'version' => 'cae760d4b8',
     'source' => 'docs/design/logo-source.png',
     'cleared_pixels' => 66809,
     'variants' => [

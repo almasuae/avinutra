@@ -141,3 +141,22 @@ it('brands the CRM with the green primary colour, compact logo and mark favicon'
         ->assertSee('brand/logo-compact@2x.png', false)
         ->assertSee('brand/favicon-32.png', false);
 });
+
+it('keeps the dot of the "i" in every logo that shows the wordmark', function (string $file, float $x, float $y): void {
+    if (! extension_loaded('gd')) {
+        $this->markTestSkipped('The GD extension is not available.');
+    }
+
+    // (x, y) = the dot's centre as a fraction of the image (from the master crop boxes).
+    $image = imagecreatefrompng(public_path("brand/{$file}"));
+    $colour = imagecolorsforindex($image, imagecolorat($image, (int) round($x * imagesx($image)), (int) round($y * imagesy($image))));
+
+    // GD alpha: 0 = opaque, 127 = transparent. The dot is dark green.
+    expect($colour['alpha'])->toBeLessThan(20)
+        ->and($colour['green'])->toBeGreaterThan($colour['red'] + 30)
+        ->and($colour['green'])->toBeGreaterThan($colour['blue']);
+})->with([
+    'header logo (compact @2x)' => ['logo-compact@2x.png', 746 / 1868, 81 / 366],
+    'footer logo (full @2x)' => ['logo-full@2x.png', 746 / 1870, 81 / 441],
+    'e-mail logo' => ['logo-email.png', 746 / 1868, 81 / 366],
+]);

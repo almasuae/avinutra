@@ -29,7 +29,8 @@ mkdirSync(OUT, { recursive: true });
 mkdirSync(SCREENS, { recursive: true });
 
 const sourceBytes = readFileSync(SOURCE);
-const version = createHash('sha1').update(sourceBytes).digest('hex').slice(0, 10);
+// The version changes when the master OR this build changes, so browsers fetch fixed files again.
+const version = createHash('sha1').update(sourceBytes).update(readFileSync(new URL(import.meta.url))).digest('hex').slice(0, 10);
 const { data, info } = await sharp(sourceBytes).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 const W = info.width;
 const H = info.height;
@@ -90,7 +91,20 @@ const box = (list) => ({
     x1: Math.max(...list.map((s) => s.x1)), y1: Math.max(...list.map((s) => s.y1)),
 });
 
-// Copies the pixels of the given shapes inside a box (plus padding) to a new canvas.
+// A plain rectangular crop of the cleaned master (plus padding): every pixel in the
+// box is kept, so nothing in the artwork can be lost (the i-dot was, once).
+function crop(b, pad = 2) {
+    const x = Math.max(0, b.x0 - pad), y = Math.max(0, b.y0 - pad);
+    const w = Math.min(W - 1, b.x1 + pad) - x + 1, h = Math.min(H - 1, b.y1 + pad) - y + 1;
+    const out = Buffer.alloc(w * h * 4);
+    for (let row = 0; row < h; row++) {
+        data.copy(out, row * w * 4, ((y + row) * W + x) * 4, ((y + row) * W + x + w) * 4);
+    }
+    return { buffer: out, width: w, height: h, box: { x, y, width: w, height: h } };
+}
+
+// The mark only: the pixels of the given shapes, cut along their own outline, on a
+// square canvas. This is the one approved exception to "crop only" (Design Brief §2.3).
 function cut(list, pad = 2, square = false) {
     const b = box(list);
     const ids = new Set(list.map((s) => s.id));
@@ -111,14 +125,24 @@ function cut(list, pad = 2, square = false) {
             data.copy(out, t, p * 4, p * 4 + 4);
         }
     }
-    return { buffer: out, width: w, height: h };
+    return { buffer: out, width: w, height: h, box: { x: b.x0 - ox, y: b.y0 - oy, width: w, height: h }, ids };
+}
+
+// logo-compact: everything above the tagline row (the letters AND the i-dot).
+const aboveTagline = shapes.filter((s) => !tagline.includes(s));
+const compactBox = box(aboveTagline);
+if (tagline.some((s) => s.y0 <= compactBox.y1 + 2)) {
+    throw new Error('The tagline overlaps the compact crop; check the master logo.');
 }
 
 const variants = {
-    'logo-full': cut(shapes),
-    'logo-compact': cut(wordmark),
+    'logo-full': crop(box(shapes)),
+    'logo-compact': crop(compactBox),
     'logo-mark': cut([mark], Math.round((mark.x1 - mark.x0) * 0.06), true),
 };
+
+// Small shapes inside the wordmark row, such as the dot of the "i": checked below.
+const details = aboveTagline.filter((s) => !wordmark.includes(s));
 
 // Display sizes (1x); 2x files have double the pixels.
 const sizes = {
@@ -151,7 +175,7 @@ const icon = (size, background = null) => {
         const inner = Math.round(size * 0.82);
         return sharp(markPng).resize(inner, inner, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer()
             .then((b) => sharp({ create: { width: size, height: size, channels: 4, background } })
-                .composite([{ input: b, gravity: 'centre' }]).png({ compressionLevel: 9 }).toBuffer());
+                .composite([{ input: b, left: Math.floor((size - inner) / 2), top: Math.floor((size - inner) / 2) }]).png({ compressionLevel: 9 }).toBuffer());
     }
     return img.png({ compressionLevel: 9 }).toBuffer();
 };
@@ -189,7 +213,7 @@ async function boxed(png, height, padding, radius) {
     const { width } = await sharp(logo).metadata();
     const w = width + padding * 2 + (width % 2), h = height + padding * 2;
     const panel = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="${w}" height="${h}" rx="${radius}" fill="#fff"/></svg>`);
-    return { buffer: await sharp(panel).composite([{ input: logo, left: padding, top: padding }]).png({ compressionLevel: 9 }).toBuffer(), width: w, height: h };
+    return { buffer: await sharp(panel).composite([{ input: logo, left: padding, top: padding }]).png({ compressionLevel: 9 }).toBuffer(), width: w, height: h, placement: { left: padding, top: padding, width, height } };
 }
 const compactBoxed = await boxed(variants['logo-compact'].png, 88, 16, 16);
 writeFileSync(`${OUT}/logo-compact-boxed@2x.png`, compactBoxed.buffer);
@@ -202,8 +226,10 @@ brand.variants['logo-email'] = { width: emailMeta.width / 2, height: emailMeta.h
 
 // Social preview: full logo centred on white.
 const og = await sharp(variants['logo-full'].png).resize({ width: 860 }).png().toBuffer();
+const ogHeight = (await sharp(og).metadata()).height;
+const ogPlacement = { left: Math.floor((1200 - 860) / 2), top: Math.floor((630 - ogHeight) / 2), width: 860, height: ogHeight };
 await sharp({ create: { width: 1200, height: 630, channels: 4, background: '#ffffff' } })
-    .composite([{ input: og, gravity: 'centre' }]).png({ compressionLevel: 9 }).toFile(`${OUT}/og-image.png`);
+    .composite([{ input: og, left: ogPlacement.left, top: ogPlacement.top }]).png({ compressionLevel: 9 }).toFile(`${OUT}/og-image.png`);
 brand.variants['og-image'] = { width: 1200, height: 630 };
 
 // Previews for the owner: the cleaned logo large on white and on dark green,
@@ -228,6 +254,120 @@ for (const [background, file] of [[DARK_GREEN, 'on-green'], ['#000000', 'on-blac
         .composite([{ input: before, left: 0, top: 0 }, { input: after, left: 0, top: region.height + 20 }])
         .png().toFile(`${SCREENS}/logo-nutra-before-after-${file}.png`);
 }
+
+// ---------------------------------------------------------------------------
+// Checks — the build fails if any generated file loses part of the artwork.
+//
+// 1. Every output must match the cleaned master within its crop area, allowing
+//    only for resizing: the reference is cut straight from logo-clean.png (not
+//    from the variant buffers), resized to the placed size, and compared block by
+//    block after compositing both over the same background.
+// 2. Every small detail of the wordmark row (the dot of the "i") must still show
+//    its own colour where it belongs in every output that contains the wordmark.
+// ---------------------------------------------------------------------------
+const cleanPng = await sharp(`${OUT}/logo-clean.png`).png().toBuffer();
+const failures = [];
+
+async function reference(variant, placement) {
+    const { x, y, width, height } = variant.box;
+    let img;
+    if (variant === variants['logo-mark']) {
+        // The mark only: the master masked to the mark's own outline (the approved cut).
+        img = raw(variant.buffer, variant.width, variant.height);
+    } else {
+        img = sharp(cleanPng).extract({ left: x, top: y, width, height });
+    }
+    return img.resize(placement.width, placement.height, { fit: 'fill', kernel: 'lanczos3' }).ensureAlpha().raw().toBuffer();
+}
+
+const over = (c, a, bg) => c * a / 255 + bg * (1 - a / 255);
+
+async function check(file, variant, placement, { background = 128, wordmark = true } = {}) {
+    const out = await sharp(`${OUT}/${file}`).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const ref = await reference(variant, placement);
+    const block = Math.max(4, Math.round(Math.min(placement.width, placement.height) / 12));
+    let total = 0, count = 0, worst = 0;
+
+    for (let by = 0; by < placement.height; by += block) {
+        for (let bx = 0; bx < placement.width; bx += block) {
+            let sum = 0, n = 0;
+            for (let y = by; y < Math.min(by + block, placement.height); y++) {
+                for (let x = bx; x < Math.min(bx + block, placement.width); x++) {
+                    const o = ((placement.top + y) * out.info.width + placement.left + x) * 4;
+                    const r = (y * placement.width + x) * 4;
+                    for (let c = 0; c < 3; c++) {
+                        sum += Math.abs(over(out.data[o + c], out.data[o + 3], background) - over(ref[r + c], ref[r + 3], background));
+                    }
+                    n += 3;
+                }
+            }
+            total += sum; count += n;
+            worst = Math.max(worst, sum / n);
+        }
+    }
+
+    if (total / count > 4 || worst > 30) {
+        failures.push(`${file}: does not match the cleaned master (mean difference ${(total / count).toFixed(1)}, worst block ${worst.toFixed(1)}).`);
+    }
+
+    if (!wordmark) return;
+
+    for (const detail of details) {
+        // The detail's own colour in the master (median of its opaque pixels).
+        const colours = [];
+        for (let y = detail.y0; y <= detail.y1; y++) {
+            for (let x = detail.x0; x <= detail.x1; x++) {
+                const p = (y * W + x) * 4;
+                if (label[y * W + x] === detail.id && data[p + 3] > 200) colours.push([data[p], data[p + 1], data[p + 2]]);
+            }
+        }
+        const median = [0, 1, 2].map((c) => colours.map((v) => v[c]).sort((a, b) => a - b)[colours.length >> 1]);
+        const cx = placement.left + ((detail.x0 + detail.x1) / 2 - variant.box.x) / variant.box.width * placement.width;
+        const cy = placement.top + ((detail.y0 + detail.y1) / 2 - variant.box.y) / variant.box.height * placement.height;
+        const radius = Math.max(0, Math.floor((detail.x1 - detail.x0) / variant.box.width * placement.width / 6));
+        const seen = [0, 0, 0];
+        let n = 0;
+        for (let y = Math.round(cy) - radius; y <= Math.round(cy) + radius; y++) {
+            for (let x = Math.round(cx) - radius; x <= Math.round(cx) + radius; x++) {
+                const o = (y * out.info.width + x) * 4;
+                for (let c = 0; c < 3; c++) seen[c] += over(out.data[o + c], out.data[o + 3], background);
+                n++;
+            }
+        }
+        const got = seen.map((v) => v / n);
+        const off = Math.max(...got.map((v, c) => Math.abs(v - median[c])));
+        if (off > 45) {
+            failures.push(`${file}: the small shape at (${detail.x0},${detail.y0}) in the master (the i-dot) is missing or recoloured — expected rgb(${median.join(',')}), found rgb(${got.map(Math.round).join(',')}).`);
+        }
+    }
+}
+
+for (const name of ['logo-full', 'logo-compact', 'logo-mark']) {
+    const { width, height } = brand.variants[name];
+    for (const [suffix, scale] of [['', 1], ['@2x', 2]]) {
+        for (const ext of ['png', 'webp']) {
+            await check(`${name}${suffix}.${ext}`, variants[name], { left: 0, top: 0, width: width * scale, height: height * scale }, { wordmark: name !== 'logo-mark' });
+        }
+    }
+}
+for (const [file, size] of [['favicon-16.png', 16], ['favicon-32.png', 32], ['icon-192.png', 192], ['icon-512.png', 512]]) {
+    await check(file, variants['logo-mark'], { left: 0, top: 0, width: size, height: size }, { wordmark: false });
+}
+await check('apple-touch-icon.png', variants['logo-mark'], { left: 16, top: 16, width: 148, height: 148 }, { background: 255, wordmark: false });
+await check('logo-compact-boxed@2x.png', variants['logo-compact'], compactBoxed.placement, { background: 255 });
+const emailSize = await sharp(`${OUT}/logo-email.png`).metadata();
+await check('logo-email.png', variants['logo-compact'], { left: 0, top: 0, width: emailSize.width, height: emailSize.height });
+await check('og-image.png', variants['logo-full'], ogPlacement, { background: 255 });
+
+if (details.length === 0) {
+    failures.push('No small shapes (such as the i-dot) were found in the wordmark row; the check cannot run.');
+}
+
+if (failures.length > 0) {
+    console.error('brand:build FAILED — the generated logos do not match the master:\n  ' + failures.join('\n  '));
+    process.exit(1);
+}
+console.log(`Checked every variant against the cleaned master (${details.length} small detail(s), including the i-dot).`);
 
 // config/brand.php for templates (sizes in CSS pixels = the 1x files).
 const php = (value, indent = '    ') => {
