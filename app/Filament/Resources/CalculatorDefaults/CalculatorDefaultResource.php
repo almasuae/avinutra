@@ -20,7 +20,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 /**
- * Calculator defaults and Pakistan tax rates (v5 §E3), each with source, date
+ * Calculator defaults (v5 §E3), each with source, date
  * and approval. Unapproved values are labelled "Indicative default" on the site.
  */
 class CalculatorDefaultResource extends WebsiteResource

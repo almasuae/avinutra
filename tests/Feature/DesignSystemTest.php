@@ -80,10 +80,10 @@ it('marks the current section in the navigation', function (): void {
         ->and($html)->not->toMatch('#href="'.preg_quote(route('about'), '#').'"\s+aria-current="page"#');
 });
 
-it('shows the status statement and the site e-mails in the footer', function (): void {
+it('shows the site e-mails but no company-status statement in the footer', function (): void {
     $this->get('/')
         ->assertOk()
-        ->assertSee(app(SiteSettings::class)->statusStatement())
+        ->assertDontSee(app(SiteSettings::class)->statusStatement())
         ->assertSee('info@avinutra.com')
         ->assertDontSee('Pte. Ltd.');
 });

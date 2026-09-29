@@ -46,8 +46,9 @@ class SiteSettings extends Settings
 
     /**
      * The company-status statement (Content Blueprint v3, "Status statement
-     * variants"), shown in the footer, on About › Company, on Contact and on
-     * quotations. Never claims incorporation before $sg_incorporated is true.
+     * variants"), for quotations and other CRM use only: since 29 Sep 2026 it is
+     * never shown on the public website. Never claims incorporation before
+     * $sg_incorporated is true.
      */
     public function statusStatement(): string
     {

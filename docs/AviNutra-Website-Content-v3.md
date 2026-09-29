@@ -7,6 +7,12 @@
 - **The v5 build prompt** decides *how it is built*: Laravel, Filament, the reusable Lite CRM package, MariaDB, and the Hetzner/HestiaCP deployment.
 - Where the two conflict on a technical point, v5 wins.
 
+> **Owner's decisions of 29 September 2026 (they override the sections below):**
+> 1. **No country references on the public website.** The site does not mention Singapore, Pakistan (or Pakistani), PKR, Karachi, Lahore, Punjab, Sindh, SBP, FBR or "Pte. Ltd." — in pages, SEO fields, glossary, articles, legal pages or e-mails. The company-status statement (§3), the office and partner details on Contact (§7.10), the "Legal status" on About › Company (§7.2) and the status line in the footer are **not shown**. Company › "Who contracts with you" says only that every quotation states the contracting legal entity. The Pakistan Market Overview (§7.7) is dropped. Legal pages refer to "applicable data-protection laws" and name the data controller as "AviNutra (info@avinutra.com)". The company-status settings still drive **quotations in the CRM**, and the CRM keeps its territories, currencies and partner data.
+> 2. **Tool 2 is universal:** "Landed Cost Calculator" at `/tools/landed-cost`, any currencies, any duty and tax lines, blank defaults with an "Example" button (§7.8 Tool 2 is replaced). Tool 1 takes any currency plus an exchange-rate input instead of a USD/PKR switch.
+> 3. **Tool 1 MHA-FA presets (product basis):** 0.65 (about 75% equimolar), 0.70 (about 80%, the EFSA-cited meta-analysis) and 0.88 (100% equimolar, the manufacturers' position), shown as "Indicative default" until the nutrition panel approves them.
+> 4. **Tools index:** live tools plus at most two "Coming soon" cards (Feed Cost Impact, FCR Economics).
+
 ---
 
 # 0. How to use this blueprint

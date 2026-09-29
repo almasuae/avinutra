@@ -32,6 +32,7 @@ npm run build        # production assets
 php artisan test     # Pest (host: tests/Feature, tests/Unit), SQLite
 composer test:package   # Pest (package, via Testbench), SQLite = vendor/bin/pest --configuration packages/lite-crm/phpunit.xml
 composer test:mariadb   # host + package suites on MariaDB 11.4 (scripts/test-mariadb.php; port 3307, portable server in ~/.local/mariadb114)
+composer test:browser   # headless Edge/Chrome: no public page wider than 390 px (scripts/check-overflow.mjs; local DB)
 vendor/bin/pint      # code style (Laravel preset, PSR-12 compatible, + declare_strict_types)
 vendor/bin/phpstan analyse --memory-limit=1G   # Larastan level 5 (phpstan.neon)
 php artisan lite-crm:install | lite-crm:preset feed-additives | lite-crm:create-admin {email} | lite-crm:doctor
@@ -77,7 +78,7 @@ php artisan lite-crm:install | lite-crm:preset feed-additives | lite-crm:create-
 - **Never show placeholders publicly.** Omit the element, or use neutral truthful wording. Then add the gap to `CONTENT-GAPS.md` **and** seed it as a CRM task.
 - No manufacturer names, trademarks or logos publicly unless permission is recorded in the CRM. No importer names or transaction-level customs data publicly.
 - No therapeutic claims ("prevents", "cures", "treats").
-- Company-status wording comes from Settings, never hard-coded. "Pte. Ltd." never appears until `sg_incorporated = true`.
+- **No country references on the public website** (owner's decision, 29 Sep 2026): never Singapore, Pakistan/Pakistani, PKR, Karachi, Lahore, Punjab, Sindh, SBP, FBR or "Pte. Ltd." in public views, content, SEO fields, glossary, articles, legal pages or e-mails; no company-status statement, offices or partner on public pages. `tests/Feature/NoCountryReferencesTest.php` enforces it (only the ISO country picker's option list is exempt). The company-status Site settings (`sg_incorporated`, `legal_name`, `uen`, partner fields, `SiteSettings::statusStatement()`) are for CRM quotations only. The CRM itself is unchanged (territories, PKR, partner data).
 - Every published market figure shows its source and date.
 - British English.
 
@@ -90,8 +91,9 @@ php artisan lite-crm:install | lite-crm:preset feed-additives | lite-crm:create-
 - Logic lives in PHP service classes under `app/Services/Calculators`; the UI is a Livewire component.
 - Defaults and tax rates come from the database (CRM › Website › Calculator defaults), each with its source, date and approved-by.
 - Reference tests must always pass:
-  - Methionine value: 2.36/1.00 = 2.360; 1.76/0.65 = 2.708; 1.76/0.88 = 2.000; 3.79/0.909 = 4.169.
-  - Landed cost: CFR 2.80 with the defaults → gross ≈ 3.454, net ≈ 2.882 USD/kg.
+  - Methionine value: 2.36/1.00 = 2.360; 1.76/0.65 = 2.708; 1.76/0.70 = 2.514; 1.76/0.88 = 2.000; 3.79/0.909 = 4.169. MHA-FA presets are on a product basis: 0.65 ≈ 75%, 0.70 ≈ 80%, 0.88 = 100% equimolar.
+  - Landed cost (universal inputs): CFR 2.80, insurance 0.35%, CIF valuation, no duties, sales tax 18% on CIF+duties (recoverable), other tax 2% on CIF+duties+sales tax (recoverable), charges 400,000 local units per container at 277.20 per USD, 20,000 kg → gross ≈ 3.454, net ≈ 2.882 USD/kg.
+- Services: `App\Services\Calculators\MethionineValueCalculator`, `LandedCostCalculator`; Livewire: `App\Livewire\MethionineValue`, `LandedCost` (inputs in the URL; nothing stored). Tool 2 has no country and blank defaults; its "Example" values are illustrative only.
 
 ## Working method
 - Build in the phases listed in v5 §G1. After each phase:

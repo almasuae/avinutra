@@ -2,8 +2,8 @@
 {{--
     Site footer (Design Brief §6 item 7; owner's choice B): dark green (green-800) with the
     full-colour logo on a white rounded panel. Four columns: About · Services · Resources ·
-    Contact. Status statement (from Site settings, never hard-coded) and legal links in the
-    bottom bar. Links appear only when their page exists ($preview shows all).
+    Contact. The © line and legal links in the bottom bar (no company-status or country
+    details on the public site). Links appear only when their page exists ($preview shows all).
 --}}
 @php
     $site = app(\App\Settings\SiteSettings::class);
@@ -72,10 +72,7 @@
         </div>
 
         <div class="mt-12 flex flex-col gap-4 border-t border-white/15 pt-6 text-sm lg:flex-row lg:items-start lg:justify-between">
-            <div class="max-w-3xl space-y-1 {{ $text }}">
-                <p>{{ $site->statusStatement() }}</p>
-                <p>&copy; {{ now()->year }} {{ $site->brand }}</p>
-            </div>
+            <p class="{{ $text }}">&copy; {{ now()->year }} {{ $site->brand }}</p>
             @if ($legal->isNotEmpty())
                 <nav aria-label="Legal">
                     <ul class="flex flex-wrap gap-x-6 gap-y-2">

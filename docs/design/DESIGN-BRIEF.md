@@ -2,6 +2,8 @@
 
 **Status:** approved by the owner. This file **supersedes v5 §E1** (brand and design) and the "Visual identity" and imagery parts of Content Blueprint v3 §4. Where they conflict, follow this file.
 
+**Owner's decision (29 Sep 2026):** the public website names no country and shows no company-status details (no Singapore, Pakistan, PKR, Karachi, Lahore, Punjab, Sindh, SBP, FBR or "Pte. Ltd."). Wording in this brief is adjusted accordingly: the feature strip reads "International Reach — Connecting global producers with feed manufacturers worldwide", the pillar reads "Global Sourcing — Established international manufacturers, with documentation you can verify", and the footer carries no status statement (© line and legal links only). See Content Blueprint v3 (decisions of 29 Sep 2026).
+
 **Source files** (in `docs/design/`):
 - `logo-source.png` — **master logo**, 2048×682 px, transparent background (owner's decision, 29 Sep 2026; see §2.1).
 - `homepage-mockup.png` — approved homepage mockup, 1536×1024 px.

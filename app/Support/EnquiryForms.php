@@ -61,7 +61,7 @@ class EnquiryForms
             'company' => ['required' => true],
             'email' => ['required' => true],
             'phone' => ['label' => 'Phone or WhatsApp'],
-            'country' => ['required' => true],
+            'country' => ['type' => 'country', 'required' => true],
         ];
 
         $definition = match ($key) {
@@ -73,7 +73,8 @@ class EnquiryForms
                     'role' => ['label' => 'Your role'],
                     'email' => ['required' => true],
                     'phone' => ['label' => 'WhatsApp number'],
-                    'country' => ['label' => 'Country and city', 'required' => true],
+                    'country' => ['type' => 'country', 'required' => true],
+                    'city' => [],
                     'topic' => ['label' => 'Topic', 'type' => 'select', 'options' => self::TOPICS],
                     'species' => ['label' => 'Species', 'type' => 'select', 'options' => self::SPECIES],
                     'feed_type' => ['label' => 'Feed type (e.g. broiler starter)'],
@@ -122,7 +123,7 @@ class EnquiryForms
                 'type' => 'supplier_application',
                 'fields' => [
                     'company' => ['label' => 'Company', 'required' => true],
-                    'country' => ['required' => true],
+                    'country' => ['type' => 'country', 'required' => true],
                     'website' => ['label' => 'Website'],
                     'name' => ['label' => 'Contact person', 'required' => true],
                     'email' => ['required' => true],
@@ -130,7 +131,7 @@ class EnquiryForms
                     'product_categories' => ['label' => 'Product categories', 'type' => 'textarea', 'required' => true],
                     'manufacturing_sites' => ['label' => 'Manufacturing sites'],
                     'annual_capacity' => ['label' => 'Annual capacity'],
-                    'pakistan_business' => ['label' => 'Existing business in Pakistan and current distributor', 'type' => 'textarea'],
+                    'existing_business' => ['label' => 'Existing business in your target markets, and current distributors', 'type' => 'textarea'],
                     'export_markets' => ['label' => 'Export markets'],
                     'certifications' => ['label' => 'Certifications (e.g. FAMI-QS, GMP+, ISO, halal)'],
                     'desired_territory' => ['label' => 'Desired territory'],
@@ -152,7 +153,7 @@ class EnquiryForms
                     'company' => [],
                     'phone' => ['label' => 'Phone or WhatsApp', 'required' => true],
                     'email' => ['required' => true],
-                    'country' => ['required' => true],
+                    'country' => ['type' => 'country', 'required' => true],
                     'message' => ['label' => 'Best time to call, and the topic', 'required' => true],
                 ],
                 'uploads' => 0,
@@ -163,7 +164,7 @@ class EnquiryForms
                 'fields' => [
                     'name' => ['required' => true],
                     'company' => [],
-                    'country' => ['required' => true],
+                    'country' => ['type' => 'country', 'required' => true],
                     'email' => ['required' => true],
                     'message' => ['required' => true],
                 ],

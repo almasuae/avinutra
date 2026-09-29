@@ -94,6 +94,10 @@
         "test:mariadb": [
             "Composer\\Config::disableProcessTimeout",
             "@php scripts/test-mariadb.php"
+        ],
+        "test:browser": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php scripts/test-browser.php"
         ]
     },
     "extra": {

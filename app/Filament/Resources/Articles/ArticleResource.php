@@ -47,7 +47,7 @@ class ArticleResource extends WebsiteResource
     {
         return [
             'tools.methionine-value' => 'Methionine Value Calculator',
-            'tools.landed-cost-pakistan' => 'Landed Cost Calculator, Pakistan',
+            'tools.landed-cost' => 'Landed Cost Calculator',
             'tools' => 'Tools index',
             'ingredients.methionine' => 'Methionine guide',
             'ingredients' => 'Ingredients',

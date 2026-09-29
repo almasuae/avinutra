@@ -12,6 +12,7 @@ use LiteCrm\Enquiries\EnquiryIntake;
 use LiteCrm\Enquiries\SpamGuard;
 use LiteCrm\Enquiries\Submission;
 use LiteCrm\LiteCrm;
+use LiteCrm\Support\Countries;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -27,7 +28,8 @@ use Livewire\WithFileUploads;
  *      'topic' => ['label' => 'Topic', 'type' => 'select', 'options' => ['a' => 'A']]]
  *
  * Extra answers are stored in the enquiry's payload. Types: text, email, tel,
- * textarea, select. Spam protection: a honeypot, a minimum fill time and a
+ * textarea, select, and country (an ISO 3166-1 list, stored as the two-letter
+ * code; its options are built when rendering, not kept in the component state). Spam protection: a honeypot, a minimum fill time and a
  * per-IP limit; spam is stored for review but the visitor sees the usual thanks.
  */
 class EnquiryForm extends Component
@@ -123,7 +125,7 @@ class EnquiryForm extends Component
 
             $definitions[$key] = [
                 'label' => (string) ($definition['label'] ?? __("lite-crm::enquiries.fields.{$key}")),
-                'type' => in_array($type, ['text', 'email', 'tel', 'textarea', 'select'], true) ? $type : 'text',
+                'type' => in_array($type, ['text', 'email', 'tel', 'textarea', 'select', 'country'], true) ? $type : 'text',
                 'required' => (bool) ($definition['required'] ?? false),
                 'options' => array_map('strval', (array) ($definition['options'] ?? [])),
             ];
@@ -147,6 +149,7 @@ class EnquiryForm extends Component
                 'tel' => ['string', 'max:50'],
                 'textarea' => ['string', 'max:5000'],
                 'select' => ['in:'.implode(',', array_keys($definition['options']))],
+                'country' => ['in:'.implode(',', Countries::codes())],
                 default => ['string', 'max:255'],
             }];
 

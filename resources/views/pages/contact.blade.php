@@ -1,9 +1,8 @@
-{{-- Contact (v3 §7.10): offices from Site settings, contracting entity, enquiry-type picker, WhatsApp once set. --}}
+{{-- Contact (v3 §7.10, as amended 29 Sep 2026): enquiry-type picker, mailboxes, WhatsApp once set. No company-status or country details. --}}
 @php
     use App\Support\SiteLinks;
 
     $site = app(\App\Settings\SiteSettings::class);
-    $entity = \App\Providers\AppServiceProvider::contractingEntity();
     $whatsappSales = SiteLinks::whatsapp($site->whatsapp_sales);
     $whatsappNutrition = SiteLinks::whatsapp($site->whatsapp_nutrition);
     $mailboxes = array_filter([
@@ -51,36 +50,6 @@
             </div>
 
             <aside class="space-y-6 self-start">
-                <div class="rounded-(--radius-card) bg-surface p-7">
-                    <h2 class="text-xl">Where we are</h2>
-                    <dl class="mt-4 space-y-4 text-base">
-                        <div>
-                            <dt class="font-semibold text-green-900">Singapore</dt>
-                            <dd>
-                                @if ($site->sg_incorporated && filled($site->registered_office))
-                                    {{ $site->registered_office }}
-                                @else
-                                    Singapore — office being established
-                                @endif
-                            </dd>
-                        </div>
-                        @if (filled($site->pk_partner_name))
-                            <div>
-                                <dt class="font-semibold text-green-900">Pakistan</dt>
-                                <dd>{{ $site->pk_partner_name }}@if (filled($site->pk_partner_city)), {{ $site->pk_partner_city }}@endif@if (filled($site->pk_partner_role)) — {{ $site->pk_partner_role }}@endif</dd>
-                            </div>
-                        @endif
-                    </dl>
-                    <p class="mt-5 text-sm text-muted">{{ $site->statusStatement() }}</p>
-                    <p class="mt-3 text-sm text-muted">
-                        @if ($entity)
-                            Contracting entity: <strong class="text-ink">{{ $entity }}</strong>. Every quotation states the contracting entity.
-                        @else
-                            Every quotation states which legal entity is contracting.
-                        @endif
-                    </p>
-                </div>
-
                 <div class="rounded-(--radius-card) bg-surface p-7">
                     <h2 class="text-xl">E-mail</h2>
                     <dl class="mt-4 space-y-3 text-base">

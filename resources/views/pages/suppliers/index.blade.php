@@ -1,4 +1,4 @@
-{{-- For Suppliers — Partner With Us (v3 §7.7). The Pakistan Market Overview is added once sourced figures exist. --}}
+{{-- For Suppliers — Partner With Us (v3 §7.7; no country references on the public site). --}}
 @php
     $offer = [
         ['heroicon-o-chart-bar', 'Market intelligence'],
@@ -11,16 +11,15 @@
         ['heroicon-o-lifebuoy', 'Customer support'],
         ['heroicon-o-arrow-path', 'Structured market feedback'],
     ];
-    $market = \App\Support\SiteLinks::url('suppliers.pakistan-market');
 @endphp
 <x-layouts.site
     title="For Suppliers — Partner With Us — AviNutra"
-    description="AviNutra works with feed-ingredient manufacturers seeking technical market development, qualified distribution and customer support in Pakistan and selected Asian and MENA markets."
+    description="AviNutra works with feed-ingredient manufacturers seeking technical market development, qualified distribution and customer support in selected international markets."
 >
     <x-page.hero
         eyebrow="For suppliers"
         title="Partner With Us"
-        lead="We work with feed-ingredient manufacturers seeking technical market development, qualified distribution and customer support in Pakistan and selected Asian and MENA markets."
+        lead="We work with feed-ingredient manufacturers seeking technical market development, qualified distribution and customer support in selected international markets."
         :breadcrumbs="['For Suppliers' => null]"
     >
         <div class="mt-8 flex flex-wrap gap-4">
@@ -54,25 +53,17 @@
                 <p class="mt-3 text-base text-muted">From product review and due diligence to launch and market reporting.</p>
                 <span class="mt-5 inline-block font-semibold text-green-700 group-hover:underline">See the steps →</span>
             </a>
-            @if ($market)
-                <a href="{{ $market }}" class="card group transition hover:border-green-700">
-                    <p class="eyebrow">Market</p>
-                    <h2 class="mt-2 text-2xl">Pakistan Market Overview</h2>
-                    <p class="mt-3 text-base text-muted">Market size and structure, with every figure sourced and dated.</p>
-                </a>
-            @else
-                <div class="card">
-                    <p class="eyebrow">Market information</p>
-                    <h2 class="mt-2 text-2xl">Detailed market analysis</h2>
-                    <p class="mt-3 text-base text-muted">Detailed market analysis is available to qualified manufacturers under NDA.</p>
-                    <a href="{{ route('suppliers.apply') }}" class="mt-5 inline-block font-semibold text-green-700 hover:underline">Apply →</a>
-                </div>
-            @endif
+            <div class="card">
+                <p class="eyebrow">Market information</p>
+                <h2 class="mt-2 text-2xl">Detailed market analysis</h2>
+                <p class="mt-3 text-base text-muted">Detailed market analysis is available to qualified manufacturers under NDA.</p>
+                <a href="{{ route('suppliers.apply') }}" class="mt-5 inline-block font-semibold text-green-700 hover:underline">Apply →</a>
+            </div>
         </div>
     </section>
 
     <x-page.cta-band
-        title="Build your brand in Pakistan with a technical partner"
+        title="Build your brand with a technical partner"
         text="Tell us about your products, capacity and the markets you want to develop."
         label="Become a Supply Partner"
         route="suppliers.apply"

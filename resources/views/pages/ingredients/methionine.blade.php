@@ -9,8 +9,9 @@
     $article = \App\Models\Article::query()->published()->where('slug', 'how-to-compare-methionine-sources')->first();
     $examples = [
         ['DL-Methionine 99%', '2.36', '1.00', '2.360'],
-        ['MHA-FA 88% (liquid), value factor 0.65', '1.76', '0.65', '2.708'],
-        ['MHA-FA 88% (liquid), value factor 0.88', '1.76', '0.88', '2.000'],
+        ['MHA-FA 88% (liquid), about 75% equimolar', '1.76', '0.65', '2.708'],
+        ['MHA-FA 88% (liquid), about 80% equimolar', '1.76', '0.70', '2.514'],
+        ['MHA-FA 88% (liquid), 100% equimolar', '1.76', '0.88', '2.000'],
         ['L-Methionine 90%', '3.79', '0.909', '4.169'],
     ];
     $documents = [
@@ -95,6 +96,20 @@
                         <li><strong>Equimolar basis</strong> compares equal molecular amounts of the active substances. <strong>Product basis</strong> compares equal weights of the products as sold. Because MHA-FA contains about 88% of the active substance, a value on a product basis is lower than the same value on an equimolar basis.</li>
                         <li>The assumption you choose changes the result. In any comparison, state the value factor you used and where it comes from, and confirm it with the manufacturer's documentation and your nutritionist.</li>
                     </ul>
+                    <p>We express the value factor on a <strong>product basis</strong> — the kg of DL-Methionine 99% replaced by 1 kg of MHA-FA 88% as sold — and show the equimolar efficacy each factor assumes:</p>
+                    <div class="table-wrap">
+                        <table>
+                            <caption>MHA-FA 88%: value factors and the equimolar efficacy they assume (indicative, pending nutrition-panel approval)</caption>
+                            <thead><tr><th scope="col">Value factor (product basis)</th><th scope="col">Equimolar efficacy assumed</th><th scope="col">Position</th></tr></thead>
+                            <tbody>
+                                <tr><td>0.65</td><td>about 75%</td><td>A more conservative assumption</td></tr>
+                                <tr><td>0.70</td><td>about 80%</td><td>The meta-analysis cited by EFSA (79–81% equimolar)<sup><a href="#ref-2">2</a></sup></td></tr>
+                                <tr><td>0.88</td><td>100%</td><td>The MHA manufacturers' position</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="formula">Value factor ≈ active content (0.88) × equimolar efficacy × (149.2 ÷ 150.2)</p>
+                    <p>The last term converts from the hydroxy analogue (molar mass about 150.2 g/mol) to methionine (about 149.2 g/mol). For example, 0.88 × 0.80 × 0.993 ≈ 0.70, and 0.88 × 0.75 × 0.993 ≈ 0.66, rounded to 0.65. The manufacturers' figure of 0.88 counts 1 kg of the active substance as equal to 1 kg of DL-Methionine; with the molar-mass correction, 100% equimolar would be about 0.87.</p>
                 </section>
 
                 <section id="prices" aria-labelledby="h-prices">
@@ -115,7 +130,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <p>The same MHA-FA price gives a cost of effective methionine of 2.708 or 2.000 depending on the value factor assumed — a difference larger than many price negotiations. That is why the assumption must be explicit.</p>
+                    <p>The same MHA-FA price gives a cost of effective methionine between 2.000 and 2.708 depending on the value factor assumed — a difference larger than many price negotiations. That is why the assumption must be explicit.</p>
                     @if ($calculator)
                         <p><a href="{{ $calculator }}" class="btn-primary not-prose">Try the Methionine Value Calculator</a></p>
                     @endif

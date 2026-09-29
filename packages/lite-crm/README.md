@@ -266,7 +266,10 @@ Enquiries arrive from three places and land in the CRM inbox (CRM › Enquiries)
    ```
 
    Standard fields (`name`, `company`, `email`, `phone`, `country`, `city`, `message`)
-   have their own columns; extra questions are stored in the enquiry's payload. A
+   have their own columns; extra questions are stored in the enquiry's payload. Field
+   types: `text`, `email`, `tel`, `textarea`, `select` (with `options`) and `country`
+   — an ISO 3166-1 list from PHP's intl data (`LiteCrm\Support\Countries`), stored as
+   the two-letter code and validated against the list. A
    consent checkbox is always shown (linked to `privacy-url` when given). The
    component uses Tailwind classes, so add
    `@source '.../packages/lite-crm/resources/views/**/*.blade.php'` to the host's CSS,

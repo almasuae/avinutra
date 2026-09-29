@@ -57,6 +57,16 @@
         @apply font-heading font-black text-green-900;
     }
 
+    /* Fieldsets default to min-width: min-content, which can widen the page on phones. */
+    fieldset {
+        min-width: 0;
+    }
+
+    /* A floated legend (styled as a heading inside the card) is followed by content on its own line. */
+    legend.float-left + * {
+        clear: both;
+    }
+
     :focus-visible {
         @apply outline-2 outline-offset-2 outline-green-700;
     }
@@ -93,8 +103,9 @@
 
 /* Long-form text: articles, the methionine guide and legal pages. */
 @layer components {
+    /* min-w-0: inside a grid, wide tables scroll in their own box instead of widening the page. */
     .prose-article {
-        @apply text-lg leading-relaxed text-ink;
+        @apply min-w-0 text-lg leading-relaxed text-ink;
     }
 
     .prose-article > section + section,
@@ -135,7 +146,7 @@
     }
 
     .prose-article .formula {
-        @apply rounded-xl bg-surface px-5 py-4 font-mono text-base text-green-900;
+        @apply rounded-xl bg-surface px-5 py-4 font-mono text-base break-words whitespace-normal text-green-900;
     }
 
     .prose-article .table-wrap {
@@ -181,5 +192,24 @@
 
     .prose-article sup a {
         @apply no-underline;
+    }
+}
+
+/* Print layout (v3 §7.8): the tools and other pages print their content only. */
+@media print {
+    [data-site-header],
+    footer,
+    .no-print,
+    .btn-cta {
+        display: none !important;
+    }
+
+    body {
+        font-size: 11pt;
+    }
+
+    .card {
+        box-shadow: none;
+        break-inside: avoid;
     }
 }

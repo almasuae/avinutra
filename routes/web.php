@@ -38,6 +38,8 @@ Route::view('/suppliers/how-we-work', 'pages.suppliers.how-we-work')->name('supp
 Route::view('/suppliers/apply', 'pages.suppliers.apply')->name('suppliers.apply');
 
 Route::view('/tools', 'pages.tools.index')->name('tools');
+Route::view('/tools/methionine-value', 'pages.tools.methionine-value')->name('tools.methionine-value');
+Route::view('/tools/landed-cost', 'pages.tools.landed-cost')->name('tools.landed-cost');
 
 Route::get('/knowledge', [KnowledgeController::class, 'index'])->name('knowledge');
 Route::get('/knowledge/glossary', [KnowledgeController::class, 'glossary'])->name('knowledge.glossary');

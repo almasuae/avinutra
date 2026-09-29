@@ -27,7 +27,7 @@ dataset('public pages', [
     '/ingredients', '/ingredients/amino-acids', '/ingredients/enzymes', '/ingredients/vitamins-minerals',
     '/ingredients/mycotoxin-management', '/ingredients/gut-health', '/ingredients/specialty-additives',
     '/ingredients/amino-acids/methionine', '/quality', '/suppliers', '/suppliers/how-we-work', '/suppliers/apply',
-    '/tools', '/knowledge', '/knowledge/glossary', '/knowledge/how-to-compare-methionine-sources',
+    '/tools', '/tools/methionine-value', '/tools/landed-cost', '/knowledge', '/knowledge/glossary', '/knowledge/how-to-compare-methionine-sources',
     '/contact', '/ask-a-nutritionist',
     '/legal/privacy', '/legal/terms', '/legal/cookies', '/legal/technical-disclaimer',
 ]);
@@ -37,7 +37,7 @@ it('serves every public page with one H1 and no placeholders, claims or trademar
     $text = strip_tags(preg_replace('#<(script|style)\b.*?</\1>#s', '', $html) ?? '');
 
     expect(substr_count($html, '<h1'))->toBe(1)
-        ->and($text)->not->toMatch('/lorem ipsum|\bTODO\b|\bTBD\b|placeholder|coming soon/i')
+        ->and($text)->not->toMatch('/lorem ipsum|\bTODO\b|\bTBD\b|placeholder/i')
         ->and($text)->not->toMatch('/\b(prevents?|cures?|treats?)\b/i')
         ->and($text)->not->toMatch('/Pte\.? Ltd/i')
         ->and($text)->not->toMatch('/MetAMINO|Rhodimet|Sandimet|ADRY|Novus|Evonik|Adisseo/i')
@@ -66,9 +66,24 @@ it('hides Latest Insights while no article is published', function (): void {
     $this->get('/')->assertOk()->assertDontSee('Latest Insights');
 });
 
-it('does not link to tools that are not built yet', function (): void {
-    $this->get('/')->assertDontSee('Try the Methionine Value Calculator');
-    $this->get('/tools')->assertSee('In development')->assertDontSee('Open the tool');
+it('lists the live tools and at most two coming-soon tools', function (): void {
+    $html = (string) $this->get('/tools')->assertOk()->getContent();
+
+    expect(substr_count($html, 'Coming soon'))->toBe(2)
+        ->and($html)->toContain(route('tools.methionine-value'))
+        ->and($html)->toContain(route('tools.landed-cost'))
+        ->and($html)->toContain('Feed Cost Impact Calculator')
+        ->and($html)->toContain('FCR Economics Calculator')
+        ->and($html)->not->toContain('Amino Acid Value')
+        ->and($html)->not->toContain('Methionine Requirement');
+
+    $this->get('/')->assertSee('Try the Methionine Value Calculator');
+});
+
+it('says Coming soon only on the Tools page', function (): void {
+    foreach (['/', '/ingredients', '/knowledge'] as $path) {
+        $this->get($path)->assertDontSee('Coming soon');
+    }
 });
 
 it('shows only published articles, with a person named only when their profile is public', function (): void {
@@ -118,15 +133,9 @@ it('uses the Page SEO title and description when set', function (): void {
     $this->get('/quality')->assertSee('<title>Feed ingredient quality</title>', false)->assertSee('How we control quality.');
 });
 
-it('states the company status and the contracting entity from Site settings', function (): void {
-    $this->get('/contact')->assertSee('Singapore — office being established')->assertSee('Every quotation states which legal entity is contracting.');
-
-    $site = app(SiteSettings::class);
-    $site->pk_partner_name = 'Partner Traders';
-    $site->pk_partner_city = 'Lahore';
-    $site->save();
-
-    $this->get('/about/company')->assertSee('Partner Traders, Lahore')->assertSee('Quotations and contracts are issued by');
+it('says only that every quotation states the contracting entity', function (): void {
+    $this->get('/about/company')->assertSee('Every quotation states the contracting legal entity')->assertDontSee('Legal status');
+    $this->get('/contact')->assertDontSee('Where we are')->assertSee('info@avinutra.com');
 });
 
 it('shows WhatsApp and Request a Call only once a number is set', function (): void {
@@ -159,6 +168,7 @@ it('turns a website form submission into a CRM enquiry of the right type', funct
     $settings = EnquiryForms::form($form);
     $data = collect($settings['fields'])->keys()->mapWithKeys(fn (string $key): array => [$key => match ($key) {
         'email' => 'buyer@example.com',
+        'country' => 'DE',
         'species' => 'broiler',
         'topic' => 'feed-economics',
         default => 'Test '.$key,

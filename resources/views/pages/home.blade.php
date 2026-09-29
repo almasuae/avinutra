@@ -6,11 +6,11 @@
         ['icon' => 'heroicon-o-beaker', 'title' => 'Feed Nutrition', 'text' => 'Science-based formulation support'],
         ['icon' => 'heroicon-o-presentation-chart-line', 'title' => 'Consulting', 'text' => 'Practical guidance for profitable production'],
         ['icon' => 'heroicon-o-cube', 'title' => 'Ingredient Supply', 'text' => 'Global sourcing with documented quality'],
-        ['icon' => 'heroicon-o-globe-asia-australia', 'title' => 'International Reach', 'text' => 'Connecting global producers with Pakistan and beyond'],
+        ['icon' => 'heroicon-o-globe-asia-australia', 'title' => 'International Reach', 'text' => 'Connecting global producers with feed manufacturers worldwide'],
     ];
     $pillars = [
         ['icon' => 'heroicon-o-document-check', 'title' => 'Documented Quality', 'text' => 'Specifications and certificates you can verify', 'tone' => 'orange'],
-        ['icon' => 'heroicon-o-globe-alt', 'title' => 'Global Sourcing', 'text' => 'Established international manufacturers, focused on Pakistan', 'tone' => 'green'],
+        ['icon' => 'heroicon-o-globe-alt', 'title' => 'Global Sourcing', 'text' => 'Established international manufacturers, with documentation you can verify', 'tone' => 'green'],
         ['icon' => 'heroicon-o-academic-cap', 'title' => 'Technical First', 'text' => 'Recommendations made or reviewed by feed nutritionists', 'tone' => 'orange'],
     ];
     $why = [
@@ -35,7 +35,7 @@
     <section class="overflow-hidden bg-gradient-to-br from-white via-white to-surface">
         <div class="mx-auto grid max-w-[84rem] items-center gap-10 px-4 pt-10 pb-14 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pt-16 lg:pb-20 xl:px-8">
             <div>
-                <p class="eyebrow">Poultry Feed Experts · Nutrition Consultants · Feed Ingredient Suppliers</p>
+                <p class="eyebrow lg:text-[0.8125rem] lg:tracking-[0.03em] lg:whitespace-nowrap">Poultry Feed Experts · Nutrition Consultants · Feed Ingredient Suppliers</p>
                 <h1 class="mt-4 text-[2.375rem] leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.75rem]">
                     Poultry Nutrition Expertise. Global Feed Ingredient Supply.
                 </h1>

@@ -23,8 +23,8 @@ use Filament\Support\Icons\Heroicon;
 use LiteCrm\Support\Permissions;
 
 /**
- * CRM › Website › Site settings (v5 §A5). Company-status wording on the public
- * site is built from these values; "Pte. Ltd." never appears before incorporation.
+ * CRM › Website › Site settings (v5 §A5). The company-status values drive quotations
+ * in the CRM only; they are never shown on the public website (decision of 29 Sep 2026).
  *
  * @property-read Schema $form
  */
@@ -86,7 +86,7 @@ class SiteSettingsPage extends Page
                     ])
                     ->columns(2),
                 Section::make('Company status')
-                    ->description('Tick "Incorporated" only when the Singapore company is incorporated. Until then the site says it is being established, and "Pte. Ltd." never appears.')
+                    ->description('Used on quotations in the CRM (the contracting entity). Never shown on the public website. Tick "Incorporated" only when the company is incorporated.')
                     ->schema([
                         Toggle::make('sg_incorporated')->label('Incorporated in Singapore')->live(),
                         TextInput::make('legal_name')->label('Legal name')->maxLength(200)

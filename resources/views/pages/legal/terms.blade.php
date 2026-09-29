@@ -1,7 +1,7 @@
 @php($site = app(\App\Settings\SiteSettings::class))
 <x-page.legal title="Terms of Use" description="The terms that apply to using the AviNutra website.">
     <h2>About these terms</h2>
-    <p>These terms apply to your use of this website, operated by {{ $site->brand }}. {{ $site->statusStatement() }} By using the website you accept them.</p>
+    <p>These terms apply to your use of this website, operated by {{ $site->brand }}. By using the website you accept them.</p>
 
     <h2>Information on this website</h2>
     <p>The content of this website is general technical and commercial information for feed-industry professionals. We take care to keep it accurate and to cite our sources, but it is not a substitute for advice on your particular situation. See our <a href="{{ route('legal.technical-disclaimer') }}">Technical Disclaimer</a>.</p>

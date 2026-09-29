@@ -1,11 +1,10 @@
 @php($site = app(\App\Settings\SiteSettings::class))
 <x-page.legal title="Privacy Policy" description="How AviNutra collects, uses and protects personal data submitted through this website.">
-    <h2>Who we are</h2>
-    <p>This website is operated by {{ $site->brand }}. {{ $site->statusStatement() }}</p>
-    <p>For questions about this policy or your personal data, write to <a href="mailto:{{ $site->emails['info'] ?? '' }}">{{ $site->emails['info'] ?? '' }}</a>.</p>
+    <h2>Who is responsible for your data</h2>
+    <p>The data controller is <strong>AviNutra</strong> (<a href="mailto:{{ $site->emails['info'] ?? '' }}">{{ $site->emails['info'] ?? '' }}</a>). Write to this address with any question about this policy or your personal data.</p>
 
     <h2>The laws we follow</h2>
-    <p>We handle personal data in line with Singapore's Personal Data Protection Act 2012 (PDPA) and the applicable law in Pakistan. Because many of our visitors are in Europe, we also follow the principles of the EU General Data Protection Regulation (GDPR): we collect only what we need, use it only for the purpose it was given for, keep it secure and delete it when it is no longer needed.</p>
+    <p>We handle personal data in line with applicable data-protection laws. We follow their common principles: we collect only what we need, use it only for the purpose it was given for, keep it secure, and delete it when it is no longer needed.</p>
 
     <h2>What we collect</h2>
     <ul>
@@ -27,7 +26,7 @@
     <p>Enquiries are held in our own customer-relationship system, on our own server. E-mails are sent from our own mail server. Files you upload are stored privately and are accessible only to authorised members of our team.</p>
 
     <h2>Who can see it</h2>
-    <p>Only members of our team who need it to answer your enquiry. Where your enquiry concerns a product, we may share the necessary details with the manufacturer or with our partner in Pakistan, only to answer your enquiry or supply the product. Supplier documents are kept confidential; we are happy to sign an NDA on request.</p>
+    <p>Only members of our team who need it to answer your enquiry. Where your enquiry concerns a product, we may share the necessary details with the manufacturer or with a partner involved in supplying the product, only to answer your enquiry or supply the product. Supplier documents are kept confidential; we are happy to sign an NDA on request.</p>
 
     <h2>How long we keep it</h2>
     <p>We keep enquiries and related correspondence for as long as needed for the business relationship and for our legal and accounting obligations, and then delete or anonymise them.</p>

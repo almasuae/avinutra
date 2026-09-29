@@ -23,6 +23,28 @@
                             @if ($field['required']) required aria-required="true" @endif
                             @error('data.'.$key) aria-invalid="true" aria-describedby="{{ $id }}-error" @enderror
                             class="mt-1.5 block w-full rounded-xl border border-line bg-white px-4 py-3 text-base text-ink shadow-xs focus:border-green-700 focus:outline-2 focus:outline-green-700/30"></textarea>
+                    @elseif ($field['type'] === 'country')
+                        {{-- Type-to-search country picker; the CRM stores the ISO code. --}}
+                        <div wire:ignore x-data="{
+                                label: @js(\LiteCrm\Support\Countries::name($this->data[$key] ?? null) ?? ''),
+                                pick() {
+                                    const typed = this.label.trim().toLowerCase();
+                                    const match = Array.from(this.$refs.list.options).find((option) => option.value.toLowerCase() === typed);
+                                    if (match) { this.label = match.value; }
+                                    $wire.set('data.{{ $key }}', match ? match.dataset.code : '', false);
+                                },
+                            }">
+                            <input id="{{ $id }}" type="text" list="{{ $id }}-list" x-model="label" x-on:change="pick()" x-on:blur="pick()"
+                                autocomplete="country-name" placeholder="Start typing a country"
+                                @if ($field['required']) required aria-required="true" @endif
+                                @error('data.'.$key) aria-invalid="true" aria-describedby="{{ $id }}-error" @enderror
+                                class="mt-1.5 block w-full rounded-xl border border-line bg-white px-4 py-3 text-base text-ink shadow-xs focus:border-green-700 focus:outline-2 focus:outline-green-700/30">
+                            <datalist id="{{ $id }}-list" x-ref="list">
+                                @foreach (\LiteCrm\Support\Countries::all() as $code => $name)
+                                    <option value="{{ $name }}" data-code="{{ $code }}"></option>
+                                @endforeach
+                            </datalist>
+                        </div>
                     @elseif ($field['type'] === 'select')
                         <select id="{{ $id }}" wire:model="data.{{ $key }}"
                             @if ($field['required']) required aria-required="true" @endif

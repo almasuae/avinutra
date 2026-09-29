@@ -22,13 +22,13 @@
                             @if ($field['required']) required aria-required="true" @endif
                             @error('data.'.$key) aria-invalid="true" aria-describedby="{{ $id }}-error" @enderror
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"></textarea>
-                    @elseif ($field['type'] === 'select')
+                    @elseif (in_array($field['type'], ['select', 'country'], true))
                         <select id="{{ $id }}" wire:model="data.{{ $key }}"
                             @if ($field['required']) required aria-required="true" @endif
                             @error('data.'.$key) aria-invalid="true" aria-describedby="{{ $id }}-error" @enderror
                             class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2">
                             <option value="">{{ __('lite-crm::enquiries.form.choose') }}</option>
-                            @foreach ($field['options'] as $value => $label)
+                            @foreach ($field['type'] === 'country' ? \LiteCrm\Support\Countries::all() : $field['options'] as $value => $label)
                                 <option value="{{ $value }}">{{ $label }}</option>
                             @endforeach
                         </select>

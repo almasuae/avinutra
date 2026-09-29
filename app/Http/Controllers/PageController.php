@@ -80,8 +80,12 @@ class PageController extends Controller
     {
         $topic = $request->string('topic')->toString();
 
+        // "Discuss your result" on a calculator pre-fills the question; nothing is sent until the visitor submits.
         return view('pages.ask-a-nutritionist', [
-            'values' => array_key_exists($topic, EnquiryForms::TOPICS) ? ['topic' => $topic] : [],
+            'values' => array_filter([
+                'topic' => array_key_exists($topic, EnquiryForms::TOPICS) ? $topic : null,
+                'message' => $request->string('message')->limit(3000, '')->toString(),
+            ]),
         ]);
     }
 }

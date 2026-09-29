@@ -6,6 +6,11 @@ package uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (enquiry form)
+- `country` field type for the enquiry form: an ISO 3166-1 list (`LiteCrm\Support\Countries`,
+  from the intl extension), stored as the two-letter code and validated against the
+  list; the options are built when rendering, not kept in the component state.
+
 ### Added (sidebar and dashboard)
 - Sidebar groups set in `lite-crm.navigation.groups` (group key → label and member
   screens, in order). Defaults: Sales, Operations, Team (labels translatable; a group's

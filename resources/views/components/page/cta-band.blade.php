@@ -10,7 +10,7 @@
     $href = \App\Support\SiteLinks::url($route, $parameters);
     $whatsapp = \App\Support\SiteLinks::whatsapp(app(\App\Settings\SiteSettings::class)->whatsapp_sales);
 @endphp
-<section class="bg-green-800 text-white">
+<section class="no-print bg-green-800 text-white">
     <div class="mx-auto flex max-w-[84rem] flex-col gap-8 px-4 py-14 sm:px-6 md:flex-row md:items-center md:justify-between xl:px-8">
         <div class="max-w-2xl">
             <h2 class="text-3xl leading-tight text-white! sm:text-4xl">{{ $title }}</h2>

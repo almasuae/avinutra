@@ -85,6 +85,7 @@ class KnowledgeSeeder extends Seeder
                 'body' => self::articleOne(),
                 'sources' => [
                     ['title' => 'EFSA FEEDAP Panel (2012). Scientific Opinion on DL-methionine, DL-methionine sodium salt, the hydroxy analogue of methionine and the calcium salt of methionine hydroxy analogue in all animal species. EFSA Journal 10(3):2623', 'url' => 'https://doi.org/10.2903/j.efsa.2012.2623', 'date' => '2012'],
+                    ['title' => 'EFSA FEEDAP Panel (2018). Safety and efficacy of hydroxy analogue of methionine and its calcium salt for all animal species (title shortened; product name omitted). EFSA Journal 16(3):5198', 'url' => 'https://doi.org/10.2903/j.efsa.2018.5198', 'date' => '2018'],
                 ],
                 'related_route' => 'tools.methionine-value',
                 'last_reviewed_on' => '2026-09-29',
@@ -102,8 +103,8 @@ class KnowledgeSeeder extends Seeder
                 "- Methionine and methionine + cystine requirements by phase (cite and link published references; no reproduced breeder tables)\n- Digestible basis\n- Practical formulation points"),
             self::draft('Managing Feed Ingredient Supply Risk: Alternative Sourcing Without Surprises', 'managing-feed-ingredient-supply-risk', ArticleCategory::FeedIngredients,
                 "- Why supply disruptions happen\n- Qualifying a second source before you need it\n- Substitution: specification, equivalence, inclusion, cost, trial\n- Contract and documentation points"),
-            self::draft('Landed Cost in Pakistan: What Really Makes Up the Price of an Imported Feed Additive', 'landed-cost-in-pakistan', ArticleCategory::FeedEconomics,
-                "- From CFR price to landed cost: freight, insurance, duties, sales tax, withholding tax, bank and port charges\n- Gross vs net of recoverable taxes\n- Why rates must be confirmed with a clearing agent (not tax advice)"),
+            self::draft('Landed Cost: What Really Makes Up the Price of an Imported Feed Additive', 'landed-cost-of-imported-feed-additives', ArticleCategory::FeedEconomics,
+                "- From CFR price to landed cost: freight, insurance, duties, sales tax, withholding tax, bank and port charges\n- Gross vs net of recoverable taxes\n- Why rates must be confirmed with a customs broker (not tax advice)"),
         ];
     }
 
@@ -133,14 +134,25 @@ With illustrative prices (not market prices):
 | Product | Price (USD/kg) | Value factor | Cost per kg of effective methionine (USD) |
 |---|---|---|---|
 | DL-Methionine 99% | 2.36 | 1.00 | 2.360 |
-| MHA-FA 88% (liquid) | 1.76 | 0.65 | 2.708 |
-| MHA-FA 88% (liquid) | 1.76 | 0.88 | 2.000 |
+| MHA-FA 88% (liquid), about 75% equimolar | 1.76 | 0.65 | 2.708 |
+| MHA-FA 88% (liquid), about 80% equimolar | 1.76 | 0.70 | 2.514 |
+| MHA-FA 88% (liquid), 100% equimolar | 1.76 | 0.88 | 2.000 |
 | L-Methionine 90% | 3.79 | 0.909 | 4.169 |
 
 Two things stand out:
 
 - **Purity matters.** L-Methionine 90% supplies less methionine per kg than a 99% product, so its value factor is lower (0.909 is a purity adjustment only).
-- **The assumption for MHA matters most.** At the same price, the MHA-FA result is 2.708 or 2.000 depending on the value factor used. The hydroxy analogue is a precursor of methionine, and its relative efficacy is debated: the European Food Safety Authority concluded that the hydroxy analogues show a somewhat lower bioefficacy than DL-Methionine, while MHA manufacturers state that they are equivalent on an equimolar basis.
+- **The assumption for MHA matters most.** At the same price, the MHA-FA result ranges from 2.000 to 2.708 depending on the value factor used. The hydroxy analogue is a precursor of methionine, and its relative efficacy is debated: the European Food Safety Authority concluded that the hydroxy analogues show a somewhat lower bioefficacy than DL-Methionine, while MHA manufacturers state that they are equivalent on an equimolar basis.
+
+## Value factors for MHA-FA 88%
+
+The value factor is on a **product basis**: the kg of DL-Methionine 99% replaced by 1 kg of MHA-FA 88% as sold. Each factor assumes an equimolar efficacy:
+
+- **0.65** — about 75% equimolar efficacy;
+- **0.70** — about 80% equimolar, in line with the meta-analysis cited by the European Food Safety Authority in 2018 (79–81%);
+- **0.88** — 100% equimolar, the MHA manufacturers' position.
+
+**Value factor ≈ active content (0.88) × equimolar efficacy × (149.2 ÷ 150.2)**, where the last term converts from the hydroxy analogue to methionine by molar mass. These factors are indicative until reviewed by our nutrition panel.
 
 ## From cost per kg to cost per tonne of feed
 

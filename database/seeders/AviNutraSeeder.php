@@ -50,6 +50,6 @@ class AviNutraSeeder extends Seeder
             $lookup->update(['meta' => [...($lookup->meta ?? []), 'mailbox' => $address]]);
         }
 
-        $this->call([KnowledgeSeeder::class, ContentGapTaskSeeder::class]);
+        $this->call([KnowledgeSeeder::class, CalculatorDefaultSeeder::class, ContentGapTaskSeeder::class]);
     }
 }

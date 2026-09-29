@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Support;
 
-use App\Providers\AppServiceProvider;
 use LiteCrm\Enums\ProductAvailability;
 use LiteCrm\Models\Product;
 
@@ -26,9 +25,8 @@ class ProductPresentation
     public static function statement(ProductAvailability $availability): ?string
     {
         return match ($availability) {
-            ProductAvailability::Available => ($entity = AppServiceProvider::contractingEntity()) !== null
-                ? "Available — supplied via {$entity}"
-                : 'Available',
+            // No company or country details on the public site (decision of 29 Sep 2026).
+            ProductAvailability::Available => 'Available',
             ProductAvailability::OnRequest => 'Sourced on request',
             ProductAvailability::Information => null,
         };
