@@ -6,6 +6,11 @@ package uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed (privacy)
+- The plugin sets `LiteCrm\Filament\LocalAvatarProvider`: user avatars are initials drawn
+  locally as an inline SVG, instead of Filament's default ui-avatars.com images (no
+  third-party request, no user names sent elsewhere, compatible with a strict CSP).
+
 ### Added (enquiry form)
 - `country` field type for the enquiry form: an ISO 3166-1 list (`LiteCrm\Support\Countries`,
   from the intl extension), stored as the two-letter code and validated against the

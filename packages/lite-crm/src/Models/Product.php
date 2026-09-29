@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use LiteCrm\Contracts\CrmUser;
@@ -40,6 +41,8 @@ use LiteCrm\Support\Permissions;
  * @property bool $publish_on_website
  * @property array<string, mixed>|null $custom
  * @property int|null $owner_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Lookup|null $category
  */
 class Product extends Model

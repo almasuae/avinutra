@@ -1,11 +1,13 @@
-@props(['title' => null, 'description' => null, 'preview' => false])
+@props(['title' => null, 'description' => null, 'preview' => false, 'type' => 'website'])
 @php
     $brandVersion = config('brand.version');
     // CRM › Website › Page SEO overrides the page's own title and description.
     $seo = \App\Models\PageSeo::forRoute(request()->route()?->getName());
     $title = filled($seo?->title) ? $seo->title : $title;
     $description = filled($seo?->description) ? $seo->description : $description;
-    $whatsapp = \App\Support\SiteLinks::whatsapp(app(\App\Settings\SiteSettings::class)->whatsapp_sales);
+    $site = app(\App\Settings\SiteSettings::class);
+    $whatsapp = \App\Support\SiteLinks::whatsapp($site->whatsapp_sales);
+    $isHome = request()->routeIs('home');
 @endphp
 <!DOCTYPE html>
 <html lang="en-GB">
@@ -24,6 +26,9 @@
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <meta name="theme-color" content="#034c33">
     <meta property="og:site_name" content="{{ config('app.name') }}">
+    <meta property="og:type" content="{{ $type }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:locale" content="en_GB">
     <meta property="og:title" content="{{ $title ?? config('app.name') }}">
     @if ($description)
         <meta property="og:description" content="{{ $description }}">
@@ -31,6 +36,37 @@
     <meta property="og:image" content="{{ asset('brand/og-image.png') }}?v={{ $brandVersion }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ config('app.name') }} logo">
+    <meta name="twitter:card" content="summary_large_image">
+    @if ($isHome)
+        {{-- Organization and WebSite structured data (no address or country: decision of 29 Sep 2026). --}}
+        <x-seo.json-ld :data="[
+            '@graph' => [
+                array_filter([
+                    '@type' => 'Organization',
+                    '@id' => url('/').'#organization',
+                    'name' => $site->brand,
+                    'url' => url('/'),
+                    'logo' => asset('brand/logo-full@2x.png'),
+                    'slogan' => $site->tagline,
+                    'email' => $site->emails['info'] ?? null,
+                    'contactPoint' => collect(['sales' => 'sales', 'nutrition' => 'technical support', 'partners' => 'supplier partnerships'])
+                        ->filter(fn (string $label, string $key): bool => filled($site->emails[$key] ?? null))
+                        ->map(fn (string $label, string $key): array => ['@type' => 'ContactPoint', 'contactType' => $label, 'email' => $site->emails[$key]])
+                        ->values()
+                        ->all(),
+                ]),
+                [
+                    '@type' => 'WebSite',
+                    '@id' => url('/').'#website',
+                    'name' => $site->brand,
+                    'url' => url('/'),
+                    'inLanguage' => 'en-GB',
+                    'publisher' => ['@id' => url('/').'#organization'],
+                ],
+            ],
+        ]" />
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
 </head>

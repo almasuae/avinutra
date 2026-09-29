@@ -1,6 +1,22 @@
 {{-- A published article (v3 §7.9): byline, reviewer, last reviewed, sources, related tool, "Ask Our Nutrition Team". --}}
 @php($related = $article->related_route ? \App\Support\SiteLinks::url($article->related_route) : null)
-<x-layouts.site :title="$article->title.' — AviNutra'" :description="$article->summary">
+<x-layouts.site :title="$article->title.' — AviNutra'" :description="$article->summary" type="article">
+    @push('head')
+        <x-seo.json-ld :data="array_filter([
+            '@type' => 'Article',
+            'headline' => $article->title,
+            'description' => $article->summary,
+            'url' => route('knowledge.show', $article->slug),
+            'inLanguage' => 'en-GB',
+            'datePublished' => $article->published_at?->toAtomString(),
+            'dateModified' => ($article->last_reviewed_on ?? $article->updated_at)?->toAtomString(),
+            'author' => $article->author?->isPublic()
+                ? ['@type' => 'Person', 'name' => $article->author->name]
+                : ['@type' => 'Organization', 'name' => \App\Models\Article::COMPANY_AUTHOR],
+            'publisher' => ['@type' => 'Organization', 'name' => config('app.name'), 'logo' => ['@type' => 'ImageObject', 'url' => asset('brand/logo-full@2x.png')]],
+            'image' => asset('brand/og-image.png'),
+        ])" />
+    @endpush
     <x-page.hero
         :eyebrow="$article->category->getLabel()"
         :title="$article->title"

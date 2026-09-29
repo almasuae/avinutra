@@ -32,10 +32,20 @@ return [
 
     'disks' => [
 
+        // Nightly backups (spatie/laravel-backup), on the server only; outside the web root.
+        'backups' => [
+            'driver' => 'local',
+            'root' => env('BACKUP_PATH', storage_path('app/backups')),
+            'serve' => false,
+            'throw' => true,
+        ],
+
+        // Private files (CRM documents, enquiry uploads). Never served directly:
+        // downloads go through the CRM's signed, policy-checked route.
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

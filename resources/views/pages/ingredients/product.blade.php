@@ -16,6 +16,17 @@
     $specification = collect($product->specification ?? [])->filter(fn ($row) => filled($row['parameter'] ?? null));
 @endphp
 <x-layouts.site :title="$product->name.' — '.$category['title'].' — AviNutra'" :description="$product->description">
+    @push('head')
+        {{-- Product structured data: no offer or price (quotations are individual), no brand unless permission is recorded. --}}
+        <x-seo.json-ld :data="array_filter([
+            '@type' => 'Product',
+            'name' => $product->name,
+            'description' => $product->description,
+            'url' => route('ingredients.product', [$category['slug'], $product->slug]),
+            'category' => $category['title'],
+            'manufacturer' => $manufacturers->isNotEmpty() ? ['@type' => 'Organization', 'name' => $manufacturers->pluck('name')->join(', ')] : null,
+        ])" />
+    @endpush
     <x-page.hero
         :eyebrow="$category['title']"
         :title="$product->name"

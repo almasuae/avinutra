@@ -12,3 +12,10 @@ Artisan::command('inspire', function () {
 
 // No Supervisor on the server: the scheduler (cron, every minute) drains the queue.
 Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->withoutOverlapping();
+
+// Backups (spatie/laravel-backup, v5 §F3): nightly database + uploaded files to the
+// server's own "backups" disk; weekly clean-up of old backups; a daily health check
+// that e-mails BACKUP_NOTIFICATION_EMAIL if the newest backup is missing or too old.
+Schedule::command('backup:run')->dailyAt('02:00')->withoutOverlapping();
+Schedule::command('backup:clean')->weeklyOn(0, '03:00')->withoutOverlapping();
+Schedule::command('backup:monitor')->dailyAt('08:00');

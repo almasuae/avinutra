@@ -84,6 +84,12 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
+            // spatie/laravel-backup: where mariadb-dump lives (empty = on the PATH).
+            'dump' => [
+                'dump_binary_path' => env('DB_DUMP_BINARY_PATH', ''),
+                'use_single_transaction' => true,
+                'timeout' => 300,
+            ],
         ],
 
         'pgsql' => [

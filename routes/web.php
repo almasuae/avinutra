@@ -6,6 +6,7 @@ use App\Content\Services;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\KnowledgeController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\SeoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,10 @@ use Illuminate\Support\Facades\Route;
  * by config/site.php: a navigation link appears only when its route exists.
  */
 Route::get('/', [PageController::class, 'home'])->name('home');
+
+// robots.txt and sitemap.xml are generated (the CRM is disallowed and never listed).
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 
 Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::view('/about/company', 'pages.about.company')->name('about.company');

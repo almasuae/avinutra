@@ -317,7 +317,7 @@
 
             <div class="no-print mt-6 flex flex-wrap gap-3">
                 <button type="button" wire:click="$toggle('working')" class="btn-secondary" aria-expanded="{{ $working ? 'true' : 'false' }}" aria-controls="lc-working">{{ $working ? 'Hide working' : 'Show working' }}</button>
-                <button type="button" onclick="window.print()" class="btn border-2 border-line text-green-900 hover:border-green-700">Print</button>
+                <button type="button" data-print class="btn border-2 border-line text-green-900 hover:border-green-700">Print</button>
                 @if ($discuss = $this->discussUrl())
                     <a href="{{ $discuss }}" class="btn-primary">Discuss your result <x-heroicon-m-arrow-right class="size-5" aria-hidden="true" /></a>
                 @endif

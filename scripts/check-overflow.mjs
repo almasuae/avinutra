@@ -1,4 +1,6 @@
-// Browser test: every public page must fit a 390 px phone screen (no horizontal scroll).
+// Browser test: every public page (and the CRM login) must fit a 390 px phone screen
+// (no horizontal scroll) and load without Content-Security-Policy violations or
+// JavaScript errors.
 //
 //   node --experimental-websocket scripts/check-overflow.mjs http://127.0.0.1:8766
 //
@@ -61,14 +63,27 @@ const evaluate = async (expression) => (await send('Runtime.evaluate', { express
 
 await send('Page.enable');
 await send('Runtime.enable');
+await send('Log.enable');
+
+// Console problems of the page being checked: CSP violations and uncaught errors.
+let problems = [];
+waiters.push((message) => {
+    if (message.method === 'Log.entryAdded' && message.params.entry.level === 'error' && /Content Security Policy|Refused to/i.test(message.params.entry.text)) {
+        problems.push(message.params.entry.text.slice(0, 200));
+    }
+    if (message.method === 'Runtime.exceptionThrown') {
+        problems.push('JavaScript error: ' + String(message.params.exceptionDetails.exception?.description ?? message.params.exceptionDetails.text).slice(0, 200));
+    }
+});
 await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: 844, deviceScaleFactor: 1, mobile: true });
 
-const queue = ['/'];
+const queue = ['/', '/crm/login'];
 const seen = new Set(queue);
 const failures = [];
 
 while (queue.length > 0 && seen.size <= MAX_PAGES) {
     const path = queue.shift();
+    problems = [];
     const done = loaded();
     await send('Page.navigate', { url: BASE + path });
     await done;
@@ -91,6 +106,11 @@ while (queue.length > 0 && seen.size <= MAX_PAGES) {
         return { width, scrollWidth, culprits, links };
     })()`);
 
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    for (const problem of problems) {
+        failures.push(`${path}: ${problem}`);
+    }
+
     if (result.scrollWidth > result.width) {
         failures.push(`${path}: ${result.scrollWidth}px wide at ${result.width}px — ${result.culprits.join(', ')}`);
     }
@@ -109,5 +129,5 @@ if (failures.length > 0) {
     console.error('Pages wider than the viewport:\n  ' + failures.join('\n  '));
     stop(1);
 }
-console.log('No horizontal overflow.');
+console.log('No horizontal overflow, no CSP violations, no JavaScript errors.');
 stop(0);

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use LiteCrm\Contracts\CrmUser;
+use LiteCrm\Filament\LocalAvatarProvider;
 use LiteCrm\Filament\Pages\AcceptInvitation;
 use LiteCrm\Filament\Pages\CrmDashboard;
 use LiteCrm\Filament\Pages\CrmSettingsPage;
@@ -240,6 +241,8 @@ class LiteCrmPlugin implements Plugin
             ]))
             ->widgets(array_values(CrmDashboard::WIDGETS))
             ->databaseNotifications()
+            // Initials avatars drawn locally (no request to an external avatar service).
+            ->defaultAvatarProvider(LocalAvatarProvider::class)
             ->profile(EditProfile::class, isSimple: false)
             // MFA is offered to everyone; RequireMultiFactorAuthentication decides who must set it up.
             ->multiFactorAuthentication([AppAuthentication::make()->recoverable()], isRequired: true)

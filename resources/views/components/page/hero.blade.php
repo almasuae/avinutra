@@ -49,3 +49,15 @@
         </div>
     </div>
 </section>
+@if ($breadcrumbs !== [])
+    @push('head')
+        <x-seo.json-ld :data="[
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => collect(['Home' => url('/')] + $breadcrumbs)
+                ->map(fn (?string $href, string $label): array => ['name' => $label, 'item' => $href ?? url()->current()])
+                ->values()
+                ->map(fn (array $crumb, int $index): array => ['@type' => 'ListItem', 'position' => $index + 1, 'name' => $crumb['name'], 'item' => $crumb['item']])
+                ->all(),
+        ]" />
+    @endpush
+@endif

@@ -33,3 +33,10 @@ if (header) {
         window.matchMedia('(min-width: 80rem)').addEventListener('change', (event) => event.matches && close());
     }
 }
+
+// Print buttons on the tools (no inline handlers: the Content-Security-Policy forbids them).
+document.addEventListener('click', (event) => {
+    if (event.target instanceof Element && event.target.closest('[data-print]')) {
+        window.print();
+    }
+});
