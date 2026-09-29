@@ -1,10 +1,9 @@
-# AviNutra — Design Brief (v1.1, 29 Sep 2026 — SVG master logo added)
+# AviNutra — Design Brief (v1.2, 29 Sep 2026 — PNG is the logo master)
 
 **Status:** approved by the owner. This file **supersedes v5 §E1** (brand and design) and the "Visual identity" and imagery parts of Content Blueprint v3 §4. Where they conflict, follow this file.
 
 **Source files** (in `docs/design/`):
-- `logo-source.svg` — **master logo (vector)**.
-- `logo-source.png` — raster reference copy, 2172×724 px, transparent background; used only for comparison and as a fallback.
+- `logo-source.png` — **master logo**, 2048×682 px, transparent background (owner's decision, 29 Sep 2026; see §2.1).
 - `homepage-mockup.png` — approved homepage mockup, 1536×1024 px.
 
 ---
@@ -22,49 +21,43 @@ It does **not** decide:
 
 ## 2. Logo
 
-### 2.1 The master is the SVG — inspect it first
-The SVG is the master. All variants are derived from it, not from the PNG. Before using it, inspect the file and report what you find:
+### 2.1 The master is the PNG
+**Owner's decision (29 Sep 2026):** `docs/design/logo-source.png` (2048×682 px, transparent background) is the logo master. The earlier "SVG" was only a wrapper around this same PNG and has been removed. A vector will be commissioned only if large-format print is needed.
 
-1. **Is it a true vector?** Some "SVG" logos are only a PNG wrapped inside an SVG (an `<image>` element with embedded base64 data), or an automatic trace made of thousands of tiny paths.
-   - If it contains an embedded raster, **stop and tell me**. It is not a real vector, and the PNG rules in §2.4 apply instead.
-   - If it is an auto-trace with visible noise (stray specks, jagged edges), report the path count and show me a large render before continuing.
-2. **Is the text converted to outlines?** The wordmark and tagline must be shapes, not `<text>` that depends on an installed font. If live text is present, tell me which font it names. Do not substitute a font silently.
-3. **Colours:** list the fill colours used. If they differ from the §3 tokens by more than a small amount, the **SVG's colours win**. Update the tokens to match and report the change.
-4. **Size and hygiene:** check for editor leftovers (Illustrator or Inkscape metadata, hidden layers, embedded fonts, scripts, external references).
+All variants are derived from the PNG by `npm run brand:build`.
 
-### 2.2 Clean and optimise
-- Optimise with **SVGO** (add it as an npm **dev** dependency — approved), keeping `viewBox` and removing metadata, editor data, comments and hidden elements. **Never strip or merge shapes in a way that changes how the logo looks.** Compare renders before and after at 2000 px wide; they must be visually identical.
-- **Security:** the served SVGs must contain no `<script>`, no event attributes (`onload` etc.), no `<foreignObject>` and no external references. Only these vetted logo files are ever served as SVG; the site never accepts SVG uploads from users.
-- Keep the untouched original in `docs/design/logo-source.svg`. The optimised copies go in `public/brand/`.
+### 2.2 Clean-up
+The PNG contains about 67,000 near-transparent stray pixels (alpha 1–39), mostly around "Nutra". They are invisible on white but show as smudges on dark backgrounds. The build therefore sets every pixel with **alpha < 40 to fully transparent** before anything else. Nothing else is changed: no recolouring, no sharpening, no reshaping. The cleaned master is written to `public/brand/logo-clean.png`.
 
-### 2.3 Variants (all derived from the SVG)
+### 2.3 Variants (all derived from the cleaned PNG)
 
-| Variant | Contents | Use | Formats |
+| Variant | Contents | Use | Files (in `public/brand/`) |
 |---|---|---|---|
-| `logo-full.svg` | Mark + wordmark + tagline | About page, footer on a light background, printable documents | SVG |
-| `logo-compact.svg` | Mark + wordmark, **no tagline** (remove the tagline group and tighten the viewBox) | Header — the tagline is illegible below ~320 px wide | SVG |
-| `logo-mark.svg` | The "A" with the chicken and leaf only (square viewBox with small padding) | Favicon, CRM panel icon, social avatar | SVG + PNG 512/192/180/32/16 + `favicon.ico` |
-| `logo-reverse.svg` | Wordmark recoloured for dark backgrounds: "vi" and the tagline in white, "Nutra" orange kept, the mark unchanged or on a white roundel | Dark-green footer and other dark areas | SVG |
-| `logo-email.png` | `logo-compact` rendered at 2× (about 400×110 px) | E-mail templates, because many mail clients block SVG | PNG |
-| `og-image.png` | Logo centred on white, 1200×630 | Social sharing previews | PNG |
+| `logo-full` | Mark + wordmark + tagline | About page, light footer, printable documents | PNG + WebP, 1× and 2× |
+| `logo-compact` | Mark + wordmark, **no tagline** (the tagline line cropped off) | Header — the tagline is illegible below ~320 px wide | PNG + WebP, 1× and 2× |
+| `logo-mark` | The "A" with the chicken and leaf only (cut out along its own outline, so no part of the "v" is included; square canvas with small padding) | Favicon, CRM panel icon, social avatar | PNG + WebP, 1× and 2× |
+| Icons | `logo-mark` on a square | Browser and home-screen icons | `favicon-16.png`, `favicon-32.png`, `favicon.ico` (16 + 32), `apple-touch-icon.png` (180, white background), `icon-192.png`, `icon-512.png` |
+| `logo-compact-boxed` | `logo-compact` on a white rounded panel | CRM panel in dark mode | PNG, 2× |
+| `logo-email.png` | `logo-compact`, 400 px wide (shown at 200 px) | E-mail templates | PNG |
+| `og-image.png` | `logo-full` centred on white, 1200×630 | Social sharing previews | PNG |
 
-- **PNG rendering:** make the PNGs from the SVG with a headless renderer (e.g. `sharp` or `@resvg/resvg-js` as an npm **dev** dependency — approved). Commit the generated files, so the server never needs to render them.
-- **Build script:** add a script (e.g. `npm run brand:build`) that regenerates every variant from `docs/design/logo-source.svg`. When the logo changes, one command updates everything.
-- **If a variant cannot be made cleanly from the SVG** (for example, the tagline is merged into the same path as the wordmark), tell me rather than approximating it.
+- The build uses `sharp` (npm **dev** dependency). The generated files are committed, so the server never renders them.
+- It also writes `config/brand.php` with each variant's pixel size, so templates can set `width` and `height` without guessing.
+- There is **no reverse (white) version**: a raster wordmark cannot be recoloured cleanly. On dark backgrounds, the full-colour logo sits on a white rounded panel.
 
 ### 2.4 Usage rules
-- **Header:** `<img src="/brand/logo-compact.svg" alt="AviNutra" width=… height=…>` at 40–48 px tall on desktop and 32–36 px on mobile. Use an `<img>` rather than inline SVG, so the browser caches it. Always set width and height to avoid layout shift.
-- **Footer:** `logo-reverse.svg` on dark green. If the reverse version doesn't look right, use a light `surface` footer with `logo-full.svg`.
-- **Favicon:** `logo-mark.svg` as the SVG favicon, plus the PNG and `.ico` fallbacks and `apple-touch-icon` (180 px).
-- **CRM panel (Filament):** `logo-compact.svg` as the brand logo (with a matching dark-mode variant if the panel's dark mode is on) and `logo-mark.svg` as the favicon.
-- **The PNG reference file** (`logo-source.png`) is not used on the site. If it is ever needed as a fallback, note that it contains about 18,000 near-transparent stray pixels around "Nutra". They are invisible on white but show as smudges on dark backgrounds, so never place it on a dark background without first clearing pixels with alpha < 40.
-- **Never** stretch, recolour (except the approved reverse variant), add effects or shadows to, or rearrange the logo.
+- **Header:** `logo-compact` at 2× resolution: `<img src="/brand/logo-compact@2x.png" … width=… height=…>` (WebP via `<picture>`), displayed 40–48 px tall on desktop and 32–36 px on mobile. Always set width and height to avoid layout shift.
+- **Footer:** option A, a light `surface` footer with `logo-full`; or option B, a dark-green footer with the full-colour logo on a white rounded panel. The owner chooses (§6 item 7).
+- **Favicon:** `favicon.ico`, `favicon-32.png`, `favicon-16.png` and `apple-touch-icon.png`; `icon-192.png` and `icon-512.png` in the web manifest.
+- **CRM panel (Filament):** `logo-compact` as the brand logo (`logo-compact-boxed` in dark mode) and the `logo-mark` favicon.
+- Only the cleaned files in `public/brand/` are used on the site; never the raw `logo-source.png`.
+- **Never** stretch, recolour, add effects or shadows to, or rearrange the logo.
 
 ---
 
 ## 3. Design tokens (replace the v5 palette)
 
-Colours sampled from the PNG logo and the mockup. **Confirm them against the SVG's actual fill values (§2.1 step 3); the SVG wins.**
+Colours sampled from the PNG logo and the mockup, and confirmed against the logo master in the design step (the logo's greens and oranges are within a few units of these values).
 
 | Token | Hex | Use |
 |---|---|---|
@@ -75,6 +68,8 @@ Colours sampled from the PNG logo and the mockup. **Confirm them against the SVG
 | `orange-600` | `#FC6B01` | Primary button ("Our Solutions"), small eyebrow labels, hover states |
 | `orange-500` | `#FC7804` | Accent icons, short divider lines |
 | `orange-400` | `#FD9302` | Top of the "Nutra" gradient; decorative only |
+| `orange-cta` | `#F06501` | Primary button fill: white 19 px bold labels reach 3.2:1 (added for WCAG AA; white on `orange-600` is only 2.9:1) |
+| `orange-text` | `#B94E01` | Small orange text such as eyebrow labels: 5.1:1 on white, 4.8:1 on `surface` (added for WCAG AA) |
 | `ink` | `#1C2226` | Body text |
 | `muted` | `#5B6770` | Secondary text |
 | `surface` | `#F7F8F6` | Section backgrounds, cards |
@@ -178,7 +173,7 @@ Section order, top to bottom:
    - Precision Amino Acid Nutrition, with a calculator teaser;
    - Latest Insights (hidden until an article exists);
    - the closing CTA band on dark green.
-7. **Footer** — dark green (`green-800`) with `logo-reverse.svg`; fall back to a light `surface` footer with `logo-full.svg` if the reverse version doesn't look right. Four columns: About/tagline · Services · Resources (Tools, Insights, Quality) · Contact (e-mails; WhatsApp when set). The status statement and legal links go in the bottom bar.
+7. **Footer** — the owner chooses between A, a light `surface` footer with `logo-full`, and B, a dark-green (`green-800`) footer with the full-colour logo on a white rounded panel (§2.4). Four columns: About/tagline · Services · Resources (Tools, Insights, Quality) · Contact (e-mails; WhatsApp when set). The status statement and legal links go in the bottom bar.
 
 **Other pages** use the same system: a smaller hero band (title + breadcrumb + a thin image strip or brand shape), cards, line icons, eyebrow labels, and pill buttons.
 
@@ -189,8 +184,8 @@ Section order, top to bottom:
 - [ ] At 1440 px, the homepage matches the mockup's layout, spacing, colours and component styles. Wording follows §6.
 - [ ] At 390 px mobile: the hero stacks with the text first, then one simplified image; the feature strip stacks; nothing overflows horizontally.
 - [ ] Lighthouse mobile ≥ 90; all colour pairs pass WCAG AA; no external font or image URLs.
-- [ ] The SVG inspection report (§2.1) has been given to me: true vector or not, text outlined or not, colours found, and size before and after SVGO.
-- [ ] All logo variants are generated from the SVG by `npm run brand:build`. Optimised files are visually identical to the original at 2000 px, and none contains scripts, event attributes or external references.
+- [ ] The cleaned logo (alpha < 40 cleared) has been shown on white and on dark green (`#034C33`) at large size, with no specks.
+- [ ] All logo variants are generated from the cleaned PNG by `npm run brand:build`.
 - [ ] `IMAGE-CREDITS.md` lists every photo with its licence; `CONTENT-GAPS.md` lists any missing photos.
-- [ ] The CRM panel uses the green primary colour, `logo-compact.svg` and the `logo-mark` favicon.
+- [ ] The CRM panel uses the green primary colour, `logo-compact` and the `logo-mark` favicon.
 - [ ] Screenshots at 1440 px and 390 px are saved to `docs/design/screens/` for owner review.

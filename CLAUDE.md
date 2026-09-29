@@ -10,14 +10,16 @@ Claude Code reads this file at the start of every session. Keep it current: when
 - `docs/Prompt-AviNutra-Laravel-Build-v5.md` — technical build spec. It **wins on technical points**.
 - `docs/AviNutra-Website-Content-v3.md` — website content and page spec.
 - `CONTENT-GAPS.md` — missing facts, and where the site omits or uses neutral wording.
-- `docs/design/DESIGN-BRIEF.md` (v1.1) — brand and design. It **supersedes v5 §E1** and the visual-identity and imagery parts of Content Blueprint v3 (§4). The master logo is `docs/design/logo-source.svg`; `homepage-mockup.png` is the approved look (never reuse its pictures). SVGO and sharp / @resvg/resvg-js are approved npm dev dependencies for `npm run brand:build`.
+- `docs/design/DESIGN-BRIEF.md` (v1.2) — brand and design. It **supersedes v5 §E1** and the visual-identity and imagery parts of Content Blueprint v3 (§4). `homepage-mockup.png` is the approved look (never reuse its pictures).
+- **Logo master = `docs/design/logo-source.png`** (owner's decision, 29 Sep 2026; the SVG was only a PNG wrapper and was deleted — a vector is commissioned only for large-format print). `npm run brand:build` (`scripts/brand-build.mjs`, sharp) clears pixels with alpha < 40 and generates `public/brand/*` (PNG + WebP, 1x/2x), icons, `public/favicon.ico` and `config/brand.php` (sizes). Never hand-edit these; use `<x-brand.logo variant="compact|full|mark" />`.
 
 ## Stack
 - PHP 8.3 · latest stable Laravel supporting PHP 8.3 · Filament v4+ · Livewire · Alpine.js · Tailwind (Vite) · MariaDB 11.4 (`DB_CONNECTION=mariadb`) · Pest · Orchestra Testbench · Pint · Larastan level 5.
 - Installed (Phase 1): Laravel 13, Filament 5, Livewire 4 (bundles Alpine — do not import Alpine separately), Tailwind 4, Pest 4 (Pest 5 needs PHP 8.4), Testbench 11, Larastan 3. `composer.json` pins `config.platform.php` to 8.3 so the lock file matches production.
 - Phase 2 added `spatie/laravel-permission` ^8.3 and `spatie/laravel-activitylog` ^4.12.3 (package; 5.x needs PHP 8.4) and `spatie/laravel-settings` ^3.9 (host). The README records versions and reasons.
 - Node: `package.json` has `"engines": {"node": ">=20.19"}`; `npm run build` must keep working on Node 20.20.2 (production).
-- Fonts: `@fontsource-variable/inter` and `@fontsource-variable/source-serif-4`, imported in `resources/css/app.css`. Brand colours are Tailwind theme tokens there (`primary`, `primary-dark`, `accent`, `ink`, `muted`, `surface`, `line`).
+- Fonts: `@fontsource-variable/inter` (body) and `@fontsource-variable/source-serif-4`, plus the heading candidates Nunito Sans / Lato 900 (`font-heading`, owner to choose), imported in `resources/css/app.css`. Brand colours are Tailwind theme tokens there (`green-900/800/700/500`, `orange-600/500/400`, `orange-cta` for white button text, `orange-text` for small orange text, `ink`, `muted`, `surface`, `line`); `AppSupportBrandPalette` mirrors them and a test keeps every text pair at WCAG AA. Utilities: `btn-primary`, `btn-secondary`, `btn-cta`, `eyebrow`, `accent-bar`, `card`.
+- Public layout: `<x-layouts.site>` with `<x-site.header>` / `<x-site.footer>`; navigation, CTA, footer columns and legal links live in `config/site.php` and are linked only when their route exists. The company-status line comes from `SiteSettings::statusStatement()`. `/dev/design` (local only) is the design review page.
 - Production is a Hetzner VPS with HestiaCP: nginx, PHP-FPM 8.3, Node 20.20.2, own Exim mail server. No Supervisor: queues run from the scheduler via cron.
 
 ## Commands

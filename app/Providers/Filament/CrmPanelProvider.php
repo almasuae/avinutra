@@ -34,8 +34,14 @@ class CrmPanelProvider extends PanelProvider
             ->path(config('lite-crm.path', 'crm'))
             ->login()
             ->brandName(fn (): string => $this->brandName())
+            // Design Brief §2.4: compact logo (white-panel version in dark mode), mark as favicon.
+            ->brandLogo(fn (): string => self::brandAsset('logo-compact@2x.png'))
+            ->darkModeBrandLogo(fn (): string => self::brandAsset('logo-compact-boxed@2x.png'))
+            ->brandLogoHeight('2.25rem')
+            ->favicon(fn (): string => self::brandAsset('favicon-32.png'))
             ->colors([
-                'primary' => Color::hex('#1F4E5F'),
+                // Base at shade 500 so buttons (shade 600) are dark green with white text (AA).
+                'primary' => Color::generateV3Palette('#025E3D'), // green-700
             ])
             ->plugin(
                 LiteCrmPlugin::make()
@@ -59,6 +65,14 @@ class CrmPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    /**
+     * A file in public/brand, with a version so browsers fetch it again after `npm run brand:build`.
+     */
+    protected static function brandAsset(string $file): string
+    {
+        return asset('brand/'.$file).'?v='.config('brand.version');
     }
 
     /**

@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+// The header and footer read the site settings (company status, e-mails).
+uses(RefreshDatabase::class);
+
 it('serves the home page', function (): void {
     $this->get('/')
         ->assertOk()

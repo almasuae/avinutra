@@ -1,5 +1,8 @@
 @import '@fontsource-variable/inter/wght.css';
 @import '@fontsource-variable/source-serif-4/wght.css';
+/* Heading-font candidates (Design Brief §3): the owner picks one; the other is then removed. */
+@import '@fontsource-variable/nunito-sans/wght.css';
+@import '@fontsource/lato/900.css';
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -9,23 +12,83 @@
 @theme {
     --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
     --font-serif: 'Source Serif 4 Variable', ui-serif, Georgia, serif;
+    --font-heading: 'Nunito Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-heading-a: 'Nunito Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-heading-b: 'Lato', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 
-    /* AviNutra palette (v5 §E1). Use the accent sparingly. */
-    --color-primary: #1f4e5f;
-    --color-primary-dark: #163a47;
-    --color-accent: #c8a24a;
+    /* AviNutra palette (Design Brief §3, sampled from the logo). */
+    --color-green-900: #013b32;
+    --color-green-800: #034c33;
+    --color-green-700: #025e3d;
+    --color-green-500: #6ba727;
+    --color-orange-600: #fc6b01;
+    --color-orange-500: #fc7804;
+    --color-orange-400: #fd9302;
+    /* Added for WCAG AA (Design Brief §3): white text needs a slightly deeper orange,
+       and small orange text (eyebrows) a darker one. */
+    --color-orange-cta: #f06501; /* white bold labels >= 19px: 3.2:1 */
+    --color-orange-text: #b94e01; /* small text on white 5.1:1, on surface 4.8:1 */
     --color-ink: #1c2226;
     --color-muted: #5b6770;
-    --color-surface: #f6f8f8;
-    --color-line: #dde3e5;
+    --color-surface: #f7f8f6;
+    --color-line: #e3e7e4;
+    /* Text on the dark-green footer. */
+    --color-on-dark: #ffffff;
+    --color-on-dark-muted: #c9d6cf;
+
+    /* Older names, kept so existing views keep working. */
+    --color-primary: #025e3d;
+    --color-primary-dark: #034c33;
+    --color-accent: #b94e01;
+
+    --radius-card: 1.125rem;
+    --shadow-soft: 0 10px 30px -12px rgb(1 59 50 / 0.18);
 }
 
 @layer base {
     html {
         @apply bg-white font-sans text-ink antialiased;
+        font-size: 100%;
+    }
+
+    body {
+        @apply text-[1.0625rem] leading-relaxed sm:text-lg;
+    }
+
+    h1, h2, h3, h4 {
+        @apply font-heading text-green-900;
     }
 
     :focus-visible {
-        @apply outline-2 outline-offset-2 outline-primary;
+        @apply outline-2 outline-offset-2 outline-green-700;
     }
+}
+
+/* Pill buttons (Design Brief §3). Labels are 19px bold so white on orange passes AA. */
+@utility btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-7 py-3 text-[1.1875rem] leading-tight font-bold transition-colors;
+}
+
+@utility btn-primary {
+    @apply btn bg-orange-cta text-white hover:bg-orange-text;
+}
+
+@utility btn-secondary {
+    @apply btn border-2 border-green-800 text-green-800 hover:bg-green-800 hover:text-white;
+}
+
+@utility btn-cta {
+    @apply btn bg-green-800 px-6 py-2.5 text-base text-white hover:bg-green-900;
+}
+
+@utility eyebrow {
+    @apply text-sm font-bold tracking-[0.08em] text-orange-text uppercase;
+}
+
+@utility accent-bar {
+    @apply block h-[3px] w-10 bg-orange-500;
+}
+
+@utility card {
+    @apply rounded-(--radius-card) border border-line bg-white p-7 shadow-(--shadow-soft);
 }

@@ -32,6 +32,8 @@ always resolves to versions that run on the production server.
 | `orchestra/testbench` | 11.x | dev | Matches Laravel 13, for package tests without the host. |
 | `larastan/larastan` | 3.x | dev | Static analysis at level 5. |
 | `@fontsource-variable/inter`, `@fontsource-variable/source-serif-4` | 5.x | npm | Self-hosted fonts (no font CDN). |
+| `@fontsource-variable/nunito-sans`, `@fontsource/lato` (900 only) | ^5.3 | npm | The two heading-font candidates (Design Brief §3). The owner picks one; the other is then removed. |
+| `sharp` | ^0.35.5 | npm (dev) | Approved in Design Brief §2. `npm run brand:build` makes every logo variant, icon and preview from `docs/design/logo-source.png`. The generated files are committed, so the server never runs it. |
 
 The permission and audit-log packages are dependencies of the CRM package because the
 CRM uses them; they store their data in `crm_`-prefixed tables (`crm_roles`,
@@ -59,6 +61,11 @@ with `php artisan lite-crm:create-admin {email}` (it asks for a password of at l
 12 characters, or sends an invitation with `--invite`). Admins must set up
 authenticator-app MFA at their first sign-in; further users are invited from
 CRM › CRM settings › Users.
+
+Brand files: `npm run brand:build` regenerates `public/brand/*`, `public/favicon.ico`
+and `config/brand.php` from the master logo `docs/design/logo-source.png`. The design
+review page `/dev/design` (local only) shows the fonts, header, footer options, logo
+and colour contrast.
 
 Background work: the scheduler (`php artisan schedule:run`, every minute via cron on
 the server; `php artisan schedule:work` locally) sends digests and weekly reports,
