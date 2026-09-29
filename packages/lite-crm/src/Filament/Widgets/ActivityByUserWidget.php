@@ -18,7 +18,7 @@ class ActivityByUserWidget extends ChartWidget
 {
     use CrmWidget;
 
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 6;
 
     protected ?string $maxHeight = '260px';
 
@@ -35,6 +35,20 @@ class ActivityByUserWidget extends ChartWidget
     protected function getType(): string
     {
         return 'bar';
+    }
+
+    /**
+     * Activities are counted, so the axis shows whole numbers only.
+     *
+     * @return array<string, mixed>
+     */
+    protected function getOptions(): array
+    {
+        return [
+            'scales' => [
+                'y' => ['beginAtZero' => true, 'ticks' => ['precision' => 0]],
+            ],
+        ];
     }
 
     /**

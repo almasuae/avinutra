@@ -10,7 +10,9 @@ use Filament\Facades\Filament;
 use Filament\Panel;
 use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Routing\Middleware\ValidateSignature;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use LiteCrm\Contracts\CrmUser;
 use LiteCrm\Filament\Pages\AcceptInvitation;
@@ -114,10 +116,70 @@ class LiteCrmPlugin implements Plugin
     }
 
     /**
-     * The navigation group of record screens on the current panel.
+     * Where a record screen sits in the sidebar, from lite-crm.navigation.groups:
+     * its group label and a sort value that keeps the configured order. Null
+     * when the screen is not listed (it then uses the default group).
+     *
+     * @return array{group: string, sort: int}|null
      */
-    public static function recordNavigationGroup(): string
+    public static function navigationPlacement(string $item): ?array
     {
+        $index = 0;
+
+        foreach ((array) config('lite-crm.navigation.groups', []) as $key => $group) {
+            $items = array_values((array) ($group['items'] ?? []));
+            $position = array_search($item, $items, true);
+
+            if ($position !== false) {
+                return ['group' => static::navigationGroupLabel((string) $key), 'sort' => ($index + 1) * 100 + (int) $position];
+            }
+
+            $index++;
+        }
+
+        return null;
+    }
+
+    /**
+     * The label of a configured navigation group: its "label", else the
+     * translation lite-crm::lite-crm.navigation.groups.{key}, else the key.
+     */
+    public static function navigationGroupLabel(string $key): string
+    {
+        $label = config("lite-crm.navigation.groups.{$key}.label");
+
+        if (is_string($label) && $label !== '') {
+            return $label;
+        }
+
+        $translationKey = "lite-crm::lite-crm.navigation.groups.{$key}";
+
+        return Lang::has($translationKey) ? (string) __($translationKey) : Str::headline($key);
+    }
+
+    /**
+     * The configured group labels, in order.
+     *
+     * @return list<string>
+     */
+    public static function navigationGroupLabels(): array
+    {
+        return array_map(
+            fn (int|string $key): string => static::navigationGroupLabel((string) $key),
+            array_keys((array) config('lite-crm.navigation.groups', [])),
+        );
+    }
+
+    /**
+     * The navigation group of a record screen on the current panel: its
+     * configured group, or the plugin's default group.
+     */
+    public static function recordNavigationGroup(?string $item = null): string
+    {
+        if ($item !== null && ($placement = static::navigationPlacement($item)) !== null) {
+            return $placement['group'];
+        }
+
         $panel = Filament::getCurrentPanel();
 
         if ($panel !== null && $panel->hasPlugin('lite-crm')) {
@@ -199,6 +261,10 @@ class LiteCrmPlugin implements Plugin
 
     public function boot(Panel $panel): void
     {
+        // Configured groups first, in their configured order (lite-crm.navigation.groups).
+        // Set at boot, not register: the labels are translations, which load after registration.
+        $panel->navigationGroups(static::navigationGroupLabels());
+
         // Dates are stored in UTC and shown in each user's own time zone.
         FilamentTimezone::set(function (): ?string {
             $user = Filament::auth()->user();

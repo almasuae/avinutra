@@ -47,7 +47,7 @@ The PNG contains about 67,000 near-transparent stray pixels (alpha 1–39), most
 
 ### 2.4 Usage rules
 - **Header:** `logo-compact` at 2× resolution: `<img src="/brand/logo-compact@2x.png" … width=… height=…>` (WebP via `<picture>`), displayed 40–48 px tall on desktop and 32–36 px on mobile. Always set width and height to avoid layout shift.
-- **Footer:** option A, a light `surface` footer with `logo-full`; or option B, a dark-green footer with the full-colour logo on a white rounded panel. The owner chooses (§6 item 7).
+- **Footer:** dark green (`green-800`) with the full-colour `logo-full` on a white rounded panel (owner's choice, option B).
 - **Favicon:** `favicon.ico`, `favicon-32.png`, `favicon-16.png` and `apple-touch-icon.png`; `icon-192.png` and `icon-512.png` in the web manifest.
 - **CRM panel (Filament):** `logo-compact` as the brand logo (`logo-compact-boxed` in dark mode) and the `logo-mark` favicon.
 - Only the cleaned files in `public/brand/` are used on the site; never the raw `logo-source.png`.
@@ -79,7 +79,7 @@ Colours sampled from the PNG logo and the mockup, and confirmed against the logo
 - **Contrast:** white text on `orange-600` is borderline for small text. Use it only on large, bold button labels (≥ 18 px bold) or put dark text on orange. Verify every text/background pair meets WCAG AA.
 
 **Typography**
-- **Headings:** a bold, rounded-humanist sans close to the mockup. Propose two self-hosted options (e.g. *Nunito Sans ExtraBold* or *Lato Black*), show both on the hero, and let the owner choose. Hero headline about 56–64 px desktop / 36–40 px mobile, tight line-height (1.05–1.1).
+- **Headings:** **Lato Black (900)**, self-hosted (owner's choice after comparing it with Nunito Sans ExtraBold on the hero). Hero headline about 56–64 px desktop / 36–40 px mobile, tight line-height (1.05–1.1).
 - **Body:** Inter (already installed), 17–18 px, line-height 1.6.
 - **Article headings:** Source Serif 4 may stay.
 - Everything self-hosted; no external font URLs.
@@ -173,7 +173,7 @@ Section order, top to bottom:
    - Precision Amino Acid Nutrition, with a calculator teaser;
    - Latest Insights (hidden until an article exists);
    - the closing CTA band on dark green.
-7. **Footer** — the owner chooses between A, a light `surface` footer with `logo-full`, and B, a dark-green (`green-800`) footer with the full-colour logo on a white rounded panel (§2.4). Four columns: About/tagline · Services · Resources (Tools, Insights, Quality) · Contact (e-mails; WhatsApp when set). The status statement and legal links go in the bottom bar.
+7. **Footer** — dark green (`green-800`) with the full-colour logo on a white rounded panel (owner's choice, §2.4). Four columns: About/tagline · Services · Resources (Tools, Insights, Quality) · Contact (e-mails; WhatsApp when set). The status statement and legal links go in the bottom bar.
 
 **Other pages** use the same system: a smaller hero band (title + breadcrumb + a thin image strip or brand shape), cards, line icons, eyebrow labels, and pill buttons.
 

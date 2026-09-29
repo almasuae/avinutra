@@ -373,6 +373,26 @@ CustomFieldComponents::infolist('organisation');
 Filters use only JSON queries that work on MariaDB/MySQL and SQLite
 (`where('custom->key', ...)`, `whereJsonContains`).
 
+## Sidebar navigation
+
+Record screens are grouped in the sidebar by `config('lite-crm.navigation.groups')`:
+
+```php
+'navigation' => [
+    'groups' => [
+        'sales' => ['label' => null, 'items' => ['enquiries', 'organisations', 'contacts', 'opportunities', 'board', 'quotations']],
+        'operations' => ['label' => null, 'items' => ['products', 'samples', 'trials', 'documents', 'price_log']],
+        'team' => ['label' => null, 'items' => ['tasks', 'activities', 'announcements', 'decisions']],
+    ],
+],
+```
+
+Items are module keys, plus `board` for the opportunity board, shown in the order
+listed. A `null` label uses the translation `lite-crm::lite-crm.navigation.groups.{key}`
+(or the key itself). Screens not listed go into the plugin's default group
+(`LiteCrmPlugin::make()->navigationGroup(...)`). The dashboard stays at the top, and
+the settings screens stay in "CRM settings".
+
 ## Dashboard
 
 The panel's home page is `LiteCrm\Filament\Pages\CrmDashboard` (the plugin registers

@@ -77,7 +77,7 @@
                         <li>
                             <a href="{{ $item['href'] }}"
                                @if ($item['active']) aria-current="page" @endif
-                               class="flex items-center justify-between py-4 font-heading text-xl font-extrabold text-green-900 aria-[current=page]:text-green-700">
+                               class="flex items-center justify-between py-4 font-heading text-xl font-black text-green-900 aria-[current=page]:text-green-700">
                                 {{ $item['label'] }}
                                 <x-heroicon-m-chevron-right class="size-5 text-orange-500" aria-hidden="true" />
                             </a>

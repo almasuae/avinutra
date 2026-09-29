@@ -7,5 +7,11 @@ return [
     'navigation' => [
         'group' => 'CRM',
         'settings' => 'CRM settings',
+        // Default labels for lite-crm.navigation.groups (a group's "label" in config wins).
+        'groups' => [
+            'sales' => 'Sales',
+            'operations' => 'Operations',
+            'team' => 'Team',
+        ],
     ],
 ];

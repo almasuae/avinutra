@@ -1,7 +1,6 @@
 @import '@fontsource-variable/inter/wght.css';
 @import '@fontsource-variable/source-serif-4/wght.css';
-/* Heading-font candidates (Design Brief §3): the owner picks one; the other is then removed. */
-@import '@fontsource-variable/nunito-sans/wght.css';
+/* Headings: Lato Black (owner's choice, Design Brief §3). */
 @import '@fontsource/lato/900.css';
 @import 'tailwindcss';
 
@@ -12,9 +11,7 @@
 @theme {
     --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
     --font-serif: 'Source Serif 4 Variable', ui-serif, Georgia, serif;
-    --font-heading: 'Nunito Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-    --font-heading-a: 'Nunito Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-    --font-heading-b: 'Lato', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Lato', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 
     /* AviNutra palette (Design Brief §3, sampled from the logo). */
     --color-green-900: #013b32;
@@ -55,8 +52,9 @@
         @apply text-[1.0625rem] leading-relaxed sm:text-lg;
     }
 
+    /* Lato is self-hosted in weight 900 only (Black). */
     h1, h2, h3, h4 {
-        @apply font-heading text-green-900;
+        @apply font-heading font-black text-green-900;
     }
 
     :focus-visible {
@@ -91,4 +89,97 @@
 
 @utility card {
     @apply rounded-(--radius-card) border border-line bg-white p-7 shadow-(--shadow-soft);
+}
+
+/* Long-form text: articles, the methionine guide and legal pages. */
+@layer components {
+    .prose-article {
+        @apply text-lg leading-relaxed text-ink;
+    }
+
+    .prose-article > section + section,
+    .prose-article > h2 {
+        @apply mt-12;
+    }
+
+    .prose-article h2 {
+        @apply mb-4 text-3xl leading-tight tracking-tight;
+    }
+
+    .prose-article h3 {
+        @apply mt-8 mb-3 text-xl;
+    }
+
+    .prose-article p,
+    .prose-article ul,
+    .prose-article ol,
+    .prose-article dl,
+    .prose-article .table-wrap {
+        @apply mt-4;
+    }
+
+    .prose-article ul {
+        @apply list-disc space-y-2 pl-6;
+    }
+
+    .prose-article ol {
+        @apply list-decimal space-y-2 pl-6;
+    }
+
+    .prose-article a:not(.btn-primary):not(.btn-secondary) {
+        @apply font-semibold text-green-700 underline underline-offset-2 hover:text-green-900;
+    }
+
+    .prose-article strong {
+        @apply font-semibold text-green-900;
+    }
+
+    .prose-article .formula {
+        @apply rounded-xl bg-surface px-5 py-4 font-mono text-base text-green-900;
+    }
+
+    .prose-article .table-wrap {
+        @apply overflow-x-auto rounded-(--radius-card) border border-line;
+    }
+
+    .prose-article table {
+        @apply w-full text-left text-base;
+    }
+
+    /* Markdown tables are not wrapped, so they scroll on their own on phones. */
+    .prose-article > table {
+        @apply mt-4 block overflow-x-auto rounded-(--radius-card) border border-line;
+    }
+
+    .prose-article caption {
+        @apply bg-surface px-4 py-3 text-left text-sm font-semibold text-green-900;
+    }
+
+    .prose-article th {
+        @apply border-b border-line px-4 py-3 text-sm text-green-900;
+    }
+
+    .prose-article td {
+        @apply border-b border-line px-4 py-3;
+    }
+
+    .prose-article .checklist > div {
+        @apply border-b border-line py-4;
+    }
+
+    .prose-article .checklist dt {
+        @apply font-semibold text-green-900;
+    }
+
+    .prose-article .checklist dd {
+        @apply mt-1 text-base text-muted;
+    }
+
+    .prose-article .references {
+        @apply text-base;
+    }
+
+    .prose-article sup a {
+        @apply no-underline;
+    }
 }

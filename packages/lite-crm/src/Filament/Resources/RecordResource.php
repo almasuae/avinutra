@@ -38,7 +38,12 @@ abstract class RecordResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return LiteCrmPlugin::recordNavigationGroup();
+        return LiteCrmPlugin::recordNavigationGroup(static::crmModule());
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return LiteCrmPlugin::navigationPlacement(static::crmModule())['sort'] ?? parent::getNavigationSort();
     }
 
     /**

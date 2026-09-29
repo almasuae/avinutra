@@ -26,9 +26,6 @@ return [
     // Site search is not built yet; the header shows the search icon only when this is true.
     'search' => false,
 
-    // Footer style, pending the owner's choice (Design Brief §6 item 7): 'light' (A) or 'dark' (B).
-    'footer' => env('SITE_FOOTER', 'light'),
-
     'footer_columns' => [
         'Services' => [
             ['label' => 'Nutrition Services', 'route' => 'services'],

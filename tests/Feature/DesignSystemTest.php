@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Settings\SiteSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\RouteCollection;
 use Illuminate\Support\Facades\Route;
 
 uses(RefreshDatabase::class);
@@ -49,22 +50,34 @@ it('shows the compact logo at 2x with explicit width and height in the header', 
 });
 
 it('never links to pages that do not exist yet', function (): void {
+    config([
+        'site.navigation' => [['label' => 'About', 'route' => 'about'], ['label' => 'Not built yet', 'route' => 'not-built-yet']],
+        'site.cta' => ['label' => 'Call to action', 'route' => 'also-not-built'],
+    ]);
+
     $html = $this->get('/')->assertOk()->getContent();
 
     expect($html)->not->toContain('href="#"')
-        ->and($html)->not->toContain('Get in Touch');
+        ->and($html)->not->toContain('Not built yet')
+        ->and($html)->not->toContain('Call to action')
+        ->and($html)->toContain('href="'.route('about').'"');
 });
 
-it('links navigation items once their pages exist', function (): void {
-    Route::get('/about', fn () => 'about')->name('about');
-    Route::get('/contact', fn () => 'contact')->name('contact');
-    Route::getRoutes()->refreshNameLookups();
+it('shows the full navigation and the Get in Touch button', function (): void {
+    $response = $this->get('/')->assertOk();
 
-    $this->get('/')
-        ->assertOk()
-        ->assertSee('href="'.url('/about').'"', false)
-        ->assertSee('Get in Touch')
-        ->assertDontSee('Nutrition Services');
+    foreach (config('site.navigation') as $item) {
+        $response->assertSee('href="'.route($item['route']).'"', false);
+    }
+
+    $response->assertSee('Get in Touch');
+});
+
+it('marks the current section in the navigation', function (): void {
+    $html = (string) $this->get('/nutrition-services/feed-economics')->assertOk()->getContent();
+
+    expect($html)->toMatch('#href="'.preg_quote(route('services'), '#').'"\s+aria-current="page"#')
+        ->and($html)->not->toMatch('#href="'.preg_quote(route('about'), '#').'"\s+aria-current="page"#');
 });
 
 it('shows the status statement and the site e-mails in the footer', function (): void {
@@ -92,9 +105,34 @@ it('words the company status from the site settings', function (): void {
     expect($site->statusStatement())->toStartWith('Example Holdings (UEN 202600001A) is incorporated in Singapore.');
 });
 
-it('registers the design review page only in local development', function (): void {
-    expect(Route::has('dev.design'))->toBeFalse();
+/**
+ * Registers routes/web.php again as it would be in the given environment.
+ */
+function loadWebRoutesAs(string $environment): void
+{
+    app()->instance('env', $environment);
+    Route::setRoutes(new RouteCollection);
+    Route::middleware('web')->group(base_path('routes/web.php'));
+    Route::getRoutes()->refreshNameLookups();
+}
+
+it('returns 404 for the development pages in production', function (): void {
+    loadWebRoutesAs('production');
+
+    expect(Route::has('dev.design'))->toBeFalse()
+        ->and(Route::has('dev.enquiry-form'))->toBeFalse();
     $this->get('/dev/design')->assertNotFound();
+    $this->get('/dev/enquiry-form')->assertNotFound();
+});
+
+it('serves the design review page in local development only', function (): void {
+    loadWebRoutesAs('local');
+
+    expect(Route::has('dev.design'))->toBeTrue();
+    $this->get('/dev/design')->assertOk()->assertSee('Design review');
+
+    loadWebRoutesAs('testing');
+    expect(Route::has('dev.design'))->toBeFalse();
 });
 
 it('brands the CRM with the green primary colour, compact logo and mark favicon', function (): void {

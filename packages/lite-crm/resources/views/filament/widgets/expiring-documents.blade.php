@@ -1,5 +1,5 @@
-<x-filament-widgets::widget>
-    <x-filament::section :heading="__('lite-crm::dashboard.expiring.heading', ['days' => $days])">
+<x-filament-widgets::widget style="height:100%">
+    <x-filament::section style="height:100%" :heading="__('lite-crm::dashboard.expiring.heading', ['days' => $days])">
         <ul>
             @forelse ($documents as $document)
                 <li style="display:flex; justify-content:space-between; gap:0.5rem; padding:0.2rem 0;">

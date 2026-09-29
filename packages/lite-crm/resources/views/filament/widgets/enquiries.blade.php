@@ -1,5 +1,5 @@
-<x-filament-widgets::widget>
-    <x-filament::section :heading="__('lite-crm::enquiries.plural')">
+<x-filament-widgets::widget style="height:100%">
+    <x-filament::section style="height:100%" :heading="__('lite-crm::enquiries.plural')">
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-bottom:0.8rem;">
             <div>
                 <div style="font-size:1.6rem; font-weight:600;">{{ $new }}</div>

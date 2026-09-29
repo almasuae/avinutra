@@ -46,6 +46,36 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Sidebar navigation
+    |--------------------------------------------------------------------------
+    |
+    | Record screens are grouped in the sidebar, in this order. Items are module
+    | keys (see "modules"), plus "board" for the opportunity board. A group's
+    | label is taken from "label" or, when null, from the translation
+    | lite-crm::lite-crm.navigation.groups.{key}. Screens not listed here go into
+    | the plugin's default group. The dashboard always stays at the top.
+    |
+    */
+
+    'navigation' => [
+        'groups' => [
+            'sales' => [
+                'label' => null,
+                'items' => ['enquiries', 'organisations', 'contacts', 'opportunities', 'board', 'quotations'],
+            ],
+            'operations' => [
+                'label' => null,
+                'items' => ['products', 'samples', 'trials', 'documents', 'price_log'],
+            ],
+            'team' => [
+                'label' => null,
+                'items' => ['tasks', 'activities', 'announcements', 'decisions'],
+            ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Modules
     |--------------------------------------------------------------------------
     |

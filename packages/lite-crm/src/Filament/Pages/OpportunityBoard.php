@@ -52,7 +52,12 @@ class OpportunityBoard extends Page
 
     public static function getNavigationGroup(): ?string
     {
-        return LiteCrmPlugin::recordNavigationGroup();
+        return LiteCrmPlugin::recordNavigationGroup('board');
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return LiteCrmPlugin::navigationPlacement('board')['sort'] ?? parent::getNavigationSort();
     }
 
     public static function getNavigationLabel(): string

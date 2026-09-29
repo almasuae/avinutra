@@ -1,5 +1,5 @@
-<x-filament-widgets::widget>
-    <x-filament::section :heading="__('lite-crm::dashboard.won_lost.heading')" :description="$from->toFormattedDateString().' – '.$until->toFormattedDateString()">
+<x-filament-widgets::widget style="height:100%">
+    <x-filament::section style="height:100%" :heading="__('lite-crm::dashboard.won_lost.heading')" :description="$from->toFormattedDateString().' – '.$until->toFormattedDateString()">
         <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:0.75rem; margin-bottom:0.8rem;">
             <div>
                 <div style="font-size:1.6rem; font-weight:600; color:rgb(22 163 74);">{{ $won['count'] }}</div>

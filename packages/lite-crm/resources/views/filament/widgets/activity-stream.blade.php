@@ -1,5 +1,5 @@
-<x-filament-widgets::widget>
-    <x-filament::section :heading="__('lite-crm::dashboard.activity_stream.heading')">
+<x-filament-widgets::widget style="height:100%">
+    <x-filament::section style="height:100%" :heading="__('lite-crm::dashboard.activity_stream.heading')">
         <ul>
             @forelse ($activities as $activity)
                 <li style="display:flex; justify-content:space-between; gap:1rem; padding:0.3rem 0; border-bottom:1px solid rgba(125,125,125,0.15);">

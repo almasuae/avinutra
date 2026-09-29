@@ -1,5 +1,12 @@
-@props(['title' => null, 'description' => null, 'preview' => false, 'footer' => null])
-@php($brandVersion = config('brand.version'))
+@props(['title' => null, 'description' => null, 'preview' => false])
+@php
+    $brandVersion = config('brand.version');
+    // CRM › Website › Page SEO overrides the page's own title and description.
+    $seo = \App\Models\PageSeo::forRoute(request()->route()?->getName());
+    $title = filled($seo?->title) ? $seo->title : $title;
+    $description = filled($seo?->description) ? $seo->description : $description;
+    $whatsapp = \App\Support\SiteLinks::whatsapp(app(\App\Settings\SiteSettings::class)->whatsapp_sales);
+@endphp
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
@@ -36,6 +43,11 @@
         {{ $slot }}
     </main>
 
-    <x-site.footer :variant="$footer" :preview="$preview" />
+    <x-site.footer :preview="$preview" />
+
+    @if ($whatsapp)
+        {{-- Sticky WhatsApp button on phones, once a number is set in Site settings (v3 §7.10). --}}
+        <a href="{{ $whatsapp }}" class="btn-cta fixed right-4 bottom-4 z-30 shadow-lg md:hidden">WhatsApp us</a>
+    @endif
 </body>
 </html>

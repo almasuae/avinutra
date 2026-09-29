@@ -6,6 +6,18 @@ package uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (sidebar and dashboard)
+- Sidebar groups set in `lite-crm.navigation.groups` (group key → label and member
+  screens, in order). Defaults: Sales, Operations, Team (labels translatable; a group's
+  `label` in config wins). Screens not listed use the plugin's default group.
+- `feed-additives` preset: product custom fields for the website (species, form,
+  function, nutritional function, country of origin, TDS date, reviewed applications).
+
+### Changed (dashboard)
+- "Activities by user" shows whole numbers only on its axis.
+- Widgets re-ordered so neighbours have similar heights (won/lost next to expiring
+  documents, the two charts together, the activity stream beside notices).
+
 ### Added (after the Phase 6 review)
 - Stale exchange-rate warning on the pipeline widget and in the weekly report when a
   rate in use is older than `exchange_rates.stale_after_days` (default 30).

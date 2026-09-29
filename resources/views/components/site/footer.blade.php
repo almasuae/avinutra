@@ -1,14 +1,11 @@
-@props(['variant' => null, 'preview' => false])
+@props(['preview' => false])
 {{--
-    Site footer (Design Brief §6 item 7), in two styles for the owner to choose:
-      light (A): surface background with the full logo;
-      dark  (B): dark green with the full-colour logo on a white rounded panel.
-    Four columns: About · Services · Resources · Contact. Status statement (from
-    Site settings, never hard-coded) and legal links in the bottom bar.
+    Site footer (Design Brief §6 item 7; owner's choice B): dark green (green-800) with the
+    full-colour logo on a white rounded panel. Four columns: About · Services · Resources ·
+    Contact. Status statement (from Site settings, never hard-coded) and legal links in the
+    bottom bar. Links appear only when their page exists ($preview shows all).
 --}}
 @php
-    $variant ??= config('site.footer', 'light');
-    $dark = $variant === 'dark';
     $site = app(\App\Settings\SiteSettings::class);
     $link = fn (array $item): ?string => \Illuminate\Support\Facades\Route::has($item['route'])
         ? route($item['route'])
@@ -26,21 +23,17 @@
     ])->filter();
     $whatsapp = collect(['WhatsApp (sales)' => $site->whatsapp_sales, 'WhatsApp (nutrition)' => $site->whatsapp_nutrition])->filter();
 
-    $heading = $dark ? 'text-white' : 'text-green-900';
-    $text = $dark ? 'text-on-dark-muted' : 'text-muted';
-    $linkClass = $dark ? 'text-on-dark-muted hover:text-white' : 'text-ink hover:text-green-700';
+    $heading = 'text-white';
+    $text = 'text-on-dark-muted';
+    $linkClass = 'text-on-dark-muted underline-offset-4 hover:text-white hover:underline';
 @endphp
-<footer {{ $attributes->class([$dark ? 'bg-green-800 text-on-dark' : 'border-t border-line bg-surface text-ink']) }}>
+<footer {{ $attributes->class(['bg-green-800 text-on-dark']) }}>
     <div class="mx-auto max-w-[84rem] px-4 pt-14 pb-10 sm:px-6 xl:px-8">
         <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
             <div>
-                @if ($dark)
-                    <span class="inline-block rounded-2xl bg-white px-5 py-4 shadow-sm">
-                        <x-brand.logo variant="full" class="h-auto w-64" />
-                    </span>
-                @else
+                <a href="{{ url('/') }}" class="inline-block rounded-2xl bg-white px-5 py-4 shadow-sm">
                     <x-brand.logo variant="full" class="h-auto w-64" />
-                @endif
+                </a>
                 <p class="mt-5 max-w-xs text-base {{ $text }}">
                     International poultry feed nutrition, consulting and ingredient supply.
                 </p>
@@ -48,7 +41,7 @@
 
             @foreach ($columns as $title => $items)
                 <nav aria-label="{{ $title }}">
-                    <h2 class="text-sm font-extrabold tracking-[0.08em] uppercase {{ $heading }}">{{ $title }}</h2>
+                    <h2 class="text-sm font-black tracking-[0.08em] uppercase {{ $heading }}">{{ $title }}</h2>
                     <span class="accent-bar mt-3"></span>
                     <ul class="mt-5 space-y-3 text-base">
                         @foreach ($items as $item)
@@ -59,7 +52,7 @@
             @endforeach
 
             <div>
-                <h2 class="text-sm font-extrabold tracking-[0.08em] uppercase {{ $heading }}">Contact</h2>
+                <h2 class="text-sm font-black tracking-[0.08em] uppercase {{ $heading }}">Contact</h2>
                 <span class="accent-bar mt-3"></span>
                 <dl class="mt-5 space-y-3 text-base">
                     @foreach ($mailboxes as $label => $email)
@@ -78,7 +71,7 @@
             </div>
         </div>
 
-        <div @class(['mt-12 flex flex-col gap-4 border-t pt-6 text-sm lg:flex-row lg:items-start lg:justify-between', 'border-white/15' => $dark, 'border-line' => ! $dark])>
+        <div class="mt-12 flex flex-col gap-4 border-t border-white/15 pt-6 text-sm lg:flex-row lg:items-start lg:justify-between">
             <div class="max-w-3xl space-y-1 {{ $text }}">
                 <p>{{ $site->statusStatement() }}</p>
                 <p>&copy; {{ now()->year }} {{ $site->brand }}</p>

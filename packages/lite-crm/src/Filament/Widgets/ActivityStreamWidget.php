@@ -17,8 +17,6 @@ class ActivityStreamWidget extends Widget
 
     protected static ?int $sort = 11;
 
-    protected int|string|array $columnSpan = 'full';
-
     protected string $view = 'lite-crm::filament.widgets.activity-stream';
 
     protected static function module(): string

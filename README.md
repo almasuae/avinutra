@@ -62,6 +62,13 @@ with `php artisan lite-crm:create-admin {email}` (it asks for a password of at l
 authenticator-app MFA at their first sign-in; further users are invited from
 CRM › CRM settings › Users.
 
+Website content is edited in the CRM under **Website**: Site settings (company status,
+mailboxes, WhatsApp numbers, the enquiry response time), Page SEO, Articles, Team
+profiles, Glossary, FAQs and Calculator defaults (users with `website.manage`).
+`php artisan db:seed` also seeds the Knowledge Centre launch content and one CRM task
+per open row of `CONTENT-GAPS.md`; run `php artisan db:seed --class=ContentGapTaskSeeder`
+after `lite-crm:create-admin` to assign those tasks to the first admin.
+
 Brand files: `npm run brand:build` regenerates `public/brand/*`, `public/favicon.ico`
 and `config/brand.php` from the master logo `docs/design/logo-source.png`. The design
 review page `/dev/design` (local only) shows the fonts, header, footer options, logo

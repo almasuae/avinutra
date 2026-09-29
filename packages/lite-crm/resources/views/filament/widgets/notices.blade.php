@@ -1,5 +1,5 @@
-<x-filament-widgets::widget>
-    <x-filament::section :heading="__('lite-crm::dashboard.notices.heading')">
+<x-filament-widgets::widget style="height:100%">
+    <x-filament::section style="height:100%" :heading="__('lite-crm::dashboard.notices.heading')">
         @foreach ($announcements as $announcement)
             <article style="margin-bottom:0.8rem;">
                 <h3 style="font-weight:600;">{{ $announcement->title }}</h3>

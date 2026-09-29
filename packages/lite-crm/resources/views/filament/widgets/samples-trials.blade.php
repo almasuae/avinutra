@@ -1,5 +1,5 @@
-<x-filament-widgets::widget>
-    <x-filament::section :heading="__('lite-crm::dashboard.samples_trials.heading')">
+<x-filament-widgets::widget style="height:100%">
+    <x-filament::section style="height:100%" :heading="__('lite-crm::dashboard.samples_trials.heading')">
         @if ($samples !== null)
             <h3 style="font-weight:600; font-size:0.9rem;">{{ __('lite-crm::samples.plural') }}</h3>
             <ul style="margin:0.3rem 0 0.8rem;">

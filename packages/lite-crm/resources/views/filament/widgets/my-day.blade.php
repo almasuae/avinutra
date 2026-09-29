@@ -1,5 +1,5 @@
-<x-filament-widgets::widget>
-    <x-filament::section :heading="__('lite-crm::dashboard.my_day.heading')">
+<x-filament-widgets::widget style="height:100%">
+    <x-filament::section style="height:100%" :heading="__('lite-crm::dashboard.my_day.heading')">
         <h3 style="font-weight:600; font-size:0.9rem;">{{ __('lite-crm::dashboard.my_day.tasks') }}</h3>
         <ul style="margin:0.4rem 0 1rem;">
             @forelse ($tasks as $task)

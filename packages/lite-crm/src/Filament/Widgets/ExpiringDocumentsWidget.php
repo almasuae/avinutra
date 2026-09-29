@@ -16,7 +16,7 @@ class ExpiringDocumentsWidget extends Widget
 {
     use CrmWidget;
 
-    protected static ?int $sort = 6;
+    protected static ?int $sort = 5;
 
     protected string $view = 'lite-crm::filament.widgets.expiring-documents';
 

@@ -141,6 +141,21 @@ return [
         ['entity' => 'organisation', 'key' => 'gmp_plus_status', 'label' => 'GMP+ status', 'type' => 'select', 'section' => 'Manufacturer profile', 'visible_for_types' => ['manufacturer_supplier'], 'filterable' => true, 'options' => $certification],
         ['entity' => 'organisation', 'key' => 'halal_status', 'label' => 'Halal status', 'type' => 'select', 'section' => 'Manufacturer profile', 'visible_for_types' => ['manufacturer_supplier'], 'filterable' => true, 'options' => $certification],
 
+        // Product: website directory filters and product-page details (Content Blueprint v3 §7.4).
+        ['entity' => 'product', 'key' => 'species', 'label' => 'Species', 'type' => 'multiselect', 'section' => 'Website', 'filterable' => true,
+            'options' => ['broiler' => 'Broiler', 'layer' => 'Layer', 'breeder' => 'Breeder', 'turkey' => 'Turkey']],
+        ['entity' => 'product', 'key' => 'physical_form', 'label' => 'Form', 'type' => 'select', 'section' => 'Website', 'filterable' => true, 'show_in_table' => true,
+            'options' => ['powder' => 'Powder', 'granular' => 'Granular', 'liquid' => 'Liquid']],
+        ['entity' => 'product', 'key' => 'function', 'label' => 'Function', 'type' => 'multiselect', 'section' => 'Website', 'filterable' => true,
+            'options' => ['amino_acid_nutrition' => 'Amino-acid nutrition', 'digestibility' => 'Digestibility', 'gut_health' => 'Gut health', 'mycotoxin_control' => 'Mycotoxin control', 'antioxidant' => 'Antioxidant', 'mineral_nutrition' => 'Mineral nutrition']],
+        ['entity' => 'product', 'key' => 'nutritional_function', 'label' => 'Nutritional function', 'type' => 'textarea', 'section' => 'Website',
+            'help_text' => 'Nutritional language only: "supports", "contributes to", "is used to supply". No therapeutic claims.'],
+        ['entity' => 'product', 'key' => 'country_of_origin', 'label' => 'Country of origin', 'type' => 'text', 'section' => 'Website'],
+        ['entity' => 'product', 'key' => 'tds_date', 'label' => 'Date of the TDS the specification comes from', 'type' => 'date', 'section' => 'Website'],
+        ['entity' => 'product', 'key' => 'applications', 'label' => 'Typical applications and inclusion guidance', 'type' => 'textarea', 'section' => 'Website'],
+        ['entity' => 'product', 'key' => 'applications_reviewed', 'label' => 'Applications reviewed by the nutrition panel', 'type' => 'boolean', 'section' => 'Website',
+            'help_text' => 'The website shows the applications only when this is ticked.'],
+
         // Trial KPIs.
         ['entity' => 'trial', 'key' => 'species', 'label' => 'Species', 'type' => 'select', 'section' => 'Trial KPIs', 'filterable' => true, 'options' => $species],
         ['entity' => 'trial', 'key' => 'bird_count', 'label' => 'Bird count', 'type' => 'number', 'section' => 'Trial KPIs'],

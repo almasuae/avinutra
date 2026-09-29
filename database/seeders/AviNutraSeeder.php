@@ -11,8 +11,9 @@ use LiteCrm\Models\Lookup;
 use LiteCrm\Presets\PresetLoader;
 
 /**
- * AviNutra's CRM set-up: the feed-additives preset, then each enquiry type
- * routed to its mailbox from the site settings. Safe to run again.
+ * AviNutra's CRM set-up: the feed-additives preset, each enquiry type routed
+ * to its mailbox from the site settings, the Knowledge Centre launch content,
+ * and the content gaps as CRM tasks. Safe to run again.
  *
  * Never seeds users.
  */
@@ -48,5 +49,7 @@ class AviNutraSeeder extends Seeder
 
             $lookup->update(['meta' => [...($lookup->meta ?? []), 'mailbox' => $address]]);
         }
+
+        $this->call([KnowledgeSeeder::class, ContentGapTaskSeeder::class]);
     }
 }
