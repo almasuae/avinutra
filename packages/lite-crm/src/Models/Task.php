@@ -78,8 +78,14 @@ class Task extends Model
             }
         });
 
-        static::saved(function (Task $task): void {
-            if ($task->assignee_id !== null && ($task->wasRecentlyCreated || $task->wasChanged('assignee_id'))) {
+        static::created(function (Task $task): void {
+            if ($task->assignee_id !== null) {
+                TaskAssigned::dispatch($task);
+            }
+        });
+
+        static::updated(function (Task $task): void {
+            if ($task->assignee_id !== null && $task->wasChanged('assignee_id')) {
                 TaskAssigned::dispatch($task);
             }
         });

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LiteCrm;
 
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
@@ -12,11 +13,19 @@ use LiteCrm\Enquiries\EnquiryIntake;
 use LiteCrm\Enquiries\Submission;
 use LiteCrm\Events\EnquiryCaptured;
 use LiteCrm\Models\Activity;
+use LiteCrm\Models\Announcement;
 use LiteCrm\Models\Contact;
+use LiteCrm\Models\Decision;
 use LiteCrm\Models\Document;
 use LiteCrm\Models\Enquiry;
+use LiteCrm\Models\Opportunity;
 use LiteCrm\Models\Organisation;
+use LiteCrm\Models\PriceEntry;
+use LiteCrm\Models\Product;
+use LiteCrm\Models\Quotation;
+use LiteCrm\Models\Sample;
 use LiteCrm\Models\Task;
+use LiteCrm\Models\Trial;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Traits\HasRoles;
@@ -91,6 +100,11 @@ class LiteCrm
             self::model(Organisation::class),
             self::model(Contact::class),
             self::model(Enquiry::class),
+            self::model(Opportunity::class),
+            self::model(Product::class),
+            self::model(Sample::class),
+            self::model(Trial::class),
+            self::model(Quotation::class),
         ];
     }
 
@@ -108,7 +122,38 @@ class LiteCrm
             'crm_task' => self::model(Task::class),
             'crm_document' => self::model(Document::class),
             'crm_enquiry' => self::model(Enquiry::class),
+            'crm_opportunity' => self::model(Opportunity::class),
+            'crm_product' => self::model(Product::class),
+            'crm_sample' => self::model(Sample::class),
+            'crm_trial' => self::model(Trial::class),
+            'crm_quotation' => self::model(Quotation::class),
+            'crm_price_entry' => self::model(PriceEntry::class),
+            'crm_announcement' => self::model(Announcement::class),
+            'crm_decision' => self::model(Decision::class),
         ];
+    }
+
+    /** @var (Closure(): ?string)|null */
+    protected static ?Closure $contractingEntityResolver = null;
+
+    /**
+     * Lets the host decide which legal entity contracts on quotations, e.g. from
+     * its own settings. Pass null to fall back to lite-crm.quotations.contracting_entity.
+     *
+     * @param  (Closure(): ?string)|null  $resolver
+     */
+    public static function resolveContractingEntityUsing(?Closure $resolver): void
+    {
+        static::$contractingEntityResolver = $resolver;
+    }
+
+    public static function contractingEntity(): ?string
+    {
+        $entity = static::$contractingEntityResolver !== null
+            ? (static::$contractingEntityResolver)()
+            : config('lite-crm.quotations.contracting_entity');
+
+        return is_string($entity) && $entity !== '' ? $entity : null;
     }
 
     /**

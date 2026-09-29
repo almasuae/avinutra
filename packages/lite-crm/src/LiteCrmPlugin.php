@@ -16,18 +16,27 @@ use LiteCrm\Contracts\CrmUser;
 use LiteCrm\Filament\Pages\AcceptInvitation;
 use LiteCrm\Filament\Pages\CrmSettingsPage;
 use LiteCrm\Filament\Pages\EditProfile;
+use LiteCrm\Filament\Pages\OpportunityBoard;
 use LiteCrm\Filament\Resources\Activities\ActivityResource;
+use LiteCrm\Filament\Resources\Announcements\AnnouncementResource;
 use LiteCrm\Filament\Resources\AuditLog\AuditLogResource;
 use LiteCrm\Filament\Resources\Contacts\ContactResource;
 use LiteCrm\Filament\Resources\CustomFields\CustomFieldResource;
+use LiteCrm\Filament\Resources\Decisions\DecisionResource;
 use LiteCrm\Filament\Resources\Documents\DocumentResource;
 use LiteCrm\Filament\Resources\Enquiries\EnquiryResource;
 use LiteCrm\Filament\Resources\Lookups\LookupResource;
+use LiteCrm\Filament\Resources\Opportunities\OpportunityResource;
 use LiteCrm\Filament\Resources\Organisations\OrganisationResource;
 use LiteCrm\Filament\Resources\Pipelines\PipelineResource;
+use LiteCrm\Filament\Resources\PriceLog\PriceEntryResource;
+use LiteCrm\Filament\Resources\Products\ProductResource;
+use LiteCrm\Filament\Resources\Quotations\QuotationResource;
 use LiteCrm\Filament\Resources\Roles\RoleResource;
+use LiteCrm\Filament\Resources\Samples\SampleResource;
 use LiteCrm\Filament\Resources\Tags\TagResource;
 use LiteCrm\Filament\Resources\Tasks\TaskResource;
+use LiteCrm\Filament\Resources\Trials\TrialResource;
 use LiteCrm\Filament\Resources\Users\UserResource;
 use LiteCrm\Http\Controllers\DownloadDocument;
 use LiteCrm\Http\Middleware\EnforceSessionLifetime;
@@ -138,6 +147,14 @@ class LiteCrmPlugin implements Plugin
             ActivityResource::class => $this->isModuleEnabled('activities'),
             TaskResource::class => $this->isModuleEnabled('tasks'),
             DocumentResource::class => $this->isModuleEnabled('documents'),
+            OpportunityResource::class => $this->isModuleEnabled('opportunities'),
+            ProductResource::class => $this->isModuleEnabled('products'),
+            SampleResource::class => $this->isModuleEnabled('samples'),
+            TrialResource::class => $this->isModuleEnabled('trials'),
+            QuotationResource::class => $this->isModuleEnabled('quotations'),
+            PriceEntryResource::class => $this->isModuleEnabled('price_log'),
+            AnnouncementResource::class => $this->isModuleEnabled('announcements'),
+            DecisionResource::class => $this->isModuleEnabled('decisions'),
         ]));
 
         $panel
@@ -151,9 +168,10 @@ class LiteCrmPlugin implements Plugin
                 CustomFieldResource::class,
                 AuditLogResource::class,
             ])
-            ->pages([
+            ->pages(array_filter([
                 CrmSettingsPage::class,
-            ])
+                $this->isModuleEnabled('opportunities') ? OpportunityBoard::class : null,
+            ]))
             ->profile(EditProfile::class, isSimple: false)
             // MFA is offered to everyone; RequireMultiFactorAuthentication decides who must set it up.
             ->multiFactorAuthentication([AppAuthentication::make()->recoverable()], isRequired: true)

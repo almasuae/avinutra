@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use LiteCrm\Enums\EnquiryStatus;
@@ -16,7 +17,9 @@ use LiteCrm\LiteCrm;
 use LiteCrm\Models\Contact;
 use LiteCrm\Models\Enquiry;
 use LiteCrm\Models\Lookup;
+use LiteCrm\Models\Opportunity;
 use LiteCrm\Models\Organisation;
+use LiteCrm\Models\Pipeline;
 use LiteCrm\Models\Task;
 
 /**
@@ -127,6 +130,7 @@ class EnquiryConverter
      *     contact_action?: string, contact_id?: int|string|null,
      *     contact?: array<string, mixed>,
      *     task_title?: string|null, task_due_at?: string|null,
+     *     opportunity?: array{create?: bool, name?: string|null, pipeline_id?: int|string|null, value?: mixed, currency?: string|null},
      * }  $choices
      *
      * @throws ValidationException when a choice would create a duplicate or is not allowed
@@ -140,6 +144,7 @@ class EnquiryConverter
         return DB::transaction(function () use ($enquiry, $choices, $user): Enquiry {
             $organisation = $this->resolveOrganisation($choices, $user);
             $contact = $this->resolveContact($choices, $organisation, $user);
+            $this->createOpportunity($enquiry, $choices, $organisation, $contact, $user);
 
             $target = $contact ?? $organisation;
 
@@ -174,6 +179,50 @@ class EnquiryConverter
 
             return $enquiry;
         });
+    }
+
+    /**
+     * Optionally opens an opportunity for the converted enquiry, in a pipeline
+     * the user may work in.
+     *
+     * @param  array<string, mixed>  $choices
+     */
+    protected function createOpportunity(Enquiry $enquiry, array $choices, ?Organisation $organisation, ?Contact $contact, Model $user): ?Opportunity
+    {
+        /** @var array<string, mixed> $data */
+        $data = $choices['opportunity'] ?? [];
+
+        if (! ($data['create'] ?? false) || ! LiteCrm::isModuleEnabled('opportunities')) {
+            return null;
+        }
+
+        if (! Gate::forUser($user)->allows('create', LiteCrm::model(Opportunity::class))) {
+            throw ValidationException::withMessages(['opportunity.create' => __('lite-crm::enquiries.convert.opportunity_not_allowed')]);
+        }
+
+        /** @var Pipeline|null $pipeline */
+        $pipeline = LiteCrm::model(Pipeline::class)::query()
+            ->where('is_active', true)
+            ->scopes(['visibleTo' => [$user]])
+            ->find($data['pipeline_id'] ?? null);
+
+        if ($pipeline === null) {
+            throw ValidationException::withMessages(['opportunity.pipeline_id' => __('lite-crm::enquiries.convert.choose_pipeline')]);
+        }
+
+        /** @var Opportunity $opportunity */
+        $opportunity = LiteCrm::model(Opportunity::class)::query()->create([
+            'name' => filled($data['name'] ?? null) ? (string) $data['name'] : $enquiry->displayName(),
+            'pipeline_id' => $pipeline->getKey(),
+            'organisation_id' => $organisation?->getKey(),
+            'contact_id' => $contact?->getKey(),
+            'value' => filled($data['value'] ?? null) ? $data['value'] : null,
+            'currency' => $data['currency'] ?? null,
+            'enquiry_id' => $enquiry->getKey(),
+            'owner_id' => $enquiry->assignee_id ?? $user->getKey(),
+        ]);
+
+        return $opportunity;
     }
 
     /**

@@ -89,6 +89,9 @@ return [
         'duplicate_contact' => 'A contact with this e-mail address already exists. Link to it instead.',
         'duplicate_contact_named' => ':name already has this e-mail address. Choose "Link to an existing contact" instead.',
         'follow_up' => 'Follow-up task (optional)',
+        'create_opportunity' => 'Open an opportunity for this enquiry',
+        'choose_pipeline' => 'Choose a pipeline you can work in.',
+        'opportunity_not_allowed' => 'You are not allowed to create opportunities.',
         'activity_summary' => 'From enquiry #:reference: :message',
     ],
     'form' => [

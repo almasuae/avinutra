@@ -19,7 +19,7 @@ class DefaultLookupsSeeder extends Seeder
     public const LOOKUPS = [
         'organisation_type' => ['customer', 'supplier', 'partner', 'service_provider', 'other'],
         'organisation_status' => ['prospect', 'active', 'inactive'],
-        'activity_type' => ['call', 'meeting', 'email', 'message', 'visit', 'note'],
+        'activity_type' => ['call', 'meeting', 'email', 'message', 'visit', 'note', 'stage_change'],
         'document_type' => ['contract', 'certificate', 'specification', 'company_profile', 'other'],
         'lost_reason' => ['price', 'timing', 'competitor', 'requirements', 'no_response', 'other'],
         'enquiry_type' => ['general', 'quotation', 'partnership'],

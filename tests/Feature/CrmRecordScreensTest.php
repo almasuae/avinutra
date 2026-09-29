@@ -23,7 +23,7 @@ beforeEach(fn () => $this->seed(LiteCrmSeeder::class));
 
 it('opens the CRM record screens in the AviNutra panel', function (string $path): void {
     $this->actingAs(crmMember(['admin']))->get('/crm/'.$path)->assertOk();
-})->with(['organisations', 'contacts', 'activities', 'tasks', 'documents']);
+})->with(['enquiries', 'organisations', 'contacts', 'activities', 'tasks', 'documents', 'opportunities', 'opportunity-board', 'products', 'samples', 'trials', 'quotations', 'price-log', 'announcements', 'decisions']);
 
 it('shows an organisation with its related records', function (): void {
     $admin = crmMember(['admin']);

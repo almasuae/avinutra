@@ -26,17 +26,33 @@ use LiteCrm\Listeners\NotifyTaskAssignee;
 use LiteCrm\Listeners\RecordLogin;
 use LiteCrm\Livewire\EnquiryForm;
 use LiteCrm\Models\Activity;
+use LiteCrm\Models\Announcement;
 use LiteCrm\Models\Contact;
+use LiteCrm\Models\Decision;
 use LiteCrm\Models\Document;
 use LiteCrm\Models\Enquiry;
+use LiteCrm\Models\Opportunity;
 use LiteCrm\Models\Organisation;
+use LiteCrm\Models\PriceEntry;
+use LiteCrm\Models\Product;
+use LiteCrm\Models\Quotation;
+use LiteCrm\Models\Sample;
 use LiteCrm\Models\Task;
+use LiteCrm\Models\Trial;
 use LiteCrm\Policies\ActivityPolicy;
+use LiteCrm\Policies\AnnouncementPolicy;
 use LiteCrm\Policies\ContactPolicy;
+use LiteCrm\Policies\DecisionPolicy;
 use LiteCrm\Policies\DocumentPolicy;
 use LiteCrm\Policies\EnquiryPolicy;
+use LiteCrm\Policies\OpportunityPolicy;
 use LiteCrm\Policies\OrganisationPolicy;
+use LiteCrm\Policies\PriceEntryPolicy;
+use LiteCrm\Policies\ProductPolicy;
+use LiteCrm\Policies\QuotationPolicy;
+use LiteCrm\Policies\SamplePolicy;
 use LiteCrm\Policies\TaskPolicy;
+use LiteCrm\Policies\TrialPolicy;
 use LiteCrm\Support\CrmSettings;
 use Livewire\Livewire;
 
@@ -79,6 +95,14 @@ class LiteCrmServiceProvider extends ServiceProvider
             Task::class => TaskPolicy::class,
             Document::class => DocumentPolicy::class,
             Enquiry::class => EnquiryPolicy::class,
+            Product::class => ProductPolicy::class,
+            Opportunity::class => OpportunityPolicy::class,
+            Sample::class => SamplePolicy::class,
+            Trial::class => TrialPolicy::class,
+            Quotation::class => QuotationPolicy::class,
+            PriceEntry::class => PriceEntryPolicy::class,
+            Announcement::class => AnnouncementPolicy::class,
+            Decision::class => DecisionPolicy::class,
         ] as $model => $policy) {
             Gate::policy(LiteCrm::model($model), $policy);
         }

@@ -16,5 +16,7 @@ return [
         'probability' => 'Probability',
         'is_won' => 'Won',
         'is_lost' => 'Lost',
+        'visible_to_roles' => 'Only visible to these roles',
+        'visible_to_roles_help' => 'Leave all unticked to show the pipeline to everyone who works with opportunities. Admins always see every pipeline.',
     ],
 ];

@@ -19,7 +19,9 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use LiteCrm\LiteCrm;
 use LiteCrm\Models\Contact;
 use LiteCrm\Models\Lookup;
+use LiteCrm\Models\Opportunity;
 use LiteCrm\Models\Organisation;
+use LiteCrm\Models\Product;
 use LiteCrm\Support\Permissions;
 use LiteCrm\Support\Visibility;
 use Livewire\Component;
@@ -36,6 +38,59 @@ class Fields
             ->options(fn (): array => Lookup::options($type))
             ->searchable()
             ->preload();
+    }
+
+    /**
+     * One of the configured currencies (lite-crm.currencies), defaulting to the base currency.
+     */
+    public static function currency(string $name = 'currency'): Select
+    {
+        /** @var list<string> $currencies */
+        $currencies = config('lite-crm.currencies', ['USD']);
+
+        return Select::make($name)
+            ->label(__('lite-crm::common.fields.currency'))
+            ->options(array_combine($currencies, $currencies))
+            ->default((string) config('lite-crm.base_currency', 'USD'));
+    }
+
+    /**
+     * An organisation the signed-in user may see.
+     */
+    public static function organisation(string $name = 'organisation_id', string $relationship = 'organisation', ?string $label = null): Select
+    {
+        return Select::make($name)
+            ->label($label ?? __('lite-crm::organisations.label'))
+            ->relationship($relationship, 'name', fn (Builder $query) => Visibility::apply($query, Filament::auth()->user()))
+            ->searchable()
+            ->preload()
+            ->visible(LiteCrm::isModuleEnabled('organisations'));
+    }
+
+    /**
+     * A contact the signed-in user may see.
+     */
+    public static function contact(string $name = 'contact_id', string $relationship = 'contact'): Select
+    {
+        return Select::make($name)
+            ->label(__('lite-crm::contacts.label'))
+            ->relationship($relationship, 'last_name', fn (Builder $query) => Visibility::apply($query, Filament::auth()->user()))
+            ->getOptionLabelFromRecordUsing(fn (Contact $record): string => $record->name)
+            ->searchable(['first_name', 'last_name', 'email'])
+            ->visible(LiteCrm::isModuleEnabled('contacts'));
+    }
+
+    /**
+     * A product from the catalogue.
+     */
+    public static function product(string $name = 'product_id', string $relationship = 'product'): Select
+    {
+        return Select::make($name)
+            ->label(__('lite-crm::products.label'))
+            ->relationship($relationship, 'name', fn (Builder $query) => Visibility::apply($query, Filament::auth()->user()))
+            ->searchable()
+            ->preload()
+            ->visible(LiteCrm::isModuleEnabled('products'));
     }
 
     public static function owner(): Select
@@ -76,19 +131,30 @@ class Fields
     {
         $user = fn (): mixed => Filament::auth()->user();
 
+        $types = [
+            Type::make(LiteCrm::model(Organisation::class))
+                ->label(__('lite-crm::organisations.label'))
+                ->titleAttribute('name')
+                ->modifyOptionsQueryUsing(fn (Builder $query) => Visibility::apply($query, $user())),
+            Type::make(LiteCrm::model(Contact::class))
+                ->label(__('lite-crm::contacts.label'))
+                ->titleAttribute('last_name')
+                ->getOptionLabelFromRecordUsing(fn (Contact $record): string => $record->name)
+                ->modifyOptionsQueryUsing(fn (Builder $query) => Visibility::apply($query, $user())),
+        ];
+
+        foreach ([Opportunity::class => 'opportunities', Product::class => 'products'] as $model => $module) {
+            if (LiteCrm::isModuleEnabled($module)) {
+                $types[] = Type::make(LiteCrm::model($model))
+                    ->label(__("lite-crm::{$module}.label"))
+                    ->titleAttribute('name')
+                    ->modifyOptionsQueryUsing(fn (Builder $query) => Visibility::apply($query, $user()));
+            }
+        }
+
         return MorphToSelect::make($relationship)
             ->label(__('lite-crm::common.fields.related_record'))
-            ->types([
-                Type::make(LiteCrm::model(Organisation::class))
-                    ->label(__('lite-crm::organisations.label'))
-                    ->titleAttribute('name')
-                    ->modifyOptionsQueryUsing(fn (Builder $query) => Visibility::apply($query, $user())),
-                Type::make(LiteCrm::model(Contact::class))
-                    ->label(__('lite-crm::contacts.label'))
-                    ->titleAttribute('last_name')
-                    ->getOptionLabelFromRecordUsing(fn (Contact $record): string => $record->name)
-                    ->modifyOptionsQueryUsing(fn (Builder $query) => Visibility::apply($query, $user())),
-            ])
+            ->types($types)
             ->searchable()
             ->required($required)
             ->columnSpanFull()
@@ -128,9 +194,17 @@ class Fields
         $type = match ($alias) {
             'crm_organisation' => __('lite-crm::organisations.label'),
             'crm_contact' => __('lite-crm::contacts.label'),
+            'crm_enquiry' => __('lite-crm::enquiries.label'),
+            'crm_opportunity' => __('lite-crm::opportunities.label'),
+            'crm_product' => __('lite-crm::products.label'),
+            'crm_sample' => __('lite-crm::samples.label'),
+            'crm_trial' => __('lite-crm::trials.label'),
+            'crm_quotation' => __('lite-crm::quotations.label'),
             default => class_basename($record),
         };
 
-        return str($type)->ucfirst().': '.($record->getAttribute('name') ?? '#'.$record->getKey());
+        $name = $record->getAttribute('name') ?? $record->getAttribute('number') ?? $record->getAttribute('title');
+
+        return str($type)->ucfirst().': '.($name ?? '#'.$record->getKey());
     }
 }

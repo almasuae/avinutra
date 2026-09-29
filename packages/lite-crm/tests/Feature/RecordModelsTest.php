@@ -157,6 +157,18 @@ it('e-mails the assignee, but not someone who assigns a task to themselves', fun
     Notification::assertSentTo($other, TaskAssignedNotification::class);
 });
 
+it('does not repeat the assignment e-mail when a new task is edited', function (): void {
+    Notification::fake();
+    $manager = $this->crmUser(['manager']);
+    $colleague = $this->crmUser(['commercial']);
+    $this->actingAs($manager);
+
+    $task = Task::query()->create(['title' => 'Call back', 'assignee_id' => $colleague->id]);
+    $task->update(['title' => 'Call back tomorrow']);
+
+    Notification::assertSentToTimes($colleague, TaskAssignedNotification::class, 1);
+});
+
 it('works out which documents are expiring or expired', function (): void {
     $this->actingAs($this->crmUser(['commercial']));
 

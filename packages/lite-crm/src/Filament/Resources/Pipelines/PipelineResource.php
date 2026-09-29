@@ -8,6 +8,7 @@ use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -19,6 +20,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use LiteCrm\Filament\Resources\CrmResource;
+use LiteCrm\Filament\Resources\Users\UserResource;
 use LiteCrm\LiteCrm;
 use LiteCrm\Models\Pipeline;
 
@@ -61,6 +63,12 @@ class PipelineResource extends CrmResource
             Textarea::make('description')->label(__('lite-crm::pipelines.fields.description'))->rows(2)->columnSpanFull(),
             TextInput::make('sort')->label(__('lite-crm::pipelines.fields.sort'))->integer()->minValue(0)->default(0),
             Toggle::make('is_active')->label(__('lite-crm::pipelines.fields.is_active'))->default(true),
+            CheckboxList::make('visible_to_roles')
+                ->label(__('lite-crm::pipelines.fields.visible_to_roles'))
+                ->helperText(__('lite-crm::pipelines.fields.visible_to_roles_help'))
+                ->options(fn (): array => UserResource::roleOptions())
+                ->columns(3)
+                ->columnSpanFull(),
             Repeater::make('stages')
                 ->label(__('lite-crm::pipelines.fields.stages'))
                 ->relationship('stages')

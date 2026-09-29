@@ -110,8 +110,8 @@ class Enquiry extends Model
             }
         });
 
-        static::saved(function (Enquiry $enquiry): void {
-            if ($enquiry->assignee_id !== null && ! $enquiry->wasRecentlyCreated && $enquiry->wasChanged('assignee_id')) {
+        static::updated(function (Enquiry $enquiry): void {
+            if ($enquiry->assignee_id !== null && $enquiry->wasChanged('assignee_id')) {
                 EnquiryAssigned::dispatch($enquiry);
             }
         });

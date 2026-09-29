@@ -94,6 +94,15 @@ it('assigns an enquiry and e-mails the assignee', function (): void {
     Notification::assertSentTo($colleague, EnquiryAssignedNotification::class);
 });
 
+it('e-mails the assignee when a just-captured enquiry is assigned in code', function (): void {
+    $colleague = $this->crmUser(['commercial']);
+    $enquiry = incoming();
+
+    $enquiry->update(['assignee_id' => $colleague->id]);
+
+    Notification::assertSentTo($colleague, EnquiryAssignedNotification::class);
+});
+
 it('records the first response when work starts or an activity is logged', function (): void {
     signIn($this, ['commercial']);
     $started = incoming();

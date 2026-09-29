@@ -27,6 +27,7 @@ return [
             'message' => 'Message',
             'visit' => 'Visit',
             'note' => 'Note',
+            'stage_change' => 'Stage change',
         ],
         'document_type' => [
             'contract' => 'Contract',

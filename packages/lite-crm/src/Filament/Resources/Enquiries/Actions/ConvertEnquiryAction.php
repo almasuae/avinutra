@@ -11,6 +11,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -21,10 +22,12 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use LiteCrm\Enquiries\EnquiryConverter;
 use LiteCrm\Enums\EnquiryStatus;
+use LiteCrm\Filament\Resources\Opportunities\OpportunityResource;
 use LiteCrm\Filament\Support\Fields;
 use LiteCrm\LiteCrm;
 use LiteCrm\Models\Contact;
 use LiteCrm\Models\Enquiry;
+use LiteCrm\Models\Opportunity;
 use LiteCrm\Models\Organisation;
 use LiteCrm\Support\Visibility;
 
@@ -243,6 +246,26 @@ class ConvertEnquiryAction
                         ->tel()
                         ->maxLength(50)
                         ->visible(fn (Get $get): bool => $get('contact_action') === EnquiryConverter::NEW),
+                ]),
+            Section::make(__('lite-crm::opportunities.label'))
+                ->columns(2)
+                ->visible(fn (): bool => LiteCrm::isModuleEnabled('opportunities') && Gate::allows('create', LiteCrm::model(Opportunity::class)))
+                ->schema([
+                    Toggle::make('opportunity.create')
+                        ->label(__('lite-crm::enquiries.convert.create_opportunity'))
+                        ->live()
+                        ->columnSpanFull(),
+                    TextInput::make('opportunity.name')
+                        ->label(__('lite-crm::opportunities.fields.name'))
+                        ->default($record->displayName())
+                        ->maxLength(255)
+                        ->visible(fn (Get $get): bool => (bool) $get('opportunity.create')),
+                    Select::make('opportunity.pipeline_id')
+                        ->label(__('lite-crm::opportunities.fields.pipeline'))
+                        ->options(fn (): array => OpportunityResource::pipelineOptions())
+                        ->default(fn (): mixed => array_key_first(OpportunityResource::pipelineOptions()))
+                        ->required(fn (Get $get): bool => (bool) $get('opportunity.create'))
+                        ->visible(fn (Get $get): bool => (bool) $get('opportunity.create')),
                 ]),
             Section::make(__('lite-crm::enquiries.convert.follow_up'))
                 ->columns(2)

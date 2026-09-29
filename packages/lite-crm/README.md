@@ -4,11 +4,10 @@ A light, industry-neutral CRM for Laravel, delivered as a Filament plugin.
 Industry-specific fields, pipelines and lists are loaded from **presets** and
 **custom fields**, so the same package can serve any website on the same stack.
 
-> **Status: 0.4.0-dev.** Foundations (installer, users and invitations, MFA, roles and
-> permissions, lists, pipelines, tags, custom fields, audit log), the record modules
-> (organisations, contacts, activities, tasks, documents) and enquiries (form
-> component, PHP and HTTP intake, inbox, Convert) are in place. Opportunities and the
-> remaining modules follow in the next releases.
+> **Status: 0.5.0-dev.** Foundations, all record modules (organisations, contacts,
+> activities, tasks, documents, enquiries, products, opportunities with a kanban board,
+> samples, trials, quotations, price log, announcements, decisions) are in place. The
+> dashboard, digests, import/export, presets and `lite-crm:doctor` follow next.
 
 ## Requirements
 
@@ -156,6 +155,33 @@ Each module appears in the panel's CRM navigation group when it is enabled in
 | Activities | Calls, meetings, e-mails ... on an organisation or contact, with team and contact participants ("Log activity" on every record page) |
 | Tasks | To-dos with assignee, due date, priority and status; My tasks · Team · Overdue · All; the assignee is e-mailed |
 | Documents | Files on the private disk with expiry, verification and a confidential flag |
+| Products | Catalogue with category, specification table, packaging, storage, shelf life, suppliers (with notes), availability (available · on request · information) and "publish on website"; custom fields by category |
+| Opportunities | Deals in a pipeline: stage, organisation, contact, product, volume, value and currency, probability, expected close, next step, lost reason; **kanban board** per pipeline |
+| Samples | Sent samples: product, supplier, lot, courier and tracking, received date, feedback |
+| Trials | Trials with protocol, dates, status, result summary, and dated consent before any publication; KPIs as custom fields |
+| Quotations | Records with automatic numbers (`Q-2026-0001`), product, quantity, price, Incoterm and port, payment terms, validity, status and contracting entity |
+| Price log | Observed prices by product, basis (EXW/FOB/CFR/CIF/landed), source type and confidence — internal only |
+| Announcements | Markdown notices, pinned, optionally for some roles only |
+| Decisions | Decision register; append-only for everyone but Admins |
+
+**Opportunities.** Changing the stage sets the probability to the stage's default
+(unless it is changed in the same save), stamps the close date on won/lost stages,
+logs a "Stage change" activity and fires `OpportunityStageChanged`, then
+`OpportunityWon` or `OpportunityLost`. On the board (CRM › Board) cards are dragged
+between stages, or moved with each card's "Move to" menu (keyboard-friendly); moving
+to a lost stage asks for the lost reason. A pipeline can be limited to some roles
+("Only visible to these roles", e.g. a supplier pipeline hidden from Partners); its
+opportunities are then hidden from everyone else, except Admins. Converting an
+enquiry can open an opportunity.
+
+**Products.** Only users with `products.mark_available` (Admin, Manager) may set a
+product to "available" (meaning supply is secured), and only users with
+`website.manage` may publish it; the model enforces both rules, not just the form.
+
+**Quotations.** Numbers restart each year and are never reused, from a locked
+counter (`crm_sequences`). Set `quotations.number_prefix` (e.g. per site) and give
+the contracting entity with `LiteCrm::resolveContractingEntityUsing(fn () => ...)` in
+the host (or `quotations.contracting_entity`). PDF output comes later.
 
 Every record has an owner (defaulting to its creator), `created_by` and `updated_by`,
 soft deletes and an audit trail.

@@ -43,6 +43,8 @@ class Permissions
         'technical_content.approve',
         // Confidential documents are otherwise visible only to their owner.
         'documents.view_confidential',
+        // Setting a product to "available" means supply is secured.
+        'products.mark_available',
     ];
 
     /**
@@ -80,7 +82,7 @@ class Permissions
             'manager' => array_merge(
                 self::abilities(self::RECORD_MODULES, ['view', 'view_all', 'create', 'update', 'export']),
                 $everyone,
-                ['users.view', 'audit_log.view', 'import.run', 'website.manage', 'documents.view_confidential'],
+                ['users.view', 'audit_log.view', 'import.run', 'website.manage', 'documents.view_confidential', 'products.mark_available'],
             ),
 
             'commercial' => array_merge(

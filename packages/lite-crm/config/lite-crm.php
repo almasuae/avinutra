@@ -187,6 +187,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Quotations
+    |--------------------------------------------------------------------------
+    |
+    | Numbers look like "Q-2026-0001" (prefix, year, zero-padded counter); they
+    | restart each year and are never reused. The contracting entity comes from
+    | the host's resolver (LiteCrm::resolveContractingEntityUsing) or this value.
+    |
+    */
+
+    'quotations' => [
+        'number_prefix' => 'Q',
+        'number_format' => '{prefix}-{year}-{number}',
+        'number_padding' => 4,
+        'contracting_entity' => null,
+        'default_validity_days' => 30,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Custom fields
     |--------------------------------------------------------------------------
     |

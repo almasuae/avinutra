@@ -6,6 +6,27 @@ package uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (sales modules)
+- **Products** with categories, specification table, packaging/storage/shelf life,
+  suppliers with notes, availability and "publish on website" (guarded by the new
+  `products.mark_available` and existing `website.manage` permissions, in the model).
+- **Opportunities** in pipelines with stages, value, probability, expected close,
+  next step and lost reason; stage changes logged as activities and firing
+  `OpportunityStageChanged`, `OpportunityWon`, `OpportunityLost`; **kanban board** with
+  drag-and-drop and a keyboard "Move to" menu; Mark won / Mark lost actions.
+- Pipelines can be limited to roles (`visible_to_roles`); their opportunities are
+  hidden from other roles (Admins excepted).
+- **Samples**, **Trials** (dated consent before publication), **Quotations** (yearly
+  gap-free numbering, contracting-entity resolver, Incoterms), **Price log**,
+  **Announcements** (Markdown, pinned, role audience, sanitised) and **Decisions**
+  (append-only except for Admins).
+- Converting an enquiry can open an opportunity.
+- New neutral activity type "Stage change".
+
+### Fixed
+- Model events on a freshly created record: the task-assignment e-mail could repeat
+  after editing a new task, and assigning a just-captured enquiry sent no e-mail.
+
 ### Added (enquiries)
 - **Enquiries** inbox (New · Mine · Open · All · Spam) with Assign, Start work, Close,
   Reopen, Mark as spam / Not spam, Log activity and **Convert**; first-response time;
