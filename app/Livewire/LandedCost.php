@@ -13,7 +13,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 
 /**
- * Tool 2 — Landed Cost Calculator (universal). Starts blank; "Load example"
+ * Tool 2 — Landed Cost Calculator (universal). Starts blank; "Example"
  * fills illustrative values that are not the rates of any country. The inputs
  * live in the URL so a result can be shared; nothing is stored.
  */

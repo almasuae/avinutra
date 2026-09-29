@@ -95,7 +95,7 @@ it('shows only published articles, with a person named only when their profile i
 
     $this->get('/knowledge/'.$article->slug)->assertOk()->assertSee(Article::COMPANY_AUTHOR)->assertDontSee('Dr Example Person');
 
-    $person->update(['consent_on_file' => true, 'consent_date' => now(), 'is_published' => true]);
+    $person->update(['consent_on_file' => true, 'consent_date' => now(), 'consent_document_path' => 'team-consents/person.pdf', 'is_published' => true]);
     $this->get('/knowledge/'.$article->slug)->assertOk()->assertSee('Dr Example Person');
 });
 
@@ -103,10 +103,10 @@ it('publishes the team page only when a profile has consent on file', function (
     $this->get('/about')->assertSee('Our nutrition advisory panel profiles will be published shortly.');
     $this->get('/about/team')->assertNotFound();
 
-    $profile = TeamProfile::query()->create(['name' => 'Dr Example Adviser', 'role_type' => TeamRole::Adviser, 'is_published' => true]);
+    $profile = TeamProfile::query()->create(['name' => 'Dr Example Adviser', 'role_type' => TeamRole::Adviser, 'consent_on_file' => true, 'consent_date' => now()]);
     $this->get('/about/team')->assertNotFound();
 
-    $profile->update(['consent_on_file' => true, 'consent_date' => now()]);
+    $profile->update(['consent_document_path' => 'team-consents/adviser.pdf', 'is_published' => true]);
     $this->get('/about/team')->assertOk()->assertSee('Dr Example Adviser')->assertSee('Adviser');
     $this->get('/about')->assertSee(route('about.team'), false);
 });
@@ -150,7 +150,7 @@ it('shows WhatsApp and Request a Call only once a number is set', function (): v
 });
 
 it('picks the contact form from the enquiry type', function (): void {
-    $this->get('/contact?type=supplier_application')->assertSee('Supplier partnership')->assertSee('Send application');
+    $this->get('/contact?type=supplier_application')->assertSee('Supplier partnership')->assertSee('Submit')->assertDontSee('Send application');
     $this->get('/contact?type=nonsense')->assertSee('Send message');
     $this->get('/contact?type=document&product=DL-Methionine&documents_needed=COA')->assertSee('DL-Methionine')->assertSee('Request documents');
 });

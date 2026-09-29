@@ -12,7 +12,7 @@
 <div class="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
     <div class="min-w-0 space-y-6">
         <div class="no-print flex flex-wrap gap-3">
-            <button type="button" wire:click="loadExample" class="btn-secondary">Example</button>
+            <button type="button" wire:click="loadExample" data-example class="btn-secondary">Example</button>
             <button type="button" wire:click="resetForm" class="btn border-2 border-line text-green-900 hover:border-green-700">Clear</button>
         </div>
         @if ($example)
@@ -204,11 +204,11 @@
                         <label for="lc-tr-{{ $i }}" class="{{ $label }}">Rate (%)</label>
                         <input id="lc-tr-{{ $i }}" type="number" step="any" min="0" wire:model.blur="form.other_taxes.{{ $i }}.rate" class="{{ $input }}">
                     </div>
-                    <div class="sm:col-span-3">
+                    <div class="sm:col-span-4">
                         <label for="lc-tb-{{ $i }}" class="{{ $label }}">Base</label>
                         <select id="lc-tb-{{ $i }}" wire:model.live="form.other_taxes.{{ $i }}.base" class="{{ $input }}">
-                            <option value="customs_duties_vat">customs value + duties + VAT</option>
-                            <option value="customs_duties">customs value + duties</option>
+                            <option value="customs_duties_vat">value + duties + VAT</option>
+                            <option value="customs_duties">value + duties</option>
                             <option value="customs">customs value</option>
                         </select>
                     </div>
@@ -272,8 +272,23 @@
             @if ($result === null)
                 <p class="mt-4 text-base text-muted">{{ $outcome['problem'] }}</p>
             @else
-                <div class="mt-5 overflow-x-auto rounded-xl border border-line">
-                    <table class="w-full min-w-[30rem] text-left text-sm">
+                {{-- Phones: one small card per result row. Wider screens: a table. --}}
+                <ul class="mt-5 space-y-3 sm:hidden">
+                    @foreach (['gross' => 'Gross', 'net' => 'Net of recoverable taxes'] as $key => $title)
+                        @foreach ([$purchase => 'purchase', $local => 'local'] as $code => $currencyKey)
+                            <li @class(['rounded-xl border border-line p-4', 'bg-surface' => $key === 'net'])>
+                                <p class="text-sm font-semibold text-green-900">{{ $title }} ({{ $code }})</p>
+                                <dl class="mt-2 grid grid-cols-3 gap-2 text-sm">
+                                    <div><dt class="text-xs text-muted">per kg</dt><dd class="font-semibold tabular-nums">{{ $fmt($result[$key][$currencyKey]['kg'], 3) }}</dd></div>
+                                    <div><dt class="text-xs text-muted">per tonne</dt><dd class="font-semibold tabular-nums">{{ $fmt($result[$key][$currencyKey]['mt']) }}</dd></div>
+                                    <div><dt class="text-xs text-muted">per shipment</dt><dd class="font-semibold tabular-nums break-all">{{ $fmt($result[$key][$currencyKey]['shipment']) }}</dd></div>
+                                </dl>
+                            </li>
+                        @endforeach
+                    @endforeach
+                </ul>
+                <div class="mt-5 hidden rounded-xl border border-line sm:block">
+                    <table data-results-table class="w-full text-left text-sm tabular-nums">
                         <caption class="sr-only">Landed cost per kg, per tonne and per shipment</caption>
                         <thead class="bg-surface text-green-900">
                             <tr><th scope="col" class="px-3 py-2"></th><th scope="col" class="px-3 py-2 text-right">per kg</th><th scope="col" class="px-3 py-2 text-right">per tonne</th><th scope="col" class="px-3 py-2 text-right">per shipment</th></tr>
@@ -283,9 +298,9 @@
                                 @foreach ([$purchase => 'purchase', $local => 'local'] as $code => $currencyKey)
                                     <tr @class(['font-semibold' => $key === 'net'])>
                                         <th scope="row" class="px-3 py-2">{{ $title }} ({{ $code }})</th>
-                                        <td class="px-3 py-2 text-right">{{ $fmt($result[$key][$currencyKey]['kg'], 3) }}</td>
-                                        <td class="px-3 py-2 text-right">{{ $fmt($result[$key][$currencyKey]['mt']) }}</td>
-                                        <td class="px-3 py-2 text-right">{{ $fmt($result[$key][$currencyKey]['shipment']) }}</td>
+                                        <td class="px-3 py-2 text-right whitespace-nowrap">{{ $fmt($result[$key][$currencyKey]['kg'], 3) }}</td>
+                                        <td class="px-3 py-2 text-right whitespace-nowrap">{{ $fmt($result[$key][$currencyKey]['mt']) }}</td>
+                                        <td class="px-3 py-2 text-right whitespace-nowrap">{{ $fmt($result[$key][$currencyKey]['shipment']) }}</td>
                                     </tr>
                                 @endforeach
                             @endforeach
@@ -298,16 +313,16 @@
                 </p>
 
                 <h3 class="mt-6 text-lg">Breakdown ({{ $local }})</h3>
-                <div class="mt-3 overflow-x-auto">
-                    <table class="w-full text-left text-sm">
+                <div class="mt-3">
+                    <table data-results-table class="w-full text-left text-sm tabular-nums">
                         <caption class="sr-only">Line-by-line breakdown per shipment and per kg</caption>
-                        <thead class="text-muted"><tr><th scope="col" class="py-1">Line</th><th scope="col" class="py-1 text-right">per shipment</th><th scope="col" class="py-1 text-right">per kg</th></tr></thead>
+                        <thead class="text-muted"><tr><th scope="col" class="py-1 pr-3">Line</th><th scope="col" class="px-3 py-1 text-right">per shipment</th><th scope="col" class="py-1 pl-3 text-right">per kg</th></tr></thead>
                         <tbody class="divide-y divide-line">
                             @foreach ($result['lines'] as $line)
                                 <tr>
-                                    <th scope="row" class="py-2 font-normal">{{ $line['label'] }}@if ($line['recoverable']) <span class="text-xs text-muted">(recoverable)</span>@endif</th>
-                                    <td class="py-2 text-right">{{ $fmt($line['amount']) }}</td>
-                                    <td class="py-2 text-right">{{ $fmt($line['per_kg'], 4) }}</td>
+                                    <th scope="row" class="py-2 pr-3 font-normal">{{ $line['label'] }}@if ($line['recoverable']) <span class="text-xs text-muted">(recoverable)</span>@endif</th>
+                                    <td class="px-3 py-2 text-right whitespace-nowrap">{{ $fmt($line['amount']) }}</td>
+                                    <td class="py-2 pl-3 text-right whitespace-nowrap">{{ $fmt($line['per_kg'], 4) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

@@ -13,6 +13,10 @@
 <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
     {{-- Inputs --}}
     <div class="min-w-0 space-y-6">
+        <div class="no-print flex flex-wrap gap-3">
+            <button type="button" wire:click="loadExample" data-example class="btn-secondary">Example</button>
+            <button type="button" wire:click="resetForm" class="btn border-2 border-line text-green-900 hover:border-green-700">Clear</button>
+        </div>
         @if ($example)
             <p role="status" class="rounded-xl border border-orange-500/40 bg-orange-400/10 px-4 py-3 text-sm font-semibold text-orange-text">Example only — illustrative prices, not market prices.</p>
         @endif
@@ -105,12 +109,11 @@
             </fieldset>
         @endforeach
 
-        <div class="no-print flex flex-wrap gap-3">
-            @if (count($products) < \App\Livewire\MethionineValue::MAX_PRODUCTS)
+        @if (count($products) < \App\Livewire\MethionineValue::MAX_PRODUCTS)
+            <div class="no-print">
                 <button type="button" wire:click="addProduct" class="btn-secondary">Add a product</button>
-            @endif
-            <button type="button" wire:click="loadExample" class="btn border-2 border-line text-green-900 hover:border-green-700">Load example</button>
-        </div>
+            </div>
+        @endif
 
         <fieldset class="card grid gap-4 sm:grid-cols-2">
             <legend class="float-left mb-2 w-full font-heading text-xl font-black text-green-900 sm:col-span-2">Your feed</legend>
@@ -151,8 +154,22 @@
                 @if ($rate !== 1.0)
                     <p class="mt-3 text-sm text-muted">Shown in {{ $currency }} at {{ $altRate }} per 1 {{ $this->currency }}@if ($altRateDate) (rate of {{ \Illuminate\Support\Carbon::parse($altRateDate)->format('j M Y') }})@endif.</p>
                 @endif
-                <div class="mt-5 overflow-x-auto rounded-xl border border-line">
-                    <table class="w-full min-w-[34rem] text-left text-sm">
+                {{-- Phones and small tablets: one small card per product. Wider screens: a table. --}}
+                <ul class="mt-5 space-y-3 md:hidden">
+                    @foreach ($result['rows'] as $row)
+                        <li @class(['rounded-xl border border-line p-4', 'bg-green-500/5' => $row['is_reference']])>
+                            <p class="text-sm font-semibold text-green-900">{{ $row['name'] }}@if ($row['is_reference']) <span class="font-normal text-muted">· Reference</span>@endif</p>
+                            <dl class="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+                                <div><dt class="text-xs text-muted">Cost per kg effective Met ({{ $currency }})</dt><dd class="font-semibold tabular-nums">{{ $fmt($row['cost_per_kg_effective'] * $rate) }}</dd></div>
+                                <div><dt class="text-xs text-muted">Inclusion (kg/t)</dt><dd class="font-semibold tabular-nums">{{ $fmt($row['equivalent_inclusion']) }}</dd></div>
+                                <div><dt class="text-xs text-muted">Cost per t of feed ({{ $currency }})</dt><dd class="font-semibold tabular-nums">{{ $fmt($row['cost_per_mt_feed'] * $rate) }}</dd></div>
+                                <div><dt class="text-xs text-muted">Difference</dt><dd class="font-semibold tabular-nums">{{ $row['is_reference'] ? '—' : ($row['difference_percent'] >= 0 ? '+' : '').$fmt($row['difference_percent'], 1).'%' }}</dd></div>
+                            </dl>
+                        </li>
+                    @endforeach
+                </ul>
+                <div class="mt-5 hidden rounded-xl border border-line md:block">
+                    <table data-results-table class="w-full text-left text-sm tabular-nums">
                         <caption class="sr-only">Comparison of methionine sources</caption>
                         <thead class="bg-surface text-green-900">
                             <tr>

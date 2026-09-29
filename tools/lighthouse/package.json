@@ -1,0 +1,11 @@
+{
+    "private": true,
+    "description": "Local-only Lighthouse audits (owner's approval of 30 Sep 2026). A separate package so the server's npm ci never installs it; deploy.sh installs only the root package.",
+    "type": "module",
+    "engines": {
+        "node": ">=20.19"
+    },
+    "devDependencies": {
+        "lighthouse": "12.8.2"
+    }
+}

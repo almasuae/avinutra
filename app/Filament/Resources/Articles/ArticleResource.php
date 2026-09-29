@@ -57,7 +57,8 @@ class ArticleResource extends WebsiteResource
 
     public static function form(Schema $schema): Schema
     {
-        $people = fn (): array => TeamProfile::query()->orderBy('name')->pluck('name', 'id')->all();
+        // Only public profiles (published, with consent on file) can be named in a byline.
+        $people = fn (): array => TeamProfile::query()->public()->orderBy('name')->pluck('name', 'id')->all();
 
         return $schema->components([
             Section::make('Article')
@@ -78,8 +79,13 @@ class ArticleResource extends WebsiteResource
             Section::make('Byline and sources')
                 ->schema([
                     Select::make('author_id')->label('Author')->options($people)->searchable()
-                        ->helperText('Empty: "AviNutra Technical Team". A person is named only when their profile is published with consent.'),
-                    Select::make('reviewer_id')->label('Reviewed by')->options($people)->searchable(),
+                        ->in(fn (): array => array_keys($people()))
+                        ->placeholder(Article::COMPANY_AUTHOR)
+                        ->helperText('Only published team profiles with consent on file can be chosen. Empty: "'.Article::COMPANY_AUTHOR.'".'),
+                    Select::make('reviewer_id')->label('Reviewed by')->options($people)->searchable()
+                        ->in(fn (): array => array_keys($people()))
+                        ->placeholder('No named reviewer')
+                        ->helperText('Only published team profiles with consent on file can be chosen.'),
                     DatePicker::make('last_reviewed_on')->label('Last reviewed'),
                     Select::make('related_route')->label('Related tool or page')->options(self::relatedRoutes()),
                     Repeater::make('sources')

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\ProcessExternalLinks;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Security headers on every response, public site and CRM (v5 §F5).
         $middleware->append(SecurityHeaders::class);
+        // External links open in a new tab, internal ones in the same tab (public pages).
+        $middleware->appendToGroup('web', ProcessExternalLinks::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

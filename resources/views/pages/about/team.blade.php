@@ -14,7 +14,7 @@
         <div class="mx-auto max-w-[84rem] px-4 py-16 sm:px-6 xl:px-8">
             <ul class="grid gap-8 md:grid-cols-2">
                 @foreach ($profiles as $profile)
-                    <li class="card flex flex-col gap-6 sm:flex-row">
+                    <li id="{{ $profile->slug }}" class="card flex scroll-mt-28 flex-col gap-6 sm:flex-row">
                         @if ($profile->photo_path)
                             <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($profile->photo_path) }}" alt="{{ $profile->name }}" width="128" height="128" loading="lazy" class="size-32 shrink-0 rounded-full object-cover">
                         @endif
@@ -39,19 +39,20 @@
                             @if (! empty($profile->publications))
                                 <ul class="mt-3 list-disc space-y-1 pl-5 text-base">
                                     @foreach ($profile->publications as $publication)
-                                        <li>@if (! empty($publication['url']))<a href="{{ $publication['url'] }}" class="text-green-700 underline" rel="noopener">{{ $publication['title'] ?? $publication['url'] }}</a>@else{{ $publication['title'] ?? '' }}@endif</li>
+                                        <li>@if (! empty($publication['url']))<a href="{{ $publication['url'] }}" class="text-green-700 underline" target="_blank" rel="noopener noreferrer">{{ $publication['title'] ?? $publication['url'] }}</a>@else{{ $publication['title'] ?? '' }}@endif</li>
                                     @endforeach
                                 </ul>
                             @endif
-                            @php($articles = $profile->authoredArticles->merge($profile->reviewedArticles)->unique('id'))
-                            @if ($articles->isNotEmpty())
-                                <p class="mt-4 text-sm font-semibold text-green-900">Articles</p>
-                                <ul class="mt-1 space-y-1 text-base">
-                                    @foreach ($articles as $article)
-                                        <li><a href="{{ route('knowledge.show', $article->slug) }}" class="text-green-700 underline">{{ $article->title }}</a></li>
-                                    @endforeach
-                                </ul>
-                            @endif
+                            @foreach (['Articles written' => $profile->authoredArticles, 'Articles reviewed' => $profile->reviewedArticles] as $heading => $articles)
+                                @if ($articles->isNotEmpty())
+                                    <p class="mt-4 text-sm font-semibold text-green-900">{{ $heading }}</p>
+                                    <ul class="mt-1 space-y-1 text-base">
+                                        @foreach ($articles as $article)
+                                            <li><a href="{{ route('knowledge.show', $article->slug) }}" class="text-green-700 underline">{{ $article->title }}</a></li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            @endforeach
                         </div>
                     </li>
                 @endforeach

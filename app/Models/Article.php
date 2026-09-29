@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\ArticleCategory;
 use App\Enums\ArticleStatus;
+use App\Support\ExternalLinks;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -123,6 +124,6 @@ class Article extends Model
      */
     public function bodyHtml(): string
     {
-        return Str::markdown((string) $this->body, ['html_input' => 'strip', 'allow_unsafe_links' => false]);
+        return ExternalLinks::process(Str::markdown((string) $this->body, ['html_input' => 'strip', 'allow_unsafe_links' => false]));
     }
 }

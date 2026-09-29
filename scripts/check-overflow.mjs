@@ -89,6 +89,51 @@ while (queue.length > 0 && seen.size <= MAX_PAGES) {
     await done;
     await evaluate('document.fonts.ready.then(() => new Promise((r) => setTimeout(r, 150)))');
 
+    // Calculators show their results only after input: load the example first.
+    if (await evaluate('(() => { const b = document.querySelector("[data-example]"); if (b) b.click(); return !!b; })()')) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+
+    const tables = await evaluate(`(() => {
+        const found = [];
+        const box = (cell) => {
+            const range = document.createRange();
+            range.selectNodeContents(cell);
+            const rects = Array.from(range.getClientRects()).filter((r) => r.width > 0 && r.height > 0);
+            if (rects.length === 0) return null;
+            return { left: Math.min(...rects.map((r) => r.left)), right: Math.max(...rects.map((r) => r.right)), top: Math.min(...rects.map((r) => r.top)), bottom: Math.max(...rects.map((r) => r.bottom)) };
+        };
+        document.querySelectorAll('table').forEach((table, t) => {
+            if (table.offsetParent === null) return; // hidden at this width
+            const name = (table.querySelector('caption')?.textContent.trim() || 'table ' + (t + 1)).slice(0, 60);
+            if (table.matches('[data-results-table]')) {
+                const container = table.parentElement.getBoundingClientRect();
+                if (table.getBoundingClientRect().width > container.width + 1 || table.scrollWidth > table.parentElement.clientWidth + 1) {
+                    found.push('results table "' + name + '" is wider than its container');
+                }
+            }
+            for (const row of table.rows) {
+                const cells = Array.from(row.cells);
+                cells.forEach((cell, i) => {
+                    if (cell.scrollWidth > cell.clientWidth + 1) {
+                        found.push('"' + name + '": text overflows its cell ("' + cell.textContent.trim().slice(0, 30) + '")');
+                    }
+                    const next = cells[i + 1];
+                    if (!next) return;
+                    const a = box(cell), b = box(next);
+                    // Neighbouring cells on the same line must not touch or overlap (at least 6 px apart).
+                    if (a && b && a.bottom > b.top && b.bottom > a.top && a.right > b.left - 6) {
+                        found.push('"' + name + '": "' + cell.textContent.trim().slice(0, 20) + '" runs into "' + next.textContent.trim().slice(0, 20) + '"');
+                    }
+                });
+            }
+        });
+        return found;
+    })()`);
+    for (const problem of tables) {
+        failures.push(`${path}: ${problem}`);
+    }
+
     const result = await evaluate(`(() => {
         // The designed width, not innerWidth: a phone zooms out to fit wide content.
         const width = ${WIDTH};

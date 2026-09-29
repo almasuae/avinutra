@@ -50,6 +50,18 @@ class AviNutraSeeder extends Seeder
             $lookup->update(['meta' => [...($lookup->meta ?? []), 'mailbox' => $address]]);
         }
 
+        // Suppliers introduce their company; the public wording avoids "application".
+        // Only filled when empty, so wording edited in the CRM is kept.
+        $supplier = $model::query()->where('type', 'enquiry_type')->where('key', 'supplier_application')->first();
+
+        if ($supplier !== null) {
+            $supplier->update(['meta' => [
+                'acknowledgement_subject' => 'We have received your company particulars — :app',
+                'acknowledgement_text' => 'Thank you for introducing your company to :app. We have received your company particulars, and our team will review them.',
+                ...array_filter($supplier->meta ?? [], fn (mixed $value): bool => $value !== null && $value !== ''),
+            ]]);
+        }
+
         $this->call([KnowledgeSeeder::class, CalculatorDefaultSeeder::class, ContentGapTaskSeeder::class]);
     }
 }

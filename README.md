@@ -11,7 +11,7 @@ The CRM is the reusable package in [`packages/lite-crm`](packages/lite-crm/READM
 Contents: [Stack](#stack) · [Dependencies](#dependency-versions-and-why) · [Local setup](#local-setup) ·
 [Quality checks](#quality-checks-run-after-every-phase) · [First install on the server](#first-install-on-the-server-hestiacp) ·
 [.env](#env-on-the-server) · [Deploying updates](#deploying-updates) · [Users](#users) · [Mail and DNS](#mail-and-dns) ·
-[Backups](#backups) · [Security headers](#security-headers) · [SEO](#seo) · [The APP_KEY](#the-app_key)
+[Backups](#backups) · [Security headers](#security-headers) · [SEO and speed](#seo-and-speed) · [The APP_KEY](#the-app_key)
 
 ## Stack
 
@@ -40,6 +40,8 @@ always resolves to versions that run on the production server.
 | `@fontsource-variable/inter`, `@fontsource-variable/source-serif-4` | 5.x | npm | Self-hosted fonts (no font CDN). |
 | `@fontsource/lato` (900 only) | ^5.3 | npm | Headings: Lato Black, the owner's choice (Design Brief §3). |
 | `sharp` | ^0.35.5 | npm (dev) | Approved in Design Brief §2. `npm run brand:build` makes every logo variant, icon and preview from `docs/design/logo-source.png`. The generated files are committed, so the server never runs it. |
+
+| `lighthouse` | 12.8.2 (exact) | `tools/lighthouse` (local only) | Approved 30 Sep 2026 as a local dev tool only. It lives in its own `tools/lighthouse/package.json`, so `deploy.sh` (which runs `npm ci` in the project root) never installs it on the server. 12.8.2 is the newest version that runs on Node 20; 13.x needs Node 22. |
 
 The browser checks (`composer test:browser`) use **no extra package**: PHP's built-in
 server, Node's built-in WebSocket (`node --experimental-websocket`) and an installed Edge
@@ -98,6 +100,12 @@ composer test:browser                                  # every public page at 39
 composer audit && npm audit                            # known vulnerabilities
 ```
 
+Lighthouse (local only, not a phase check): `cd tools/lighthouse && npm ci`, start the site
+with production settings and built assets, then `node run.mjs http://127.0.0.1:8765/`. It
+prints the four scores (mobile settings) and writes the reports to `tools/lighthouse/reports/`
+(not committed). The local PHP server does not compress responses; on the server nginx does
+(see SEO and speed below).
+
 `composer test:mariadb` and `composer test:backup` use a MariaDB 11.4 on
 `127.0.0.1:3307`. If nothing is listening there, they start the portable server in
 `~/.local/mariadb114` (override with `MARIADB_HOME`) and stop it afterwards with SQL
@@ -154,7 +162,7 @@ Paths below assume the Hestia user `avinutra` and the domain `avinutra.com`.
     ```
 11. **Check:** `php8.3 artisan lite-crm:doctor` (all OK within two minutes of setting up
     cron), `https://avinutra.com/.env` returns 404, and
-    `https://avinutra.com/robots.txt` shows the `Sitemap:` line (see [SEO](#seo)).
+    `https://avinutra.com/robots.txt` shows the `Sitemap:` line (see [SEO and speed](#seo-and-speed)).
 12. **Security headers for static files** and **HSTS**: see [Security headers](#security-headers).
 
 ## `.env` on the server
@@ -255,7 +263,13 @@ night (outside the web root; not reachable over HTTP). No external backup servic
 backup for 7 days, one a day for 30 days, one a week for 8 weeks, one a month for 6
 months; never more than 5 GB), and `backup:monitor` daily at 08:00, which e-mails
 `BACKUP_NOTIFICATION_EMAIL` if the newest backup is missing or older than a day. Failures
-are e-mailed too. Set `BACKUP_ARCHIVE_PASSWORD` to encrypt the zips.
+are e-mailed too.
+
+> **Backup password.** Set `BACKUP_ARCHIVE_PASSWORD` in the server's `.env` (you choose
+> it; it encrypts every backup zip). **Store it safely off the server** — in your
+> password manager, next to the `APP_KEY` — because **an encrypted backup cannot be
+> opened or restored without it**. If you ever change it, keep the old password as long
+> as backups made with it are kept.
 
 **Copy backups off the server** (do this regularly, e.g. weekly):
 
@@ -297,6 +311,15 @@ On Windows you can also use WinSCP with the same SSH login. HestiaCP's own user 
 | `Permissions-Policy` | camera, microphone, geolocation, payment, USB off |
 | `X-Robots-Tag` | `noindex, nofollow` on everything under `/crm` (the CRM package) |
 
+**Script policy — owner's decision (29 Sep 2026):** the policy allows `'unsafe-eval'`
+for scripts on the whole site, and `'unsafe-inline'` scripts **in the CRM only**.
+Reason: Alpine.js (bundled with Livewire, used by the forms, calculators and CRM)
+evaluates its expressions at run time, which needs `'unsafe-eval'`; Filament, which draws
+the CRM, adds small inline scripts without a nonce, which need `'unsafe-inline'` there.
+The public site's scripts still need a per-request nonce, and everywhere only this site
+is allowed as a source, so no script can load from another website. Removing these
+allowances would mean replacing Livewire/Alpine and Filament.
+
 nginx serves the static files itself (`/build/*`, `/brand/*`, `favicon.ico`,
 `site.webmanifest`) without asking Laravel, so **add these in HestiaCP**:
 
@@ -327,7 +350,7 @@ and `curl -sI https://avinutra.com/build/manifest.json` (or any file under `/bui
 Laravel sees HTTPS through PHP-FPM's `HTTPS` parameter, so no proxy settings are needed
 with the nginx + PHP-FPM templates.
 
-## SEO
+## SEO and speed
 
 - `https://avinutra.com/sitemap.xml` is generated: every public page, the service and
   ingredient-category pages, published products and articles, the glossary, and the team
@@ -339,6 +362,12 @@ with the nginx + PHP-FPM templates.
   Product. Titles and descriptions can be overridden per page in CRM › Website › Page SEO.
 - After launch, add the site and the sitemap in Google Search Console (optional; it is
   your account, not part of the site).
+- **Compression:** HestiaCP's nginx templates switch gzip on for HTML, CSS and JavaScript.
+  After the first deploy, check it: `curl -sI -H 'Accept-Encoding: gzip' https://avinutra.com/ | grep -i content-encoding`
+  should print `content-encoding: gzip` (also try a `/build/assets/*.css` URL). If it prints
+  nothing, enable gzip in the domain's nginx template in HestiaCP. Lighthouse (mobile,
+  local, 30 Sep 2026): Performance 96, Accessibility 100, Best Practices 100, SEO 100; its only
+  remaining suggestion was text compression, which nginx provides.
 
 ## The APP_KEY
 

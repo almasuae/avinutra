@@ -49,4 +49,7 @@ return [
         ['label' => 'Technical Disclaimer', 'route' => 'legal.technical-disclaimer'],
     ],
 
+    // Hosts treated as internal by the link rule (App\Support\ExternalLinks), besides APP_URL's host.
+    'internal_hosts' => ['avinutra.com', 'www.avinutra.com'],
+
 ];

@@ -67,6 +67,9 @@
             ],
         ]" />
     @endif
+    {{-- The body and heading fonts load with the stylesheet, so text does not jump when they swap in (Lighthouse CLS). --}}
+    <link rel="preload" href="{{ \Illuminate\Support\Facades\Vite::asset('node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ \Illuminate\Support\Facades\Vite::asset('node_modules/@fontsource/lato/files/lato-latin-900-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head')
 </head>

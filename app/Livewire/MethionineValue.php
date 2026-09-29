@@ -134,6 +134,20 @@ class MethionineValue extends Component
         $this->example = true;
     }
 
+    public function resetForm(): void
+    {
+        $this->products = [self::row('dl_met_99'), self::row('mha_fa_88_80')];
+        $this->reference = 0;
+        $this->inclusion = '';
+        $this->monthlyFeed = '';
+        $this->currency = 'USD';
+        $this->altCurrency = '';
+        $this->altRate = '';
+        $this->altRateDate = '';
+        $this->display = 'main';
+        $this->example = false;
+    }
+
     public function updatedCurrency(): void
     {
         $this->currency = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', $this->currency) ?? '', 0, 3));

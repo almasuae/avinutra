@@ -96,3 +96,14 @@ it('seeds every open content gap as a task, once, and assigns it to the first ad
     expect($tasks()->count())->toBe(count($open))
         ->and($tasks()->where('assignee_id', $admin->getKey())->count())->toBe(count($open));
 });
+
+it('does not seed resolved or dropped content gaps, such as #8', function (): void {
+    $numbers = array_column(ContentGapTaskSeeder::openGaps(base_path('CONTENT-GAPS.md')), 'number');
+
+    expect($numbers)->not->toContain(8)
+        ->and(Task::query()->where('title', 'like', ContentGapTaskSeeder::TITLE_PREFIX.'8 %')->orWhere('title', 'like', ContentGapTaskSeeder::TITLE_PREFIX.'8:%')->exists())->toBeFalse();
+
+    $this->seed(ContentGapTaskSeeder::class);
+
+    expect(Task::query()->where('title', 'like', ContentGapTaskSeeder::TITLE_PREFIX.'8 %')->orWhere('title', 'like', ContentGapTaskSeeder::TITLE_PREFIX.'8:%')->exists())->toBeFalse();
+});

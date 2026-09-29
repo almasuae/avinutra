@@ -195,7 +195,7 @@ Status key: **L** = at launch · **1** = Phase 1 · **2** = Phase 2 · **3** = P
 /quality                                 L
 /suppliers                               L  Partner With Us
   /how-we-work                           L
-  /apply                                 L  Supplier application
+  /apply                                 L  Supplier Particulars
   /pakistan-market                       C  Once sourced aggregate figures are supplied
   /zh                                    1  Simplified Chinese summary
 /about                                   L
@@ -392,11 +392,11 @@ Wording such as *"Our supplier qualification process includes…"* is acceptable
 **Pakistan Market Overview** (`/suppliers/pakistan-market`) — **added once the owner supplies sourced aggregate figures.**
 - Content: market size and structure in aggregate (methionine import volume, number of importing mills, product-form mix, duty and tax structure, poultry production growth), each figure sourced and dated; why the market is under-served; and a regulatory pathway summary marked "not legal advice".
 - **Never** publish importer names, individual transactions or supplier-by-supplier prices.
-- Offer: *"Detailed market analysis is available to qualified manufacturers under NDA."* → Apply.
+- Offer: *"Detailed market analysis is available to qualified manufacturers under NDA."* → Introduce your company.
 
 **Simplified Chinese summary** (`/suppliers/zh`, Phase 1) — a professionally translated one-page version for Chinese producers, reviewed by a native speaker.
 
-**Supplier application** (`/suppliers/apply`) — see §8. Each application enters the CRM's **Supply partnership** pipeline.
+**Supplier Particulars** (`/suppliers/apply`) — see §8. Suppliers introduce their company and share their company particulars; the form heading is "Supplier Particulars" and the button "Submit". The public page, thank-you message and acknowledgement e-mail avoid "apply" / "application" (the URL stays `/suppliers/apply`; the CRM keeps the internal type "supplier application"). Each submission enters the CRM's **Supply partnership** pipeline.
 
 ---
 
@@ -571,7 +571,7 @@ All forms use the Lite CRM enquiry form component (v5 §C6). Every submission:
 | **Ask a Nutritionist** | Name · Company · Role · Email · WhatsApp · Country/city · Species · Feed type · Question · Current product | Formulation, COA (optional) | ask a nutritionist / nutrition@ |
 | **Request Sourcing Support** | Product · Specification · Quantity per month · Annual requirement · Current supplier (optional) · Current price range (optional) · Delivery location · Documents required · Target delivery date | Specification (optional) | sourcing request / sales@ |
 | **Request Quotation / Sample / Document** | Product · Quantity · Delivery point · Documents needed | — | quotation, sample or document / sales@ |
-| **Supplier Application** | Company · Country · Website · Contact · Product categories · Manufacturing sites · Annual capacity · Existing Pakistan business and current distributor · Export markets · Certifications · Desired territory · Exclusivity expectations · MOQ · Lead time · Payment terms · Technical support · Sample availability | Catalogue, TDS, SDS, COA, certificates, company profile | supplier application / partners@ → Supply partnership pipeline |
+| **Supplier Particulars** (button: Submit) | Company · Country · Website · Contact · Product categories · Manufacturing sites · Annual capacity · Existing Pakistan business and current distributor · Export markets · Certifications · Desired territory · Exclusivity expectations · MOQ · Lead time · Payment terms · Technical support · Sample availability | Catalogue, TDS, SDS, COA, certificates, company profile | supplier application / partners@ → Supply partnership pipeline |
 | **General contact** | Name · Company · Country · Email · Enquiry type · Message | — | general / info@ |
 | **Market Watch updates** (Phase 2) | Email · Company · Role · Interests | — | Contact with consent flag; low-volume mailing from the own server |
 
@@ -628,7 +628,7 @@ All forms use the Lite CRM enquiry form component (v5 §C6). Every submission:
 # 10. Phased delivery
 
 ## Launch — the full live site (built per v5 §G1)
-- **Pages:** Home · About · Company · Editorial policy · all Nutrition Services pages · Feed Mills · Request Sourcing · Ingredients directory and category pages · Methionine hub · Quality · For Suppliers · How we work · Supplier application · Contact · Ask a Nutritionist · Legal pages.
+- **Pages:** Home · About · Company · Editorial policy · all Nutrition Services pages · Feed Mills · Request Sourcing · Ingredients directory and category pages · Methionine hub · Quality · For Suppliers · How we work · Supplier Particulars · Contact · Ask a Nutritionist · Legal pages.
 - **Tools:** Tools 1 and 2.
 - **Knowledge:** Glossary and article 1, with articles 2–8 created as drafts in the CRM.
 - **Gaps:** `CONTENT-GAPS.md` written and each gap seeded as a CRM task.

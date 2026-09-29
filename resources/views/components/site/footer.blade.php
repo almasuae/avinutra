@@ -32,7 +32,7 @@
         <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
             <div>
                 <a href="{{ url('/') }}" class="inline-block rounded-2xl bg-white px-5 py-4 shadow-sm">
-                    <x-brand.logo variant="full" class="h-auto w-64" />
+                    <x-brand.logo variant="full" class="h-auto w-64" loading="lazy" decoding="async" />
                 </a>
                 <p class="mt-5 max-w-xs text-base {{ $text }}">
                     International poultry feed nutrition, consulting and ingredient supply.

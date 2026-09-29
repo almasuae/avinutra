@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace LiteCrm\Support;
 
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Str;
 use LiteCrm\LiteCrm;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -48,6 +50,47 @@ class Permissions
         // Filter the dashboard by user, territory and period.
         'dashboard.filter',
     ];
+
+    /**
+     * A readable label, e.g. "Documents: view confidential" for documents.view_confidential.
+     */
+    public static function label(string $permission): string
+    {
+        [$area, $ability] = array_pad(explode('.', $permission, 2), 2, '');
+
+        return static::areaLabel($area).': '.(Lang::has("lite-crm::permissions.abilities.{$ability}")
+            ? (string) __("lite-crm::permissions.abilities.{$ability}")
+            : str_replace('_', ' ', $ability));
+    }
+
+    public static function areaLabel(string $area): string
+    {
+        return Lang::has("lite-crm::permissions.areas.{$area}")
+            ? (string) __("lite-crm::permissions.areas.{$area}")
+            : Str::headline($area);
+    }
+
+    /**
+     * Permission names grouped by area (the part before the first dot), groups
+     * sorted by their label.
+     *
+     * @param  iterable<string>  $names
+     * @return array<string, array{label: string, permissions: array<string, string>}> area => label and name => label
+     */
+    public static function grouped(iterable $names): array
+    {
+        $groups = [];
+
+        foreach ($names as $name) {
+            $area = explode('.', $name, 2)[0];
+            $groups[$area]['label'] ??= static::areaLabel($area);
+            $groups[$area]['permissions'][$name] = static::label($name);
+        }
+
+        uasort($groups, fn (array $a, array $b): int => strcmp($a['label'], $b['label']));
+
+        return $groups;
+    }
 
     /**
      * Every permission name.

@@ -14,5 +14,7 @@
     :privacy-url="$privacy"
     :submit-label="$settings['submit']"
     :values="$settings['values']"
+    :thanks-heading="$settings['thanks_heading'] ?? null"
+    :thanks-text="$settings['thanks'] ?? null"
     :key="$key ?? 'enquiry-'.$form"
 />

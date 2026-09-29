@@ -191,10 +191,10 @@ class LandedCostCalculator
         $bank = $cif * (float) ($input['bank_percent'] ?? 0) / 100;
         $financing = $cif * (float) ($input['financing_rate'] ?? 0) / 100 * (float) ($input['financing_days'] ?? 0) / 365;
         if ($bank > 0) {
-            $working[] = sprintf('Bank/LC charges: CIF %s × %s%% = %s (purchase currency)', self::n($cif), self::n((float) $input['bank_percent'], 3), self::n($bank));
+            $working[] = sprintf('Bank/LC charges: CIF %s × %s%% = %s (purchase currency) × %s = %s (local currency)', self::n($cif), self::n((float) $input['bank_percent'], 3), self::n($bank), self::n($rate, 4), self::n($bank * $rate));
         }
         if ($financing > 0) {
-            $working[] = sprintf('Financing: CIF %s × %s%% × %s days ÷ 365 = %s (purchase currency)', self::n($cif), self::n((float) $input['financing_rate'], 3), self::n((float) $input['financing_days']), self::n($financing));
+            $working[] = sprintf('Financing: CIF %s × %s%% × %s days ÷ 365 = %s (purchase currency) × %s = %s (local currency)', self::n($cif), self::n((float) $input['financing_rate'], 3), self::n((float) $input['financing_days']), self::n($financing), self::n($rate, 4), self::n($financing * $rate));
         }
 
         // Everything in local currency.

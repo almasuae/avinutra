@@ -11,10 +11,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 /**
  * A public profile of an adviser, employee or consultant. It appears on the
- * website only when published AND written consent is on file (v3 §7.2).
+ * website only when published AND written consent is on file: the consent flag,
+ * its date and the signed document on the private disk (v3 §7.2).
  *
  * @property int $id
  * @property string $name
@@ -32,6 +34,7 @@ use Illuminate\Support\Str;
  * @property string|null $photo_path
  * @property bool $consent_on_file
  * @property Carbon|null $consent_date
+ * @property string|null $consent_document_path signed consent, on the private (local) disk
  * @property bool $is_published
  * @property int $sort
  */
@@ -39,10 +42,12 @@ class TeamProfile extends Model
 {
     use SoftDeletes;
 
+    public const CONSENT_REQUIRED = 'A profile can be published only with written consent on file: tick the consent box, enter its date and upload the signed consent document.';
+
     protected $fillable = [
         'name', 'slug', 'role_type', 'job_title', 'qualification', 'university', 'qualification_year',
         'experience_years', 'specialisations', 'bio', 'publications', 'languages', 'photo_path',
-        'consent_on_file', 'consent_date', 'is_published', 'sort',
+        'consent_on_file', 'consent_date', 'consent_document_path', 'is_published', 'sort',
     ];
 
     protected static function booted(): void
@@ -50,6 +55,11 @@ class TeamProfile extends Model
         static::saving(function (TeamProfile $profile): void {
             if (blank($profile->slug)) {
                 $profile->slug = Str::slug($profile->name) ?: 'profile';
+            }
+
+            // Server-side rule: never published without consent on file, its date and the signed document.
+            if ($profile->is_published && ! $profile->hasConsent()) {
+                throw ValidationException::withMessages(['is_published' => self::CONSENT_REQUIRED]);
             }
         });
     }
@@ -76,12 +86,21 @@ class TeamProfile extends Model
      */
     public function scopePublic(Builder $query): Builder
     {
-        return $query->where('is_published', true)->where('consent_on_file', true)->whereNotNull('consent_date');
+        return $query->where('is_published', true)->where('consent_on_file', true)->whereNotNull('consent_date')
+            ->whereNotNull('consent_document_path')->where('consent_document_path', '!=', '');
+    }
+
+    /**
+     * Written consent on file, dated, with the signed document uploaded.
+     */
+    public function hasConsent(): bool
+    {
+        return $this->consent_on_file && $this->consent_date !== null && filled($this->consent_document_path);
     }
 
     public function isPublic(): bool
     {
-        return $this->is_published && $this->consent_on_file && $this->consent_date !== null;
+        return $this->is_published && $this->hasConsent();
     }
 
     /**

@@ -219,3 +219,28 @@ it('lets the host supply the response time', function (): void {
     expect($mail)->toContain('We aim to reply within one working day.')
         ->and($blank)->not->toContain('aim to reply');
 });
+
+it('shows the thank-you texts a form passes in, or the defaults', function (): void {
+    enquiryForm(['thanksHeading' => 'Custom heading.', 'thanksText' => 'Custom text.'])
+        ->call('submit')
+        ->assertSet('submitted', true)
+        ->assertSee('Custom heading.')
+        ->assertSee('Custom text.')
+        ->assertDontSee(__('lite-crm::enquiries.form.thanks_heading'));
+});
+
+it('words the acknowledgement per enquiry type when the type sets it', function (): void {
+    config(['app.name' => 'Example Site']);
+    $type = Lookup::query()->where('type', 'enquiry_type')->where('key', 'general')->sole();
+
+    $enquiry = LiteCrm::captureEnquiry(['name' => 'Sara', 'email' => 'sara@example.com', 'message' => 'Hi'], 'general');
+    $standard = (new EnquiryAcknowledgement($enquiry))->toMail(new AnonymousNotifiable);
+
+    $type->update(['meta' => ['acknowledgement_subject' => 'Particulars received — :app', 'acknowledgement_text' => 'Thank you for introducing your company to :app.']]);
+    $custom = (new EnquiryAcknowledgement($enquiry->refresh()))->toMail(new AnonymousNotifiable);
+
+    expect($standard->subject)->toBe(__('lite-crm::enquiries.mail.acknowledgement.subject', ['app' => 'Example Site']))
+        ->and($custom->subject)->toBe('Particulars received — Example Site')
+        ->and(array_map('strval', $custom->introLines))->toContain('Thank you for introducing your company to Example Site.')
+        ->and(array_map('strval', $custom->introLines))->not->toContain(__('lite-crm::enquiries.mail.acknowledgement.received', ['app' => 'Example Site']));
+});

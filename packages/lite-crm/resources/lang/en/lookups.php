@@ -24,5 +24,8 @@ return [
         'is_active' => 'Active',
         'mailbox' => 'Mailbox',
         'mailbox_help' => 'New enquiries of this type are also e-mailed here.',
+        'acknowledgement_subject' => 'Acknowledgement subject',
+        'acknowledgement_text' => 'Acknowledgement text',
+        'acknowledgement_help' => 'Optional wording of the automatic reply for this type; leave empty for the standard text. ":app" becomes the site name.',
     ],
 ];

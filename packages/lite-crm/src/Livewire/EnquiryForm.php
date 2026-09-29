@@ -62,6 +62,13 @@ class EnquiryForm extends Component
     #[Locked]
     public ?string $submitLabel = null;
 
+    /** Optional thank-you texts shown after sending; the translated defaults otherwise. */
+    #[Locked]
+    public ?string $thanksHeading = null;
+
+    #[Locked]
+    public ?string $thanksText = null;
+
     #[Locked]
     public ?string $sourceUrl = null;
 
@@ -92,8 +99,12 @@ class EnquiryForm extends Component
         ?string $privacyUrl = null,
         ?string $submitLabel = null,
         array $values = [],
+        ?string $thanksHeading = null,
+        ?string $thanksText = null,
     ): void {
         $this->type = $type;
+        $this->thanksHeading = $thanksHeading;
+        $this->thanksText = $thanksText;
         $this->definitions = static::normaliseFields($fields);
         $this->maxUploads = max(0, min($uploads, (int) config('lite-crm.enquiries.max_uploads', 5)));
         $this->privacyUrl = $privacyUrl;

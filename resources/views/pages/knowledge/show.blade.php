@@ -23,8 +23,13 @@
         :breadcrumbs="['Insights' => route('knowledge'), $article->title => null]"
     >
         <p class="mt-5 text-base text-muted">
-            <span class="font-semibold text-ink">{{ $article->authorName() }}</span>
-            @if ($article->reviewerName()) · Reviewed by <span class="font-semibold text-ink">{{ $article->reviewerName() }}</span>@endif
+            {{-- Names link to the person's profile on the Team page; the company byline has no link. --}}
+            @if ($article->author?->isPublic())
+                <a href="{{ route('about.team') }}#{{ $article->author->slug }}" class="font-semibold text-ink underline decoration-line underline-offset-4 hover:text-green-700">{{ $article->author->name }}</a>
+            @else
+                <span class="font-semibold text-ink">{{ $article->authorName() }}</span>
+            @endif
+            @if ($article->reviewer?->isPublic()) · Reviewed by <a href="{{ route('about.team') }}#{{ $article->reviewer->slug }}" class="font-semibold text-ink underline decoration-line underline-offset-4 hover:text-green-700">{{ $article->reviewer->name }}</a>@endif
             @if ($article->last_reviewed_on) · Last reviewed {{ $article->last_reviewed_on->format('j F Y') }}@endif
         </p>
     </x-page.hero>
@@ -40,7 +45,7 @@
                         @foreach ($article->sources as $source)
                             <li>
                                 @if (! empty($source['url']))
-                                    <a href="{{ $source['url'] }}" class="text-green-700 underline" rel="noopener">{{ $source['title'] ?? $source['url'] }}</a>
+                                    <a href="{{ $source['url'] }}" class="text-green-700 underline" target="_blank" rel="noopener noreferrer">{{ $source['title'] ?? $source['url'] }}</a>
                                 @else
                                     {{ $source['title'] ?? '' }}
                                 @endif

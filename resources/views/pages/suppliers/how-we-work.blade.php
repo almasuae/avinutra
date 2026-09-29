@@ -38,5 +38,5 @@
         </div>
     </section>
 
-    <x-page.cta-band title="Ready to start?" text="Send us your application with your catalogue and documents." label="Become a Supply Partner" route="suppliers.apply" />
+    <x-page.cta-band title="Ready to start?" text="Share your company particulars, with your catalogue and documents." label="Become a Supply Partner" route="suppliers.apply" />
 </x-layouts.site>

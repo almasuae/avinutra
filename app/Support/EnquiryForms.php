@@ -35,7 +35,7 @@ class EnquiryForms
             'general' => ['label' => 'General', 'hint' => 'Anything else, or if you are not sure.'],
             'quotation' => ['label' => 'Sales / Quotation', 'hint' => 'Price and availability for a product.'],
             'ask_nutritionist' => ['label' => 'Technical / Ask a Nutritionist', 'hint' => 'Formulation, ingredients or feed economics.'],
-            'supplier_application' => ['label' => 'Supplier partnership', 'hint' => 'For manufacturers of feed ingredients.'],
+            'supplier_application' => ['label' => 'Supplier partnership', 'hint' => 'For manufacturers of feed ingredients: introduce your company.'],
             'sourcing_request' => ['label' => 'Sourcing request', 'hint' => 'A product you need that we do not list.'],
             'sample' => ['label' => 'Sample request', 'hint' => 'A sample for evaluation or a trial.'],
             'document' => ['label' => 'Document request', 'hint' => 'TDS, SDS, COA, certificates or other documents.'],
@@ -52,7 +52,7 @@ class EnquiryForms
      * The component settings for a form.
      *
      * @param  array<string, string>  $values  pre-filled answers
-     * @return array{type: string, fields: array<int|string, mixed>, uploads: int, submit: string, values: array<string, string>}
+     * @return array{type: string, fields: array<int|string, mixed>, uploads: int, submit: string, thanks_heading?: string, thanks?: string, values: array<string, string>}
      */
     public static function form(string $key, array $values = []): array
     {
@@ -144,7 +144,9 @@ class EnquiryForms
                     'message' => ['label' => 'Anything else', 'required' => false],
                 ],
                 'uploads' => 5,
-                'submit' => 'Send application',
+                'submit' => 'Submit',
+                'thanks_heading' => 'Thank you for sharing your company particulars.',
+                'thanks' => 'Our team will review them and reply by e-mail.',
             ],
             'call' => [
                 'type' => 'general',

@@ -1,8 +1,8 @@
 <div class="lite-crm-enquiry-form">
     @if ($submitted)
         <div role="status" class="rounded-md border border-green-300 bg-green-50 p-4 text-green-900">
-            <p class="font-medium">{{ __('lite-crm::enquiries.form.thanks_heading') }}</p>
-            <p class="mt-1 text-sm">{{ __('lite-crm::enquiries.form.thanks') }}</p>
+            <p class="font-medium">{{ $thanksHeading ?? __('lite-crm::enquiries.form.thanks_heading') }}</p>
+            <p class="mt-1 text-sm">{{ $thanksText ?? __('lite-crm::enquiries.form.thanks') }}</p>
         </div>
     @else
         <form wire:submit="submit" class="space-y-5" novalidate>

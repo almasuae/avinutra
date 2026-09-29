@@ -8,6 +8,8 @@ use App\Enums\TeamRole;
 use App\Filament\Resources\WebsiteResource;
 use App\Models\TeamProfile;
 use BackedEnum;
+use Closure;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
@@ -24,10 +26,13 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Team profiles (v3 §7.2): shown on the site only when published AND written,
- * dated consent is on file. The Team page appears once one profile qualifies.
+ * dated consent is on file with the signed document (private disk). The Team
+ * page appears once one profile qualifies.
  */
 class TeamProfileResource extends WebsiteResource
 {
@@ -60,13 +65,27 @@ class TeamProfileResource extends WebsiteResource
                 ])
                 ->columns(2),
             Section::make('Consent and publication')
-                ->description('Every credential must be verifiable. Publish only with written consent for the name, photograph and biography.')
+                ->description('Every credential must be verifiable. Publish only with written consent for the name, photograph and biography: tick the box, enter the date and upload the signed consent document.')
                 ->schema([
                     Toggle::make('consent_on_file')->label('Written consent on file')->live(),
-                    DatePicker::make('consent_date')->label('Consent date')->required(fn (Get $get): bool => (bool) $get('consent_on_file')),
+                    DatePicker::make('consent_date')->label('Consent date')->live()
+                        ->required(fn (Get $get): bool => (bool) $get('consent_on_file')),
+                    FileUpload::make('consent_document_path')->label('Signed consent document')
+                        ->disk('local')->directory('team-consents')->visibility('private')
+                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
+                        ->maxSize(10240)
+                        ->previewable(false)
+                        ->live()
+                        ->required(fn (Get $get): bool => (bool) $get('consent_on_file'))
+                        ->helperText('PDF, JPEG or PNG, up to 10 MB. Stored privately, never on the public site.')
+                        ->columnSpanFull(),
                     Toggle::make('is_published')->label('Published on the website')
-                        ->disabled(fn (Get $get): bool => ! $get('consent_on_file'))
-                        ->helperText('Available once written consent is on file.'),
+                        ->helperText('Possible only with consent on file, its date and the signed document.')
+                        ->rule(fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+                            if ($value && ! ($get('consent_on_file') && filled($get('consent_date')) && filled($get('consent_document_path')))) {
+                                $fail(TeamProfile::CONSENT_REQUIRED);
+                            }
+                        }),
                     TextInput::make('sort')->numeric()->default(0),
                 ])
                 ->columns(2),
@@ -82,8 +101,19 @@ class TeamProfileResource extends WebsiteResource
                 IconColumn::make('consent_on_file')->label('Consent')->boolean(),
                 IconColumn::make('is_published')->label('Published')->boolean(),
             ])
+            ->description('Profiles appear on the website (About › Our Team, article bylines) only when published with written consent, its date and the signed document on file.')
             ->defaultSort('sort')
-            ->recordActions([EditAction::make()->slideOver(), DeleteAction::make()]);
+            ->recordActions([
+                // The signed consent is private: downloaded here only, by users who may manage the website.
+                Action::make('consentDocument')->label('Consent')->icon(Heroicon::OutlinedDocumentArrowDown)
+                    ->visible(fn (TeamProfile $record): bool => filled($record->consent_document_path) && Storage::disk('local')->exists($record->consent_document_path))
+                    ->action(fn (TeamProfile $record): StreamedResponse => Storage::disk('local')->download(
+                        $record->consent_document_path,
+                        'consent-'.$record->slug.'.'.pathinfo($record->consent_document_path, PATHINFO_EXTENSION),
+                    )),
+                EditAction::make()->slideOver(),
+                DeleteAction::make(),
+            ]);
     }
 
     public static function getPages(): array

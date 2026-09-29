@@ -9,6 +9,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
@@ -92,6 +93,17 @@ class LookupResource extends CrmResource
                 ->helperText(__('lite-crm::lookups.fields.mailbox_help'))
                 ->email()
                 ->maxLength(255)
+                ->visible(fn (Get $get): bool => $get('type') === 'enquiry_type'),
+            TextInput::make('meta.acknowledgement_subject')
+                ->label(__('lite-crm::lookups.fields.acknowledgement_subject'))
+                ->helperText(__('lite-crm::lookups.fields.acknowledgement_help'))
+                ->maxLength(200)
+                ->visible(fn (Get $get): bool => $get('type') === 'enquiry_type'),
+            Textarea::make('meta.acknowledgement_text')
+                ->label(__('lite-crm::lookups.fields.acknowledgement_text'))
+                ->helperText(__('lite-crm::lookups.fields.acknowledgement_help'))
+                ->maxLength(1000)
+                ->rows(3)
                 ->visible(fn (Get $get): bool => $get('type') === 'enquiry_type'),
             TextInput::make('sort')
                 ->label(__('lite-crm::lookups.fields.sort'))

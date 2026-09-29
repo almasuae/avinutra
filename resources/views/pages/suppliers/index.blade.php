@@ -57,7 +57,7 @@
                 <p class="eyebrow">Market information</p>
                 <h2 class="mt-2 text-2xl">Detailed market analysis</h2>
                 <p class="mt-3 text-base text-muted">Detailed market analysis is available to qualified manufacturers under NDA.</p>
-                <a href="{{ route('suppliers.apply') }}" class="mt-5 inline-block font-semibold text-green-700 hover:underline">Apply →</a>
+                <a href="{{ route('suppliers.apply') }}" class="mt-5 inline-block font-semibold text-green-700 hover:underline">Introduce your company →</a>
             </div>
         </div>
     </section>

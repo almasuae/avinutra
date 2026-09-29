@@ -6,6 +6,23 @@ package uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed (roles)
+- The role form (create and edit) opens in a wide modal (7xl): the name sits in a compact
+  top row and the permissions use the full width, grouped by area, each group with its
+  own Select all / Deselect all, plus a search box and an overall Select / Deselect all.
+  Equal-width columns: 1 on phones, 2 from 640 px, 3 from 1024 px, 4 from 1280 px,
+  5 from 1536 px; one line per permission, cut off with "…" and shown in full on hover.
+- Readable permission labels from `lang/en/permissions.php` (`Permissions::label()`,
+  e.g. "Documents: view confidential"). The stored permission names are unchanged;
+  names that are not in the permission table are ignored on save.
+
+### Added (enquiry wording)
+- Enquiry form props `thanksHeading` and `thanksText`: optional thank-you texts shown
+  after sending (the translated defaults otherwise).
+- Enquiry types (lookup meta) may set `acknowledgement_subject` and `acknowledgement_text`
+  for the automatic reply (":app" becomes the site name); both are editable in
+  CRM › Lists for enquiry types. Empty values keep the standard wording.
+
 ### Changed (privacy)
 - The plugin sets `LiteCrm\Filament\LocalAvatarProvider`: user avatars are initials drawn
   locally as an inline SVG, instead of Filament's default ui-avatars.com images (no

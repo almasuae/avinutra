@@ -2,8 +2,8 @@
 <div class="lite-crm-enquiry-form">
     @if ($submitted)
         <div role="status" class="rounded-(--radius-card) border border-green-500/40 bg-surface p-6 text-green-900">
-            <p class="font-heading text-xl font-black">{{ __('lite-crm::enquiries.form.thanks_heading') }}</p>
-            <p class="mt-1 text-sm">{{ __('lite-crm::enquiries.form.thanks') }}</p>
+            <p class="font-heading text-xl font-black">{{ $thanksHeading ?? __('lite-crm::enquiries.form.thanks_heading') }}</p>
+            <p class="mt-1 text-sm">{{ $thanksText ?? __('lite-crm::enquiries.form.thanks') }}</p>
         </div>
     @else
         <form wire:submit="submit" class="grid gap-5 sm:grid-cols-2" novalidate>

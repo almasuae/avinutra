@@ -34,12 +34,18 @@ class EnquiryAcknowledgement extends Notification implements ShouldQueue
         $app = (string) config('app.name');
         $responseTime = LiteCrm::enquiryResponseTime();
 
+        // An enquiry type may word its own acknowledgement (lookup meta; ":app" is replaced).
+        $meta = $this->enquiry->type->meta ?? [];
+        $custom = fn (string $key): ?string => isset($meta[$key]) && is_string($meta[$key]) && trim($meta[$key]) !== ''
+            ? str_replace(':app', $app, trim($meta[$key]))
+            : null;
+
         $mail = (new MailMessage)
-            ->subject(__('lite-crm::enquiries.mail.acknowledgement.subject', ['app' => $app]))
+            ->subject($custom('acknowledgement_subject') ?? __('lite-crm::enquiries.mail.acknowledgement.subject', ['app' => $app]))
             ->greeting(filled($this->enquiry->name)
                 ? __('lite-crm::enquiries.mail.acknowledgement.greeting_name', ['name' => $this->enquiry->name])
                 : __('lite-crm::enquiries.mail.acknowledgement.greeting'))
-            ->line(__('lite-crm::enquiries.mail.acknowledgement.received', ['app' => $app]))
+            ->line($custom('acknowledgement_text') ?? __('lite-crm::enquiries.mail.acknowledgement.received', ['app' => $app]))
             ->line(__('lite-crm::enquiries.mail.acknowledgement.reference', ['reference' => $this->enquiry->id]));
 
         if ($responseTime !== null) {
