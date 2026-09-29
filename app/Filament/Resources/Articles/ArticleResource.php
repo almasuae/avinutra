@@ -19,6 +19,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -26,6 +27,8 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use LiteCrm\Filament\FormLayout;
 
 /**
  * Knowledge Centre articles (v3 §7.9): draft → in review → approved → published.
@@ -60,45 +63,58 @@ class ArticleResource extends WebsiteResource
         // Only public profiles (published, with consent on file) can be named in a byline.
         $people = fn (): array => TeamProfile::query()->public()->orderBy('name')->pluck('name', 'id')->all();
 
-        return $schema->components([
-            Section::make('Article')
-                ->schema([
-                    TextInput::make('title')->required()->maxLength(200)->columnSpanFull(),
-                    TextInput::make('slug')->helperText('Leave empty to create it from the title.')->alphaDash()->maxLength(200)->unique(ignoreRecord: true),
-                    Select::make('category')->options(ArticleCategory::class)->required(),
-                    Select::make('status')->options(ArticleStatus::class)->required()->default(ArticleStatus::Draft->value)->live()
-                        ->helperText('Only published articles are shown. An article written under a person\'s name stays unpublished until that person has authored or reviewed it.'),
-                    DateTimePicker::make('published_at')->label('Publish date')->helperText('Empty: set when first published.'),
-                    Textarea::make('summary')->rows(2)->maxLength(300)->columnSpanFull(),
-                    MarkdownEditor::make('body')
-                        ->columnSpanFull()
-                        ->required(fn (Get $get): bool => $get('status') === ArticleStatus::Published->value || $get('status') === ArticleStatus::Published),
-                    Textarea::make('outline')->rows(4)->helperText('Planning notes for drafts; never shown on the site.')->columnSpanFull(),
-                ])
-                ->columns(2),
-            Section::make('Byline and sources')
-                ->schema([
-                    Select::make('author_id')->label('Author')->options($people)->searchable()
-                        ->in(fn (): array => array_keys($people()))
-                        ->placeholder(Article::COMPANY_AUTHOR)
-                        ->helperText('Only published team profiles with consent on file can be chosen. Empty: "'.Article::COMPANY_AUTHOR.'".'),
-                    Select::make('reviewer_id')->label('Reviewed by')->options($people)->searchable()
-                        ->in(fn (): array => array_keys($people()))
-                        ->placeholder('No named reviewer')
-                        ->helperText('Only published team profiles with consent on file can be chosen.'),
-                    DatePicker::make('last_reviewed_on')->label('Last reviewed'),
-                    Select::make('related_route')->label('Related tool or page')->options(self::relatedRoutes()),
-                    Repeater::make('sources')
-                        ->schema([
-                            TextInput::make('title')->required()->maxLength(500),
-                            TextInput::make('url')->url()->maxLength(500),
-                            TextInput::make('date')->maxLength(40),
-                        ])
-                        ->columns(3)
-                        ->defaultItems(0)
-                        ->columnSpanFull(),
-                ])
-                ->columns(2),
+        // Full page (CRM form layout): the text takes two thirds, the details one third;
+        // one column below 1024 px.
+        return $schema->columns(['default' => 1, 'lg' => 3])->components([
+            Group::make([
+                Section::make('Article')
+                    ->schema([
+                        TextInput::make('title')->required()->maxLength(200),
+                        TextInput::make('slug')->helperText('Leave empty to create it from the title.')->alphaDash()->maxLength(200)->unique(ignoreRecord: true),
+                        Textarea::make('summary')->maxLength(300),
+                        MarkdownEditor::make('body')
+                            ->minHeight(FormLayout::TALL_EDITOR_MIN_HEIGHT)
+                            ->required(fn (Get $get): bool => $get('status') === ArticleStatus::Published->value || $get('status') === ArticleStatus::Published),
+                        Textarea::make('outline')->rows(8)->helperText('Planning notes for drafts; never shown on the site.'),
+                    ]),
+            ])->columnSpan(['lg' => 2]),
+            Group::make([
+                Section::make('Publishing')
+                    ->schema([
+                        Select::make('status')->options(ArticleStatus::class)->required()->default(ArticleStatus::Draft->value)->live()
+                            ->helperText('Only published articles are shown. An article written under a person\'s name stays unpublished until that person has authored or reviewed it.'),
+                        DateTimePicker::make('published_at')->label('Publish date')->helperText('Empty: set when first published.'),
+                        Select::make('category')->options(ArticleCategory::class)->required(),
+                    ]),
+                Section::make('Byline')
+                    ->schema([
+                        Select::make('author_id')->label('Author')->options($people)->searchable()
+                            ->in(fn (): array => array_keys($people()))
+                            ->placeholder(Article::COMPANY_AUTHOR)
+                            ->helperText('Only published team profiles with consent on file can be chosen. Empty: "'.Article::COMPANY_AUTHOR.'".'),
+                        Select::make('reviewer_id')->label('Reviewed by')->options($people)->searchable()
+                            ->in(fn (): array => array_keys($people()))
+                            ->placeholder('No named reviewer')
+                            ->helperText('Only published team profiles with consent on file can be chosen.'),
+                        DatePicker::make('last_reviewed_on')->label('Last reviewed'),
+                        Select::make('related_route')->label('Related tool or page')->options(self::relatedRoutes()),
+                    ]),
+                Section::make('Sources')
+                    ->schema([
+                        // One full-width row per source, so long titles and URLs stay readable.
+                        Repeater::make('sources')->hiddenLabel()
+                            ->schema([
+                                Textarea::make('title')->required()->maxLength(500),
+                                TextInput::make('url')->label('URL')->url()->maxLength(500),
+                                TextInput::make('date')->maxLength(40),
+                                Textarea::make('note')->label('Internal note')->maxLength(500)
+                                    ->helperText('For the team only (e.g. why a title is shortened); never shown on the site.'),
+                            ])
+                            ->itemLabel(fn (array $state): string => Str::limit((string) ($state['title'] ?? ''), 60))
+                            ->collapsible()
+                            ->defaultItems(0),
+                    ]),
+            ])->columnSpan(['lg' => 1]),
         ]);
     }
 
@@ -117,11 +133,15 @@ class ArticleResource extends WebsiteResource
                 SelectFilter::make('category')->options(ArticleCategory::class),
             ])
             ->defaultSort('updated_at', 'desc')
-            ->recordActions([EditAction::make()->slideOver(), DeleteAction::make()]);
+            ->recordActions([EditAction::make(), DeleteAction::make()]);
     }
 
     public static function getPages(): array
     {
-        return ['index' => Pages\ManageArticles::route('/')];
+        return [
+            'index' => Pages\ListArticles::route('/'),
+            'create' => Pages\CreateArticle::route('/create'),
+            'edit' => Pages\EditArticle::route('/{record}/edit'),
+        ];
     }
 }

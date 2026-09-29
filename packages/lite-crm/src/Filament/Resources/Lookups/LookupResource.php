@@ -21,6 +21,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Validation\Rules\Unique;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\CrmResource;
 use LiteCrm\LiteCrm;
 use LiteCrm\Models\Lookup;
@@ -103,7 +104,7 @@ class LookupResource extends CrmResource
                 ->label(__('lite-crm::lookups.fields.acknowledgement_text'))
                 ->helperText(__('lite-crm::lookups.fields.acknowledgement_help'))
                 ->maxLength(1000)
-                ->rows(3)
+
                 ->visible(fn (Get $get): bool => $get('type') === 'enquiry_type'),
             TextInput::make('sort')
                 ->label(__('lite-crm::lookups.fields.sort'))
@@ -138,7 +139,7 @@ class LookupResource extends CrmResource
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make(),
+                FormLayout::wide(EditAction::make()),
                 DeleteAction::make(),
                 RestoreAction::make(),
             ]);

@@ -96,7 +96,7 @@ php artisan test                                       # host tests on SQLite
 composer test:package                                  # package tests on SQLite (Testbench + Pest)
 composer test:mariadb                                  # both suites on MariaDB 11.4
 composer test:backup                                   # a real backup, restored into a second database
-composer test:browser                                  # every public page at 390 px: no overflow, no CSP violations, no JS errors
+composer test:browser                                  # every public page at 390 px: no overflow, CSP violations, JS errors, missing images (after scrolling) or overlapping table cells; OVERFLOW_WIDTH=1440 for desktop
 composer audit && npm audit                            # known vulnerabilities
 ```
 

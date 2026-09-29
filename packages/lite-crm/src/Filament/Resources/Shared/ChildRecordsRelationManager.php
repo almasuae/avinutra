@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\RecordResource;
 use LiteCrm\LiteCrm;
 use LiteCrm\Support\Visibility;
@@ -29,7 +30,7 @@ abstract class ChildRecordsRelationManager extends RelationManager
 
     protected function createAction(): CreateAction
     {
-        return CreateAction::make();
+        return FormLayout::wide(CreateAction::make());
     }
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string

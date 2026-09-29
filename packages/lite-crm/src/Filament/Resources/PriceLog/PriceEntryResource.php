@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 use LiteCrm\Enums\PriceBasis;
 use LiteCrm\Enums\PriceConfidence;
 use LiteCrm\Enums\PriceSourceType;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\RecordResource;
 use LiteCrm\Filament\Support\Fields;
 use LiteCrm\LiteCrm;
@@ -69,7 +70,7 @@ class PriceEntryResource extends RecordResource
             DatePicker::make('valid_until')->label(__('lite-crm::price-log.fields.valid_until'))->afterOrEqual('observed_on'),
             TextInput::make('reference')->label(__('lite-crm::price-log.fields.reference'))->maxLength(255),
             Select::make('confidence')->label(__('lite-crm::price-log.fields.confidence'))->options(PriceConfidence::class)->default(PriceConfidence::Reported)->required(),
-            Textarea::make('notes')->label(__('lite-crm::price-log.fields.notes'))->rows(2)->columnSpanFull(),
+            Textarea::make('notes')->label(__('lite-crm::price-log.fields.notes'))->columnSpanFull(),
         ]);
     }
 
@@ -104,7 +105,7 @@ class PriceEntryResource extends RecordResource
                         ->when($data['until'] ?? null, fn (Builder $query, string $date): Builder => $query->whereDate('observed_on', '<=', $date))),
                 TrashedFilter::make(),
             ])
-            ->recordActions([EditAction::make(), DeleteAction::make(), RestoreAction::make()]);
+            ->recordActions([FormLayout::wide(EditAction::make()), DeleteAction::make(), RestoreAction::make()]);
     }
 
     public static function getPages(): array

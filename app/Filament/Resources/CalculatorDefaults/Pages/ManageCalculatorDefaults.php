@@ -7,6 +7,7 @@ namespace App\Filament\Resources\CalculatorDefaults\Pages;
 use App\Filament\Resources\CalculatorDefaults\CalculatorDefaultResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use LiteCrm\Filament\FormLayout;
 
 class ManageCalculatorDefaults extends ManageRecords
 {
@@ -15,7 +16,7 @@ class ManageCalculatorDefaults extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            FormLayout::wide(CreateAction::make()),
         ];
     }
 }

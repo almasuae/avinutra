@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\Contacts\ContactResource;
 use LiteCrm\LiteCrm;
 use LiteCrm\Models\Contact;
@@ -45,6 +46,6 @@ class ContactsRelationManager extends RelationManager
     {
         return ContactResource::table($table)
             ->modifyQueryUsing(fn (Builder $query): Builder => Visibility::apply($query, Filament::auth()->user()))
-            ->headerActions([CreateAction::make()]);
+            ->headerActions([FormLayout::wide(CreateAction::make())]);
     }
 }

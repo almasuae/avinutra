@@ -6,16 +6,16 @@ namespace App\Filament\Resources\TeamProfiles\Pages;
 
 use App\Filament\Resources\TeamProfiles\TeamProfileResource;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\ListRecords;
 
-class ManageTeamProfiles extends ManageRecords
+class ListTeamProfiles extends ListRecords
 {
     protected static string $resource = TeamProfileResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->slideOver(),
+            CreateAction::make(),
         ];
     }
 }

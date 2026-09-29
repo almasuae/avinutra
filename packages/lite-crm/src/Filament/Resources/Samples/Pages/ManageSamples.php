@@ -6,6 +6,7 @@ namespace LiteCrm\Filament\Resources\Samples\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\Samples\SampleResource;
 
 class ManageSamples extends ManageRecords
@@ -15,7 +16,7 @@ class ManageSamples extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            FormLayout::wide(CreateAction::make()),
         ];
     }
 }

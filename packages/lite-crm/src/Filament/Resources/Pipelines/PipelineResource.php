@@ -19,6 +19,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\CrmResource;
 use LiteCrm\Filament\Resources\Users\UserResource;
 use LiteCrm\LiteCrm;
@@ -60,7 +61,7 @@ class PipelineResource extends CrmResource
                 ->regex('/^[a-z0-9][a-z0-9_.-]*$/')
                 ->unique(ignoreRecord: true)
                 ->disabledOn('edit'),
-            Textarea::make('description')->label(__('lite-crm::pipelines.fields.description'))->rows(2)->columnSpanFull(),
+            Textarea::make('description')->label(__('lite-crm::pipelines.fields.description'))->columnSpanFull(),
             TextInput::make('sort')->label(__('lite-crm::pipelines.fields.sort'))->integer()->minValue(0)->default(0),
             Toggle::make('is_active')->label(__('lite-crm::pipelines.fields.is_active'))->default(true),
             CheckboxList::make('visible_to_roles')
@@ -109,7 +110,7 @@ class PipelineResource extends CrmResource
             ])
             ->defaultSort('sort')
             ->filters([TrashedFilter::make()])
-            ->recordActions([EditAction::make(), DeleteAction::make(), RestoreAction::make()]);
+            ->recordActions([FormLayout::wide(EditAction::make()), DeleteAction::make(), RestoreAction::make()]);
     }
 
     public static function getPages(): array

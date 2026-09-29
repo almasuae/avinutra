@@ -7,6 +7,7 @@ namespace App\Filament\Resources\Faqs\Pages;
 use App\Filament\Resources\Faqs\FaqResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use LiteCrm\Filament\FormLayout;
 
 class ManageFaqs extends ManageRecords
 {
@@ -15,7 +16,7 @@ class ManageFaqs extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            FormLayout::wide(CreateAction::make()),
         ];
     }
 }

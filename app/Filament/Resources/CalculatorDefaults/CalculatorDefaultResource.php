@@ -18,6 +18,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use LiteCrm\Filament\FormLayout;
 
 /**
  * Calculator defaults (v5 §E3), each with source, date
@@ -45,7 +46,7 @@ class CalculatorDefaultResource extends WebsiteResource
             DatePicker::make('source_date')->label('Source date'),
             TextInput::make('approved_by')->label('Approved by')->maxLength(150),
             DatePicker::make('approved_on')->label('Approved on')->requiredWith('approved_by'),
-            Textarea::make('notes')->rows(3)->columnSpanFull(),
+            Textarea::make('notes')->columnSpanFull(),
         ])->columns(2);
     }
 
@@ -62,7 +63,7 @@ class CalculatorDefaultResource extends WebsiteResource
             ])
             ->filters([SelectFilter::make('tool')->options(fn (): array => CalculatorDefault::query()->distinct()->pluck('tool', 'tool')->all())])
             ->defaultSort('tool')
-            ->recordActions([EditAction::make(), DeleteAction::make()]);
+            ->recordActions([FormLayout::wide(EditAction::make()), DeleteAction::make()]);
     }
 
     public static function getPages(): array

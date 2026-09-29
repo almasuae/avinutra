@@ -18,6 +18,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Route as Router;
+use LiteCrm\Filament\FormLayout;
 
 /**
  * SEO title and description per public page. Empty fields keep the page's own text.
@@ -62,7 +63,7 @@ class PageSeoResource extends WebsiteResource
         return $schema->components([
             Select::make('route_name')->label('Page')->options(fn (): array => self::publicRoutes())->searchable()->required()->unique(ignoreRecord: true)->columnSpanFull(),
             TextInput::make('title')->label('Title (max. 70 characters)')->maxLength(70)->columnSpanFull(),
-            Textarea::make('description')->label('Description (max. 170 characters)')->maxLength(170)->rows(3)->columnSpanFull(),
+            Textarea::make('description')->label('Description (max. 170 characters)')->maxLength(170)->columnSpanFull(),
         ]);
     }
 
@@ -75,7 +76,7 @@ class PageSeoResource extends WebsiteResource
                 TextColumn::make('description')->limit(80)->toggleable(),
             ])
             ->defaultSort('route_name')
-            ->recordActions([EditAction::make(), DeleteAction::make()]);
+            ->recordActions([FormLayout::wide(EditAction::make()), DeleteAction::make()]);
     }
 
     public static function getPages(): array

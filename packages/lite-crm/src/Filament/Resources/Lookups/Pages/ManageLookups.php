@@ -6,6 +6,7 @@ namespace LiteCrm\Filament\Resources\Lookups\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\Lookups\LookupResource;
 
 class ManageLookups extends ManageRecords
@@ -15,7 +16,7 @@ class ManageLookups extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            FormLayout::wide(CreateAction::make()),
         ];
     }
 }

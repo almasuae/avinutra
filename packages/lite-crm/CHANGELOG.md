@@ -6,6 +6,16 @@ package uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed (form layout for long text)
+- `LiteCrm\Filament\FormLayout`: forms with long text open in a 7xl modal (`FormLayout::wide()`)
+  instead of the default width; applied to Activities, Announcements (also view), Custom
+  fields (was a slide-over), Decisions (also view), Documents, Enquiries (create), Lists,
+  Pipelines, Price log, Samples, Tasks and the relation managers with notes.
+- Every textarea starts at 4 rows and grows with its content; Markdown editors are full width
+  and at least 400 px high, and their toolbar stays visible while scrolling. Set
+  `lite-crm.forms.defaults` to `false` to keep Filament's defaults.
+- `FormLayout::violations($directory)` checks resources against these rules (used by the tests).
+
 ### Changed (roles)
 - The role form (create and edit) opens in a wide modal (7xl): the name sits in a compact
   top row and the permissions use the full width, grouped by area, each group with its

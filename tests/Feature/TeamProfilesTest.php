@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 use App\Enums\ArticleStatus;
 use App\Enums\TeamRole;
-use App\Filament\Resources\Articles\Pages\ManageArticles;
-use App\Filament\Resources\TeamProfiles\Pages\ManageTeamProfiles;
+use App\Filament\Resources\Articles\Pages\EditArticle;
+use App\Filament\Resources\TeamProfiles\Pages\CreateTeamProfile;
 use App\Models\Article;
 use App\Models\TeamProfile;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
-use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -78,18 +77,20 @@ it('unpublishing is always possible, and removing the consent document is refuse
 it('rejects publishing in the CRM form until the consent document is uploaded, and stores it privately', function (): void {
     $this->actingAs(teamAdmin());
 
-    Livewire::test(ManageTeamProfiles::class)
-        ->callAction('create', data: ['name' => 'Dr Example Adviser', 'role_type' => TeamRole::Adviser->value, 'consent_on_file' => true, 'consent_date' => '2026-09-01', 'is_published' => true])
-        ->assertHasActionErrors(['consent_document_path' => 'required', 'is_published']);
+    Livewire::test(CreateTeamProfile::class)
+        ->fillForm(['name' => 'Dr Example Adviser', 'role_type' => TeamRole::Adviser->value, 'consent_on_file' => true, 'consent_date' => '2026-09-01', 'is_published' => true])
+        ->call('create')
+        ->assertHasFormErrors(['consent_document_path' => 'required', 'is_published']);
 
     expect(TeamProfile::query()->count())->toBe(0);
 
-    Livewire::test(ManageTeamProfiles::class)
-        ->callAction('create', data: [
+    Livewire::test(CreateTeamProfile::class)
+        ->fillForm([
             'name' => 'Dr Example Adviser', 'role_type' => TeamRole::Adviser->value, 'consent_on_file' => true, 'consent_date' => '2026-09-01',
             'consent_document_path' => UploadedFile::fake()->create('consent.pdf', 50, 'application/pdf'), 'is_published' => true,
         ])
-        ->assertHasNoActionErrors();
+        ->call('create')
+        ->assertHasNoFormErrors();
 
     $profile = TeamProfile::query()->sole();
 
@@ -120,13 +121,12 @@ it('offers only public profiles as author and reviewer in the Articles editor', 
     $article = Article::query()->published()->firstOrFail();
     $this->actingAs(teamAdmin());
 
-    Livewire::test(ManageArticles::class)
-        ->mountAction(TestAction::make('edit')->table($article))
-        ->assertSchemaComponentExists('author_id', checkComponentUsing: fn ($field): bool => array_keys($field->getOptions()) === [$public->getKey()])
-        ->assertSchemaComponentExists('reviewer_id', checkComponentUsing: fn ($field): bool => array_keys($field->getOptions()) === [$public->getKey()])
-        ->setActionData(['author_id' => $private->getKey()])
-        ->callMountedAction()
-        ->assertHasActionErrors(['author_id']);
+    Livewire::test(EditArticle::class, ['record' => $article->getRouteKey()])
+        ->assertFormFieldExists('author_id', fn ($field): bool => array_keys($field->getOptions()) === [$public->getKey()])
+        ->assertFormFieldExists('reviewer_id', fn ($field): bool => array_keys($field->getOptions()) === [$public->getKey()])
+        ->fillForm(['author_id' => $private->getKey()])
+        ->call('save')
+        ->assertHasFormErrors(['author_id']);
 
     expect($article->refresh()->author_id)->toBeNull();
 });

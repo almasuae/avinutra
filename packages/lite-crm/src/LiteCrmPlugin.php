@@ -9,12 +9,15 @@ use Filament\Contracts\Plugin;
 use Filament\Facades\Filament;
 use Filament\Panel;
 use Filament\Support\Facades\FilamentTimezone;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Routing\Middleware\ValidateSignature;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use LiteCrm\Contracts\CrmUser;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\LocalAvatarProvider;
 use LiteCrm\Filament\Pages\AcceptInvitation;
 use LiteCrm\Filament\Pages\CrmDashboard;
@@ -258,6 +261,8 @@ class LiteCrmPlugin implements Plugin
                     ->middleware(ValidateSignature::class)
                     ->name('lite-crm.documents.download');
             })
+            // Editor heights and sticky toolbars for long text (FormLayout).
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): HtmlString => FormLayout::styles())
             ->middleware([NoIndex::class], isPersistent: true)
             ->authMiddleware([EnforceSessionLifetime::class], isPersistent: true);
     }

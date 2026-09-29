@@ -153,7 +153,8 @@
                     <h2 id="h-references">Sources</h2>
                     <ol class="references">
                         <li id="ref-1">EFSA FEEDAP Panel (2012). Scientific Opinion on DL-methionine, DL-methionine sodium salt, the hydroxy analogue of methionine and the calcium salt of methionine hydroxy analogue in all animal species… <em>EFSA Journal</em> 10(3):2623. <a href="https://doi.org/10.2903/j.efsa.2012.2623" rel="noopener">doi:10.2903/j.efsa.2012.2623</a></li>
-                        <li id="ref-2">EFSA FEEDAP Panel (2018). Safety and efficacy of hydroxy analogue of methionine and its calcium salt for all animal species (title shortened; product name omitted). <em>EFSA Journal</em> 16(3):5198. <a href="https://doi.org/10.2903/j.efsa.2018.5198" rel="noopener">doi:10.2903/j.efsa.2018.5198</a></li>
+                        {{-- Title shortened: the product (trade) name in the original title is left out (no trademarks on the site). --}}
+                        <li id="ref-2">EFSA FEEDAP Panel (2018). Safety and efficacy of hydroxy analogue of methionine and its calcium salt … for all animal species. <em>EFSA Journal</em> 16(3):5198. <a href="https://doi.org/10.2903/j.efsa.2018.5198" rel="noopener">doi:10.2903/j.efsa.2018.5198</a></li>
                     </ol>
                 </section>
             </article>

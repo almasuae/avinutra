@@ -89,7 +89,7 @@ class OrganisationResource extends RecordResource
                 TextInput::make('country')->label(__('lite-crm::organisations.fields.country'))->maxLength(100),
                 TextInput::make('region')->label(__('lite-crm::organisations.fields.region'))->maxLength(255),
                 TextInput::make('city')->label(__('lite-crm::organisations.fields.city'))->maxLength(255),
-                Textarea::make('address')->label(__('lite-crm::organisations.fields.address'))->rows(2)->columnSpanFull(),
+                Textarea::make('address')->label(__('lite-crm::organisations.fields.address'))->columnSpanFull(),
             ]),
             ...CustomFieldComponents::form('organisation', $typeKey),
             Section::make(__('lite-crm::organisations.sections.public_naming'))

@@ -24,6 +24,7 @@ use Filament\Tables\Table;
 use Illuminate\Validation\Rules\Unique;
 use LiteCrm\CustomFields\CustomFieldRegistry;
 use LiteCrm\CustomFields\CustomFieldType;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\CrmResource;
 use LiteCrm\LiteCrm;
 use LiteCrm\Models\CustomField;
@@ -150,7 +151,7 @@ class CustomFieldResource extends CrmResource
                 SelectFilter::make('type')->label(__('lite-crm::custom-fields.fields.type'))->options(CustomFieldType::options()),
                 TrashedFilter::make(),
             ])
-            ->recordActions([EditAction::make(), DeleteAction::make(), RestoreAction::make()]);
+            ->recordActions([FormLayout::wide(EditAction::make()), DeleteAction::make(), RestoreAction::make()]);
     }
 
     public static function getPages(): array

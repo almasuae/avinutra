@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\Quotations\QuotationResource;
 use LiteCrm\LiteCrm;
 use LiteCrm\Models\Opportunity;
@@ -47,7 +48,7 @@ class QuotationsRelationManager extends RelationManager
         return QuotationResource::table($table)
             ->modifyQueryUsing(fn (Builder $query): Builder => Visibility::apply($query, Filament::auth()->user()))
             ->headerActions([
-                CreateAction::make()->mutateDataUsing(function (array $data): array {
+                FormLayout::wide(CreateAction::make())->mutateDataUsing(function (array $data): array {
                     $opportunity = $this->getOwnerRecord();
 
                     // Start from the opportunity's organisation, contact and product.

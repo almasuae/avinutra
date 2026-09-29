@@ -22,6 +22,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use LiteCrm\Enums\TaskPriority;
 use LiteCrm\Enums\TaskStatus;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\RecordResource;
 use LiteCrm\Filament\Support\Fields;
 use LiteCrm\LiteCrm;
@@ -55,7 +56,7 @@ class TaskResource extends RecordResource
         return $schema->columns(2)->components([
             TextInput::make('title')->label(__('lite-crm::tasks.fields.title'))->required()->maxLength(255)->columnSpanFull(),
             Fields::recordSelect('taskable'),
-            Textarea::make('description')->label(__('lite-crm::tasks.fields.description'))->rows(3)->columnSpanFull(),
+            Textarea::make('description')->label(__('lite-crm::tasks.fields.description'))->columnSpanFull(),
             Fields::assignee(),
             DateTimePicker::make('due_at')->label(__('lite-crm::tasks.fields.due_at'))->seconds(false),
             Select::make('priority')
@@ -100,7 +101,7 @@ class TaskResource extends RecordResource
                     ->color('success')
                     ->visible(fn (Task $record): bool => ! $record->status->isClosed() && Gate::allows('update', $record))
                     ->action(fn (Task $record) => $record->markDone()),
-                EditAction::make(),
+                FormLayout::wide(EditAction::make()),
                 DeleteAction::make(),
                 RestoreAction::make(),
             ]);

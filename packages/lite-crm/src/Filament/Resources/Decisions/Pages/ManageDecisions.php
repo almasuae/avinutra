@@ -6,6 +6,7 @@ namespace LiteCrm\Filament\Resources\Decisions\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\Decisions\DecisionResource;
 
 class ManageDecisions extends ManageRecords
@@ -15,7 +16,7 @@ class ManageDecisions extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            FormLayout::wide(CreateAction::make()),
         ];
     }
 }

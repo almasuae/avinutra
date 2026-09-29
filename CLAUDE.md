@@ -35,7 +35,7 @@ npm run build        # production assets
 php artisan test     # Pest (host: tests/Feature, tests/Unit), SQLite
 composer test:package   # Pest (package, via Testbench), SQLite = vendor/bin/pest --configuration packages/lite-crm/phpunit.xml
 composer test:mariadb   # host + package suites on MariaDB 11.4 (scripts/test-mariadb.php; port 3307, portable server in ~/.local/mariadb114)
-composer test:browser   # headless Edge/Chrome: no public page wider than 390 px (scripts/check-overflow.mjs; local DB)
+composer test:browser   # headless Edge/Chrome, every public page at 390 px (OVERFLOW_WIDTH to change): no overflow, CSP violation, JS error, image missing after scrolling, or overlapping table cells (scripts/check-overflow.mjs; local DB)
 composer test:backup    # real backup:run on MariaDB 11.4, restored into a second database, every table compared
 vendor/bin/pint      # code style (Laravel preset, PSR-12 compatible, + declare_strict_types)
 vendor/bin/phpstan analyse --memory-limit=1G   # Larastan level 5 (phpstan.neon)
@@ -66,6 +66,15 @@ php artisan lite-crm:install | lite-crm:preset feed-additives | lite-crm:create-
 - Notifications that users should also see in the app use `Notifications\Concerns\InAppAndMail` (database + mail; mail only for on-demand routes). Scheduled work is registered in `LiteCrmServiceProvider::schedule()`; the host's `routes/console.php` drains the queue with `queue:work --stop-when-empty`.
 - Import/export: Importer/Exporter classes in `src/ImportExport`, actions from `CrmExporters::importAction()/exportAction()`. Importers must never create duplicates (same rules as `EnquiryConverter`) and must check `Gate::denies('update', $existing)` before updating.
 - Presets: PHP arrays in `packages/lite-crm/presets` (or `lite-crm.preset_paths`), applied idempotently by `LiteCrm\Presets\PresetLoader`. The host applies `feed-additives` and the enquiry mailboxes in `Database\Seeders\AviNutraSeeder` (called by `DatabaseSeeder`). The quotation contracting entity comes from SiteSettings via `AppServiceProvider::contractingEntity()`.
+
+## CRM form layout (host and package; owner's decision, 30 Sep 2026)
+- **Long text gets room.** A screen with long text (Textarea, MarkdownEditor, RichEditor) opens as a **full page** (List/Create/Edit pages, `$maxContentWidth = Width::Full`), or at least a **7xl modal**: wrap its create/edit/view actions in `LiteCrm\Filament\FormLayout::wide(...)`. Never a half-width slide-over (`->slideOver()` is not used).
+- Full-page editors (e.g. Articles, Team profiles): two columns from 1024 px — main text about two thirds, details (status, dates, selects, byline, sources) one third — and one column below (`$schema->columns(['default' => 1, 'lg' => 3])`, groups with `columnSpan(['lg' => 2])` / `(['lg' => 1])`).
+- **Textareas** start at 4 rows or more and grow (`FormLayout::configureDefaults()` sets `rows(4)->autosize()` for every textarea; never pass `->rows()` below 4). Longer notes may start higher (e.g. outline 8, bio 8).
+- **Editors** are full width in their column and at least 400 px high (default); the main text of a full page uses `FormLayout::TALL_EDITOR_MIN_HEIGHT` (60% of the screen, min. 500 px). They grow with the content, and the toolbar stays visible while scrolling (`FormLayout::styles()`, added to the panel by `LiteCrmPlugin`).
+- Repeaters with long values give each value a full-width row (e.g. a source: title, then URL and date below), never several tiny columns.
+- Short fields (names, dates, selects) may stay in 2–4 columns.
+- `FormLayout::violations()` checks these rules; `packages/lite-crm/tests/Architecture/FormLayoutTest.php` (package) and `tests/Feature/ArticleEditorTest.php` (host) run it.
 
 ## Rules for the package (enforced by an architecture test)
 1. Never write "AviNutra", "poultry", "feed", "methionine" or other industry terms in the package's `src/`, `config/`, `database/`, `resources/` or `routes/`. Industry specifics belong in presets, custom-field definitions or the host app.

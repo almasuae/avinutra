@@ -41,7 +41,9 @@ it('serves every public page with one H1 and no placeholders, claims or trademar
         ->and($text)->not->toMatch('/\b(prevents?|cures?|treats?)\b/i')
         ->and($text)->not->toMatch('/Pte\.? Ltd/i')
         ->and($text)->not->toMatch('/MetAMINO|Rhodimet|Sandimet|ADRY|Novus|Evonik|Adisseo/i')
-        ->and($text)->not->toMatch('/world-class|best quality/i');
+        ->and($text)->not->toMatch('/world-class|best quality/i')
+        // Editorial notes stay internal (owner's review, 30 Sep 2026).
+        ->and($text)->not->toMatch('/title shortened|product name omitted/i');
 })->with('public pages');
 
 it('shows the homepage sections from the design brief', function (): void {

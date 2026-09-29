@@ -16,6 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\LiteCrm;
 use LiteCrm\Models\Organisation;
 use LiteCrm\Support\Visibility;
@@ -47,7 +48,7 @@ class SuppliersRelationManager extends RelationManager
     public function form(Schema $schema): Schema
     {
         return $schema->components([
-            Textarea::make('notes')->label(__('lite-crm::products.fields.supplier_notes'))->rows(3),
+            Textarea::make('notes')->label(__('lite-crm::products.fields.supplier_notes')),
         ]);
     }
 
@@ -61,14 +62,14 @@ class SuppliersRelationManager extends RelationManager
                 TextColumn::make('notes')->label(__('lite-crm::products.fields.supplier_notes'))->limit(60)->wrap(),
             ])
             ->headerActions([
-                AttachAction::make()
+                FormLayout::wide(AttachAction::make())
                     ->recordSelectOptionsQuery(fn (Builder $query): Builder => Visibility::apply($query, Filament::auth()->user()))
                     ->preloadRecordSelect()
                     ->schema(fn (AttachAction $action): array => [
                         $action->getRecordSelect(),
-                        Textarea::make('notes')->label(__('lite-crm::products.fields.supplier_notes'))->rows(3),
+                        Textarea::make('notes')->label(__('lite-crm::products.fields.supplier_notes')),
                     ]),
             ])
-            ->recordActions([EditAction::make(), DetachAction::make()]);
+            ->recordActions([FormLayout::wide(EditAction::make()), DetachAction::make()]);
     }
 }

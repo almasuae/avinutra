@@ -75,7 +75,7 @@ class CustomFieldComponents
 
         $component = match ($field->type) {
             CustomFieldType::Text => TextInput::make($name)->maxLength(255),
-            CustomFieldType::Textarea => Textarea::make($name)->rows(3)->columnSpanFull(),
+            CustomFieldType::Textarea => Textarea::make($name)->columnSpanFull(),
             CustomFieldType::Number => TextInput::make($name)->integer(),
             CustomFieldType::Decimal => TextInput::make($name)->numeric(),
             CustomFieldType::Currency => TextInput::make($name)->numeric()->prefix(LiteCrm::baseCurrency()),

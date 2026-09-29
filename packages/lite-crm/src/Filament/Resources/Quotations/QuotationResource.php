@@ -95,7 +95,7 @@ class QuotationResource extends RecordResource
                 DatePicker::make('valid_until')
                     ->label(__('lite-crm::quotations.fields.valid_until'))
                     ->default(fn (): string => now()->addDays((int) config('lite-crm.quotations.default_validity_days', 30))->toDateString()),
-                Textarea::make('notes')->label(__('lite-crm::quotations.fields.notes'))->rows(3)->columnSpanFull(),
+                Textarea::make('notes')->label(__('lite-crm::quotations.fields.notes'))->columnSpanFull(),
             ]),
         ]);
     }

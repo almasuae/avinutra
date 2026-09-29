@@ -150,7 +150,7 @@ class OpportunityResource extends RecordResource
             Section::make(__('lite-crm::opportunities.sections.next'))->columns(2)->schema([
                 TextInput::make('next_step')->label(__('lite-crm::opportunities.fields.next_step'))->maxLength(255),
                 DatePicker::make('next_step_date')->label(__('lite-crm::opportunities.fields.next_step_date')),
-                Textarea::make('notes')->label(__('lite-crm::opportunities.fields.notes'))->rows(3)->columnSpanFull(),
+                Textarea::make('notes')->label(__('lite-crm::opportunities.fields.notes'))->columnSpanFull(),
             ]),
             ...CustomFieldComponents::form('opportunity', fn (Get $get): ?string => LiteCrm::model(Pipeline::class)::query()->whereKey($get('pipeline_id'))->value('key')),
         ]);

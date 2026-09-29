@@ -18,6 +18,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\RecordResource;
 use LiteCrm\Filament\Support\Fields;
 use LiteCrm\LiteCrm;
@@ -56,7 +57,7 @@ class DecisionResource extends RecordResource
             TextInput::make('decided_by')->label(__('lite-crm::decisions.fields.decided_by'))->maxLength(255),
             TextInput::make('title')->label(__('lite-crm::decisions.fields.title'))->required()->maxLength(255)->columnSpanFull(),
             Textarea::make('decision')->label(__('lite-crm::decisions.fields.decision'))->required()->rows(4)->columnSpanFull(),
-            Textarea::make('rationale')->label(__('lite-crm::decisions.fields.rationale'))->rows(3)->columnSpanFull(),
+            Textarea::make('rationale')->label(__('lite-crm::decisions.fields.rationale'))->columnSpanFull(),
             Fields::recordSelect('related'),
         ]);
     }
@@ -85,7 +86,7 @@ class DecisionResource extends RecordResource
             ])
             ->defaultSort('decided_on', 'desc')
             ->filters([TrashedFilter::make()])
-            ->recordActions([ViewAction::make(), EditAction::make(), DeleteAction::make(), RestoreAction::make()]);
+            ->recordActions([FormLayout::wide(ViewAction::make()), FormLayout::wide(EditAction::make()), DeleteAction::make(), RestoreAction::make()]);
     }
 
     public static function getPages(): array

@@ -1,6 +1,7 @@
 // Browser test: every public page (and the CRM login) must fit a 390 px phone screen
-// (no horizontal scroll) and load without Content-Security-Policy violations or
-// JavaScript errors.
+// (no horizontal scroll), load without Content-Security-Policy violations or
+// JavaScript errors, show every visible image after scrolling through the page, and
+// keep table cells apart (results tables no wider than their container).
 //
 //   node --experimental-websocket scripts/check-overflow.mjs http://127.0.0.1:8766
 //
@@ -94,6 +95,25 @@ while (queue.length > 0 && seen.size <= MAX_PAGES) {
         await new Promise((resolve) => setTimeout(resolve, 2000));
     }
 
+    // Scroll through the page like a visitor, so lazy images load, then every visible
+    // image must have loaded (e.g. the footer logo).
+    const images = await evaluate(`(async () => {
+        const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+        for (let y = 0; y < document.documentElement.scrollHeight; y += Math.max(200, innerHeight - 100)) {
+            window.scrollTo(0, y);
+            await sleep(120);
+        }
+        window.scrollTo(0, document.documentElement.scrollHeight);
+        const visible = Array.from(document.images).filter((img) => img.offsetParent !== null && img.getBoundingClientRect().width > 0);
+        const deadline = Date.now() + 5000;
+        while (Date.now() < deadline && visible.some((img) => !img.complete)) await sleep(100);
+        window.scrollTo(0, 0);
+        return visible.filter((img) => !img.complete || img.naturalWidth === 0).map((img) => img.currentSrc || img.src);
+    })()`);
+    for (const src of images) {
+        failures.push(`${path}: image did not load after scrolling: ${src}`);
+    }
+
     const tables = await evaluate(`(() => {
         const found = [];
         const box = (cell) => {
@@ -171,8 +191,8 @@ while (queue.length > 0 && seen.size <= MAX_PAGES) {
 ws.close();
 console.log(`Checked ${seen.size - queue.length} pages at ${WIDTH}px.`);
 if (failures.length > 0) {
-    console.error('Pages wider than the viewport:\n  ' + failures.join('\n  '));
+    console.error('Problems:\n  ' + failures.join('\n  '));
     stop(1);
 }
-console.log('No horizontal overflow, no CSP violations, no JavaScript errors.');
+console.log('No horizontal overflow, no CSP violations, no JavaScript errors, no missing images, no overlapping table cells.');
 stop(0);

@@ -10,6 +10,7 @@ use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
 use LiteCrm\Enums\EnquiryStatus;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\Enquiries\EnquiryResource;
 use LiteCrm\LiteCrm;
 use LiteCrm\Models\Enquiry;
@@ -25,7 +26,7 @@ class ListEnquiries extends ListRecords
     {
         return [
             // An enquiry taken by phone or in person.
-            CreateAction::make()
+            FormLayout::wide(CreateAction::make())
                 ->label(__('lite-crm::enquiries.actions.log_manual'))
                 ->model(LiteCrm::model(Enquiry::class))
                 ->using(function (array $data): Enquiry {

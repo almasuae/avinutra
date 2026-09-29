@@ -6,6 +6,7 @@ namespace LiteCrm\Filament\Resources\CustomFields\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\CustomFields\CustomFieldResource;
 
 class ManageCustomFields extends ManageRecords
@@ -15,7 +16,7 @@ class ManageCustomFields extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->slideOver(),
+            FormLayout::wide(CreateAction::make()),
         ];
     }
 }

@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Gate;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\RecordResource;
 use LiteCrm\Filament\Support\Fields;
 use LiteCrm\LiteCrm;
@@ -93,7 +94,7 @@ class DocumentResource extends RecordResource
             Toggle::make('confidential')
                 ->label(__('lite-crm::documents.fields.confidential'))
                 ->helperText(__('lite-crm::documents.fields.confidential_help')),
-            Textarea::make('notes')->label(__('lite-crm::documents.fields.notes'))->rows(2)->columnSpanFull(),
+            Textarea::make('notes')->label(__('lite-crm::documents.fields.notes'))->columnSpanFull(),
         ]);
     }
 
@@ -132,7 +133,7 @@ class DocumentResource extends RecordResource
             ->recordActions([
                 static::downloadAction(),
                 static::verifyAction(),
-                EditAction::make(),
+                FormLayout::wide(EditAction::make()),
                 DeleteAction::make(),
                 RestoreAction::make(),
             ]);

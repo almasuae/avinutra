@@ -6,6 +6,7 @@ namespace LiteCrm\Filament\Resources\Documents\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\Documents\DocumentResource;
 
 class ManageDocuments extends ManageRecords
@@ -15,7 +16,7 @@ class ManageDocuments extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label(__('lite-crm::documents.actions.upload')),
+            FormLayout::wide(CreateAction::make())->label(__('lite-crm::documents.actions.upload')),
         ];
     }
 }

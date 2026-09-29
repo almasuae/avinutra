@@ -7,6 +7,7 @@ namespace App\Filament\Resources\GlossaryTerms\Pages;
 use App\Filament\Resources\GlossaryTerms\GlossaryTermResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use LiteCrm\Filament\FormLayout;
 
 class ManageGlossaryTerms extends ManageRecords
 {
@@ -15,7 +16,7 @@ class ManageGlossaryTerms extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            FormLayout::wide(CreateAction::make()),
         ];
     }
 }

@@ -17,6 +17,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use LiteCrm\Filament\FormLayout;
 
 /**
  * FAQs (v3 §7.9; published on the site from Phase 1, with FAQ schema).
@@ -54,7 +55,7 @@ class FaqResource extends WebsiteResource
             ])
             ->reorderable('sort')
             ->defaultSort('sort')
-            ->recordActions([EditAction::make(), DeleteAction::make()]);
+            ->recordActions([FormLayout::wide(EditAction::make()), DeleteAction::make()]);
     }
 
     public static function getPages(): array

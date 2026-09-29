@@ -22,6 +22,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\RecordResource;
 use LiteCrm\Filament\Support\Fields;
 use LiteCrm\LiteCrm;
@@ -81,8 +82,8 @@ class ActivityResource extends RecordResource
                 ->getOptionLabelFromRecordUsing(fn (Contact $record): string => $record->name)
                 ->searchable(['first_name', 'last_name'])
                 ->multiple(),
-            Textarea::make('summary')->label(__('lite-crm::activities.fields.summary'))->required()->rows(3)->columnSpanFull(),
-            Textarea::make('outcome')->label(__('lite-crm::activities.fields.outcome'))->rows(2)->columnSpanFull(),
+            Textarea::make('summary')->label(__('lite-crm::activities.fields.summary'))->required()->columnSpanFull(),
+            Textarea::make('outcome')->label(__('lite-crm::activities.fields.outcome'))->columnSpanFull(),
             TextInput::make('next_step')->label(__('lite-crm::activities.fields.next_step'))->maxLength(255)->columnSpanFull(),
         ]);
     }
@@ -112,7 +113,7 @@ class ActivityResource extends RecordResource
                         ->when($data['until'] ?? null, fn (Builder $query, string $date): Builder => $query->whereDate('occurred_at', '<=', $date))),
                 TrashedFilter::make(),
             ])
-            ->recordActions([EditAction::make(), DeleteAction::make(), RestoreAction::make()]);
+            ->recordActions([FormLayout::wide(EditAction::make()), DeleteAction::make(), RestoreAction::make()]);
     }
 
     public static function getPages(): array

@@ -24,6 +24,7 @@ use LiteCrm\CustomFields\CustomFieldValidator;
 use LiteCrm\Events\EnquiryAssigned;
 use LiteCrm\Events\EnquiryCaptured;
 use LiteCrm\Events\TaskAssigned;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Pages\AcceptInvitation;
 use LiteCrm\Listeners\NotifyEnquiryAssignee;
 use LiteCrm\Listeners\NotifyNewEnquiry;
@@ -122,6 +123,10 @@ class LiteCrmServiceProvider extends ServiceProvider
 
         RateLimiter::for('lite-crm-enquiry-api', fn (Request $request): Limit => Limit::perMinute((int) config('lite-crm.enquiry_api.requests_per_minute', 30))->by((string) $request->ip()));
         $this->loadRoutesFrom($this->packagePath('routes/api.php'));
+
+        if (config('lite-crm.forms.defaults', true)) {
+            FormLayout::configureDefaults();
+        }
 
         Livewire::component('lite-crm.accept-invitation', AcceptInvitation::class);
         Livewire::component('lite-crm.enquiry-form', EnquiryForm::class);

@@ -91,7 +91,7 @@ class ProductResource extends RecordResource
                     ->label(__('lite-crm::products.fields.publish_on_website'))
                     ->disabled(fn (): bool => ! Permissions::allows($user(), 'website.manage')),
                 Fields::tags(),
-                Textarea::make('description')->label(__('lite-crm::products.fields.description'))->rows(3)->columnSpanFull(),
+                Textarea::make('description')->label(__('lite-crm::products.fields.description'))->columnSpanFull(),
             ]),
             Section::make(__('lite-crm::products.fields.specification'))->schema([
                 Repeater::make('specification')

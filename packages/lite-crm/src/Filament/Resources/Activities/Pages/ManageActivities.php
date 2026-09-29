@@ -6,6 +6,7 @@ namespace LiteCrm\Filament\Resources\Activities\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\Activities\ActivityResource;
 
 class ManageActivities extends ManageRecords
@@ -15,7 +16,7 @@ class ManageActivities extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label(__('lite-crm::activities.actions.log')),
+            FormLayout::wide(CreateAction::make())->label(__('lite-crm::activities.actions.log')),
         ];
     }
 }

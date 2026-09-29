@@ -9,6 +9,7 @@ use Filament\Facades\Filament;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\Tasks\TaskResource;
 
 /**
@@ -21,7 +22,7 @@ class ManageTasks extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            FormLayout::wide(CreateAction::make()),
         ];
     }
 

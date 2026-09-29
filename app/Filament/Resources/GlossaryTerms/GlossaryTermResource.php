@@ -17,6 +17,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use LiteCrm\Filament\FormLayout;
 
 class GlossaryTermResource extends WebsiteResource
 {
@@ -47,7 +48,7 @@ class GlossaryTermResource extends WebsiteResource
                 IconColumn::make('is_published')->label('Published')->boolean(),
             ])
             ->defaultSort('term')
-            ->recordActions([EditAction::make(), DeleteAction::make()]);
+            ->recordActions([FormLayout::wide(EditAction::make()), DeleteAction::make()]);
     }
 
     public static function getPages(): array

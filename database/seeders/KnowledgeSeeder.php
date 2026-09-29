@@ -85,7 +85,7 @@ class KnowledgeSeeder extends Seeder
                 'body' => self::articleOne(),
                 'sources' => [
                     ['title' => 'EFSA FEEDAP Panel (2012). Scientific Opinion on DL-methionine, DL-methionine sodium salt, the hydroxy analogue of methionine and the calcium salt of methionine hydroxy analogue in all animal species. EFSA Journal 10(3):2623', 'url' => 'https://doi.org/10.2903/j.efsa.2012.2623', 'date' => '2012'],
-                    ['title' => 'EFSA FEEDAP Panel (2018). Safety and efficacy of hydroxy analogue of methionine and its calcium salt for all animal species (title shortened; product name omitted). EFSA Journal 16(3):5198', 'url' => 'https://doi.org/10.2903/j.efsa.2018.5198', 'date' => '2018'],
+                    ['title' => 'EFSA FEEDAP Panel (2018). Safety and efficacy of hydroxy analogue of methionine and its calcium salt … for all animal species. EFSA Journal 16(3):5198', 'url' => 'https://doi.org/10.2903/j.efsa.2018.5198', 'date' => '2018', 'note' => 'Title shortened: the product (trade) name in the original title is left out, because the site names no trademarks.'],
                 ],
                 'related_route' => 'tools.methionine-value',
                 'last_reviewed_on' => '2026-09-29',

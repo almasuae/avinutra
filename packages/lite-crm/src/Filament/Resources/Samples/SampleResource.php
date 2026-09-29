@@ -19,6 +19,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use LiteCrm\CustomFields\CustomFieldComponents;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\RecordResource;
 use LiteCrm\Filament\Support\Fields;
 use LiteCrm\LiteCrm;
@@ -60,7 +61,7 @@ class SampleResource extends RecordResource
             DatePicker::make('received_on')->label(__('lite-crm::samples.fields.received_on'))->afterOrEqual('sent_on'),
             TextInput::make('courier')->label(__('lite-crm::samples.fields.courier'))->maxLength(255),
             TextInput::make('tracking')->label(__('lite-crm::samples.fields.tracking'))->maxLength(255),
-            Textarea::make('feedback')->label(__('lite-crm::samples.fields.feedback'))->rows(3)->columnSpanFull(),
+            Textarea::make('feedback')->label(__('lite-crm::samples.fields.feedback'))->columnSpanFull(),
             ...CustomFieldComponents::form('sample'),
         ]);
     }
@@ -89,7 +90,7 @@ class SampleResource extends RecordResource
                 ...CustomFieldComponents::tableFilters('sample'),
                 TrashedFilter::make(),
             ])
-            ->recordActions([EditAction::make(), DeleteAction::make(), RestoreAction::make()]);
+            ->recordActions([FormLayout::wide(EditAction::make()), DeleteAction::make(), RestoreAction::make()]);
     }
 
     public static function getPages(): array

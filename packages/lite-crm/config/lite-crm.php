@@ -84,6 +84,15 @@ return [
     |
     */
 
+    /*
+    | Form defaults for long text (LiteCrm\Filament\FormLayout): textareas start at
+    | 4 rows and grow with their content; Markdown editors are at least 400 px
+    | high and full width. They apply to every Filament form in the application.
+    */
+    'forms' => [
+        'defaults' => true,
+    ],
+
     'modules' => [
         'organisations' => true,
         'contacts' => true,

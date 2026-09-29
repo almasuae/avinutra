@@ -20,6 +20,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use LiteCrm\Filament\FormLayout;
 use LiteCrm\Filament\Resources\RecordResource;
 use LiteCrm\Filament\Resources\Users\UserResource;
 use LiteCrm\LiteCrm;
@@ -96,7 +97,7 @@ class AnnouncementResource extends RecordResource
             ])
             ->defaultSort(fn ($query) => $query->orderByDesc('pinned')->orderByDesc('created_at'))
             ->filters([TrashedFilter::make()])
-            ->recordActions([ViewAction::make(), EditAction::make(), DeleteAction::make(), RestoreAction::make()]);
+            ->recordActions([FormLayout::wide(ViewAction::make()), FormLayout::wide(EditAction::make()), DeleteAction::make(), RestoreAction::make()]);
     }
 
     public static function getPages(): array
