@@ -7,6 +7,10 @@ namespace LiteCrm\Filament\Resources\PriceLog\Pages;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
 use LiteCrm\Filament\Resources\PriceLog\PriceEntryResource;
+use LiteCrm\ImportExport\CrmExporters;
+use LiteCrm\ImportExport\PriceEntryExporter;
+use LiteCrm\ImportExport\PriceEntryImporter;
+use LiteCrm\Models\PriceEntry;
 
 class ManagePriceEntries extends ManageRecords
 {
@@ -15,6 +19,8 @@ class ManagePriceEntries extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
+            CrmExporters::importAction(PriceEntryImporter::class, PriceEntry::class),
+            CrmExporters::exportAction(PriceEntryExporter::class, 'price_log'),
             CreateAction::make(),
         ];
     }

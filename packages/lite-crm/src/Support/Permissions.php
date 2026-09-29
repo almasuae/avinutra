@@ -45,6 +45,8 @@ class Permissions
         'documents.view_confidential',
         // Setting a product to "available" means supply is secured.
         'products.mark_available',
+        // Filter the dashboard by user, territory and period.
+        'dashboard.filter',
     ];
 
     /**
@@ -82,7 +84,7 @@ class Permissions
             'manager' => array_merge(
                 self::abilities(self::RECORD_MODULES, ['view', 'view_all', 'create', 'update', 'export']),
                 $everyone,
-                ['users.view', 'audit_log.view', 'import.run', 'website.manage', 'documents.view_confidential', 'products.mark_available'],
+                ['users.view', 'audit_log.view', 'import.run', 'website.manage', 'documents.view_confidential', 'products.mark_available', 'dashboard.filter'],
             ),
 
             'commercial' => array_merge(

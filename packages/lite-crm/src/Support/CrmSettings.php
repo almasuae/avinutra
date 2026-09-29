@@ -18,6 +18,14 @@ class CrmSettings
 
     public const ROLE_LABELS = 'role_labels';
 
+    public const CURRENCIES = 'currencies';
+
+    public const BASE_CURRENCY = 'base_currency';
+
+    public const QUOTATION_PREFIX = 'quotation_prefix';
+
+    public const SCHEDULER_HEARTBEAT = 'scheduler_heartbeat';
+
     /** @var array<string, mixed>|null */
     protected ?array $values = null;
 

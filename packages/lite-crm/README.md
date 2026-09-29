@@ -125,10 +125,53 @@ php artisan lite-crm:create-admin owner@example.com --name="Full Name" --invite
 This is the only way to create the first admin: there are no seeded accounts or
 default passwords. Further users are invited from CRM settings › Users.
 
-### 6. Cron and mail
+### 6. Cron, queue and mail
 
-Run the scheduler every minute (`php artisan schedule:run`), and configure SMTP so
-invitations can be delivered. Invitation e-mails are queued.
+Run the scheduler every minute:
+
+```cron
+* * * * * cd /path/to/site && php artisan schedule:run >> /dev/null 2>&1
+```
+
+The package schedules its own work (nothing to add to `routes/console.php`):
+
+| Task | When |
+|---|---|
+| Scheduler heartbeat (read by `lite-crm:doctor`) | every minute |
+| `lite-crm:send-digests` (daily digest at each user's local digest hour) | hourly |
+| `lite-crm:send-weekly-reports` (expiring documents, stale opportunities) | Mondays 06:00 |
+| `activitylog:clean --days={audit_log_days}` | daily |
+
+E-mails, imports and exports are queued. Run a queue worker; on a server without
+Supervisor, let the scheduler drain the queue by adding this to the host's
+`routes/console.php`:
+
+```php
+Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->withoutOverlapping();
+```
+
+Configure SMTP (`MAIL_*`, with `MAIL_FROM_ADDRESS`) so invitations and notifications
+can be delivered.
+
+### 7. Optional: apply an industry preset
+
+```bash
+php artisan lite-crm:preset --list
+php artisan lite-crm:preset {name}
+```
+
+Without a preset the CRM is neutral. See [Presets](#presets).
+
+### 8. Check the installation
+
+```bash
+php artisan lite-crm:doctor
+```
+
+This checks the app key, debug mode, HTTPS, migrations, roles, an admin with MFA,
+the scheduler heartbeat, the queue, mail, the private documents disk and the enquiry
+API. Each check reports OK, WARN or FAIL. The command exits with 1 if anything
+fails, so it can gate a deployment.
 
 ## Roles and permissions
 
@@ -330,6 +373,115 @@ CustomFieldComponents::infolist('organisation');
 Filters use only JSON queries that work on MariaDB/MySQL and SQLite
 (`where('custom->key', ...)`, `whereJsonContains`).
 
+## Dashboard
+
+The panel's home page is `LiteCrm\Filament\Pages\CrmDashboard` (the plugin registers
+it; do not also register Filament's `Dashboard`). Its widgets:
+
+| Key | Shows |
+|---|---|
+| `my_day` | my tasks due today or overdue, my next steps, my open enquiries |
+| `enquiries` | new, open and unassigned enquiries, average first-response time |
+| `pipelines` | value per stage for the first pipelines (`dashboard.pipelines`), in the base currency |
+| `won_lost` | won and lost counts and values for the period, top lost reasons |
+| `activity_by_user` | activities per user (chart) |
+| `expiring_documents` | documents expiring within the warning window |
+| `price_watch` | price-log entries over time per product (chart) |
+| `samples_trials` | samples in progress and trials by status |
+| `team_clock` | each active user's local time and working hours |
+| `notices` | pinned and recent announcements for the user's role |
+| `activity_stream` | the latest activities the user may see |
+
+Each widget respects the user's permissions and record visibility, and disappears when
+its module is switched off. Switch widgets off per site in
+`config('lite-crm.dashboard_widgets')`. Users with `dashboard.filter` (Admins,
+Managers) can filter the dashboard by owner, territory and period.
+
+### Currencies and exchange rates
+
+Pipeline and won/lost totals are converted into the base currency with the rate valid
+on the day (CRM settings › Exchange rates: one row per currency and "valid from"
+date, meaning 1 unit = rate × base currency). Values in a currency without a rate
+are left out of the totals, with a warning. The currencies, base currency and
+quotation number prefix are CRM settings; the config values are fallbacks.
+
+## Notifications and digests
+
+- **In the app and by e-mail:** task assigned, enquiry assigned, new enquiry. The
+  panel shows a notification bell (`databaseNotifications()`). New-enquiry e-mails
+  also go to the enquiry type's mailbox (`meta.mailbox` on the list entry).
+- **Daily digest** (`lite-crm:send-digests`): my tasks due, my open enquiries, my
+  next steps this week and, for the roles in `enquiries.notify_roles`, the count of
+  new enquiries. It is sent at `notifications.digest_hour` in each user's time zone,
+  at most once a day, and only when there is something to report. Users can opt out
+  (`receives_digest`).
+- **Weekly report** (`lite-crm:send-weekly-reports`): my documents expiring within
+  `notifications.expiry_warning_days`, and my open opportunities with no change or
+  activity for `notifications.stale_opportunity_days`. It fires the
+  `LiteCrm\Events\DocumentExpiring` event once per document, so hosts can add their
+  own reminders.
+
+## Import and export
+
+Organisations, contacts, products and the price log can be imported from CSV or XLSX
+(list page › Import). Opportunities and the same four modules can be exported.
+
+- Import needs the `import.run` permission and permission to create the records.
+  Columns are mapped on screen; list values match by label or key (case-insensitive);
+  custom fields appear as `custom_{key}` columns (multi-select values separated by
+  commas).
+- **No duplicates:** organisations match on name + city, contacts on e-mail, products
+  on name. Matching rows are skipped and reported, unless "Update existing records"
+  is ticked, and then only records the user may edit are updated.
+- Rows that fail validation are listed in a downloadable failed-rows file.
+- Export needs `{module}.export` (never granted to Partners or Viewers), contains only
+  records the user may see, is written to the private documents disk, and is recorded
+  in the audit log.
+- Imports and exports run on the queue; the user is notified when they finish.
+- Switch the feature off with `modules.import_export = false`.
+
+## Presets
+
+A preset is a PHP file returning an array. It adds industry-specific lists,
+pipelines, custom fields and settings to the neutral CRM:
+
+```php
+return [
+    'name' => 'Example industry',
+    'description' => 'Shown by lite-crm:preset --list.',
+    'lookups' => [
+        'organisation_type' => ['replace' => true, 'items' => ['key' => 'Label']],
+    ],
+    'pipelines' => [
+        'replace' => true,
+        'items' => [
+            'sales' => ['name' => 'Sales', 'stages' => [
+                'new' => ['New', 10],
+                'won' => ['Won', 100, 'won'],
+                'lost' => ['Lost', 0, 'lost'],
+            ]],
+        ],
+    ],
+    'custom_fields' => [
+        ['entity' => 'organisation', 'key' => 'capacity', 'label' => 'Capacity', 'type' => 'decimal'],
+    ],
+    'settings' => ['currencies' => ['USD', 'EUR'], 'base_currency' => 'USD', 'quotation_prefix' => 'Q'],
+];
+```
+
+Applying a preset is safe to repeat. Missing entries are created, and nothing is
+deleted:
+
+- lists marked `replace` deactivate the other entries;
+- pipelines marked `replace` deactivate other pipelines that hold no open
+  opportunities;
+- currencies are merged;
+- the base currency, quotation prefix and role labels are set only when unset.
+
+The package ships `feed-additives`. Put your own presets in a folder listed in
+`config('lite-crm.preset_paths')`. The package's architecture test allows industry
+terms only in `presets/`.
+
 ## Audit log
 
 Every change to CRM data is recorded (who, when, before and after) in
@@ -355,6 +507,10 @@ in CRM settings › Audit log.
 | `custom_field_entities` | six entities | Entities that accept custom fields |
 | `custom_field_type_lookups` | organisation, product | The list that classifies each entity's records |
 | `lookup_types` | eight lists | The lists shown in CRM settings › Lists |
+| `dashboard_widgets` | all `true` | Switch dashboard widgets on or off |
+| `dashboard.pipelines` | `2` | How many pipelines the pipeline widget shows |
+| `preset_paths` | `[]` | Extra folders searched for presets |
+| `audit_log_days` | `730` (`LITE_CRM_AUDIT_LOG_DAYS`) | Audit entries older than this are removed daily |
 | `prefix_third_party_tables` | `true` | Keep spatie's roles/permissions/audit tables `crm_`-prefixed; set `false` to share the host's own |
 
 ## Rules for contributors

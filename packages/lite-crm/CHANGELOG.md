@@ -6,6 +6,35 @@ package uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (dashboard, notifications, import/export, presets)
+- **Dashboard** (`CrmDashboard`) with eleven widgets: my day, enquiries, pipelines,
+  won/lost, activity by user, expiring documents, price watch, samples & trials, team
+  clock, notices and activity stream. Widgets can be switched off in
+  `dashboard_widgets`. Owner/territory/period filters need the new `dashboard.filter`
+  permission (Admins and Managers).
+- **Exchange rates** (CRM settings) and `LiteCrm\Support\Money`: totals are converted
+  to the base currency with the rate valid on the day. Currencies, base currency and
+  quotation prefix are now CRM settings (config is the fallback).
+- **In-app notifications** (bell) for task assigned, enquiry assigned and new enquiry,
+  alongside the e-mails.
+- **Daily digest** (`lite-crm:send-digests`, hourly, at each user's local digest hour,
+  once a day, skipped when empty) and **weekly report** (`lite-crm:send-weekly-reports`,
+  Mondays) with the `DocumentExpiring` event.
+- **Import** (organisations, contacts, products, price log) and **export** (also
+  opportunities), in CSV or XLSX. Imports never create duplicates and support "Update
+  existing records". Exports are permission-checked, visibility-scoped, stored
+  privately and audit-logged.
+- **Presets:** `lite-crm:preset {name} [--list]`, `preset_paths`, and the
+  `feed-additives` preset.
+- `lite-crm:doctor` health check, the scheduler heartbeat, and daily audit-log
+  clean-up (`audit_log_days`, default 730).
+- New migrations: `crm_exchange_rates`, `crm_user_profiles.last_digest_on`, and
+  Laravel's notifications/imports/exports tables when the host lacks them.
+
+### Changed
+- The plugin registers its own dashboard page. Hosts should remove Filament's
+  `Dashboard` from the panel's `pages()`.
+
 ### Added (sales modules)
 - **Products** with categories, specification table, packaging/storage/shelf life,
   suppliers with notes, availability and "publish on website" (guarded by the new

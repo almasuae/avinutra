@@ -41,17 +41,16 @@ class Fields
     }
 
     /**
-     * One of the configured currencies (lite-crm.currencies), defaulting to the base currency.
+     * One of the site's currencies (CRM settings, else lite-crm.currencies), defaulting to the base currency.
      */
     public static function currency(string $name = 'currency'): Select
     {
-        /** @var list<string> $currencies */
-        $currencies = config('lite-crm.currencies', ['USD']);
+        $currencies = LiteCrm::currencies();
 
         return Select::make($name)
             ->label(__('lite-crm::common.fields.currency'))
             ->options(array_combine($currencies, $currencies))
-            ->default((string) config('lite-crm.base_currency', 'USD'));
+            ->default(fn (): string => LiteCrm::baseCurrency());
     }
 
     /**

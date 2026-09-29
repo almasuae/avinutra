@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rules\Password;
 use LiteCrm\Contracts\CrmUser;
 use LiteCrm\Filament\Pages\AcceptInvitation;
+use LiteCrm\Filament\Pages\CrmDashboard;
 use LiteCrm\Filament\Pages\CrmSettingsPage;
 use LiteCrm\Filament\Pages\EditProfile;
 use LiteCrm\Filament\Pages\OpportunityBoard;
@@ -25,6 +26,7 @@ use LiteCrm\Filament\Resources\CustomFields\CustomFieldResource;
 use LiteCrm\Filament\Resources\Decisions\DecisionResource;
 use LiteCrm\Filament\Resources\Documents\DocumentResource;
 use LiteCrm\Filament\Resources\Enquiries\EnquiryResource;
+use LiteCrm\Filament\Resources\ExchangeRates\ExchangeRateResource;
 use LiteCrm\Filament\Resources\Lookups\LookupResource;
 use LiteCrm\Filament\Resources\Opportunities\OpportunityResource;
 use LiteCrm\Filament\Resources\Organisations\OrganisationResource;
@@ -161,6 +163,7 @@ class LiteCrmPlugin implements Plugin
             ->resources([
                 ...$records,
                 UserResource::class,
+                ExchangeRateResource::class,
                 RoleResource::class,
                 LookupResource::class,
                 PipelineResource::class,
@@ -169,9 +172,12 @@ class LiteCrmPlugin implements Plugin
                 AuditLogResource::class,
             ])
             ->pages(array_filter([
+                CrmDashboard::class,
                 CrmSettingsPage::class,
                 $this->isModuleEnabled('opportunities') ? OpportunityBoard::class : null,
             ]))
+            ->widgets(array_values(CrmDashboard::WIDGETS))
+            ->databaseNotifications()
             ->profile(EditProfile::class, isSimple: false)
             // MFA is offered to everyone; RequireMultiFactorAuthentication decides who must set it up.
             ->multiFactorAuthentication([AppAuthentication::make()->recoverable()], isRequired: true)

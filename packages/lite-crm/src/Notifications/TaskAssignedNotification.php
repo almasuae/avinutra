@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace LiteCrm\Notifications;
 
+use Filament\Actions\Action;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,6 +13,7 @@ use Illuminate\Notifications\Notification;
 use LiteCrm\Filament\Resources\Tasks\TaskResource;
 use LiteCrm\LiteCrm;
 use LiteCrm\Models\Task;
+use LiteCrm\Notifications\Concerns\InAppAndMail;
 use Throwable;
 
 class TaskAssignedNotification extends Notification implements ShouldQueue
@@ -19,12 +22,21 @@ class TaskAssignedNotification extends Notification implements ShouldQueue
 
     public function __construct(public Task $task) {}
 
-    /**
-     * @return list<string>
-     */
-    public function via(object $notifiable): array
+    use InAppAndMail;
+
+    protected function toInApp(): FilamentNotification
     {
-        return ['mail'];
+        $notification = FilamentNotification::make()->title(__('lite-crm::tasks.mail.subject', ['title' => $this->task->title]))->info();
+
+        try {
+            $notification->actions([
+                Action::make('open')->label(__('lite-crm::common.open'))->url(TaskResource::getUrl(panel: LiteCrm::panelId()))->markAsRead(),
+            ]);
+        } catch (Throwable) {
+            // No panel routes available: no link.
+        }
+
+        return $notification;
     }
 
     public function toMail(object $notifiable): MailMessage

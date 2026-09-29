@@ -50,6 +50,8 @@ use LiteCrm\Support\Visibility;
  * @property Carbon|null $next_step_date
  * @property int|null $lost_reason_id
  * @property Carbon|null $closed_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property int $sort
  * @property string|null $notes
  * @property array<string, mixed>|null $custom

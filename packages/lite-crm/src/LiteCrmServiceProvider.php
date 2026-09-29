@@ -6,6 +6,7 @@ namespace LiteCrm;
 
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -13,7 +14,11 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use LiteCrm\Console\CreateAdminCommand;
+use LiteCrm\Console\DoctorCommand;
 use LiteCrm\Console\InstallCommand;
+use LiteCrm\Console\PresetCommand;
+use LiteCrm\Console\SendDigestsCommand;
+use LiteCrm\Console\SendWeeklyReportsCommand;
 use LiteCrm\CustomFields\CustomFieldRegistry;
 use LiteCrm\CustomFields\CustomFieldValidator;
 use LiteCrm\Events\EnquiryAssigned;
@@ -54,6 +59,7 @@ use LiteCrm\Policies\SamplePolicy;
 use LiteCrm\Policies\TaskPolicy;
 use LiteCrm\Policies\TrialPolicy;
 use LiteCrm\Support\CrmSettings;
+use LiteCrm\Support\SchedulerHeartbeat;
 use Livewire\Livewire;
 
 class LiteCrmServiceProvider extends ServiceProvider
@@ -120,10 +126,18 @@ class LiteCrmServiceProvider extends ServiceProvider
         Livewire::component('lite-crm.accept-invitation', AcceptInvitation::class);
         Livewire::component('lite-crm.enquiry-form', EnquiryForm::class);
 
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
+            $this->schedule($schedule);
+        });
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InstallCommand::class,
                 CreateAdminCommand::class,
+                PresetCommand::class,
+                DoctorCommand::class,
+                SendDigestsCommand::class,
+                SendWeeklyReportsCommand::class,
             ]);
 
             $this->publishes([
@@ -134,6 +148,17 @@ class LiteCrmServiceProvider extends ServiceProvider
                 $this->packagePath('resources/lang') => $this->app->langPath('vendor/lite-crm'),
             ], 'lite-crm-lang');
         }
+    }
+
+    /**
+     * The package's scheduled work (v5 §D4). The host's cron runs schedule:run every minute.
+     */
+    protected function schedule(Schedule $schedule): void
+    {
+        $schedule->call(new SchedulerHeartbeat)->everyMinute()->name('lite-crm:heartbeat');
+        $schedule->command('lite-crm:send-digests')->hourly()->withoutOverlapping();
+        $schedule->command('lite-crm:send-weekly-reports')->weeklyOn(1, '06:00')->withoutOverlapping();
+        $schedule->command('activitylog:clean', ['--days' => (int) config('lite-crm.audit_log_days', 730), '--force' => true])->daily();
     }
 
     /**

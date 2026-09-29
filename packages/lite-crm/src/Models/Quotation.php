@@ -101,7 +101,7 @@ class Quotation extends Model
         $number = Sequence::next('quotation', $year);
 
         return strtr((string) config('lite-crm.quotations.number_format', '{prefix}-{year}-{number}'), [
-            '{prefix}' => (string) config('lite-crm.quotations.number_prefix', 'Q'),
+            '{prefix}' => LiteCrm::quotationPrefix(),
             '{year}' => (string) $year,
             '{number}' => str_pad((string) $number, (int) config('lite-crm.quotations.number_padding', 4), '0', STR_PAD_LEFT),
         ]);

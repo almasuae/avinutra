@@ -187,6 +187,34 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Dashboard
+    |--------------------------------------------------------------------------
+    |
+    | Switch individual widgets off per site. "pipelines" is how many
+    | pipelines the pipeline widget summarises.
+    |
+    */
+
+    'dashboard_widgets' => [
+        'my_day' => true,
+        'enquiries' => true,
+        'pipelines' => true,
+        'won_lost' => true,
+        'activity_by_user' => true,
+        'expiring_documents' => true,
+        'price_watch' => true,
+        'samples_trials' => true,
+        'team_clock' => true,
+        'notices' => true,
+        'activity_stream' => true,
+    ],
+
+    'dashboard' => [
+        'pipelines' => 2,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Quotations
     |--------------------------------------------------------------------------
     |
@@ -264,5 +292,29 @@ return [
     */
 
     'prefix_third_party_tables' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Presets
+    |--------------------------------------------------------------------------
+    |
+    | Extra folders searched by lite-crm:preset, besides the package's own
+    | presets/ folder. Each preset is a PHP file returning an array.
+    |
+    */
+
+    'preset_paths' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Audit log retention
+    |--------------------------------------------------------------------------
+    |
+    | Audit entries older than this many days are removed by the daily
+    | scheduled activitylog:clean run.
+    |
+    */
+
+    'audit_log_days' => (int) env('LITE_CRM_AUDIT_LOG_DAYS', 730),
 
 ];

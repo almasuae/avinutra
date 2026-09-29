@@ -22,6 +22,7 @@ use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
+use LiteCrm\LiteCrm;
 use LiteCrm\Models\CustomField;
 
 /**
@@ -77,7 +78,7 @@ class CustomFieldComponents
             CustomFieldType::Textarea => Textarea::make($name)->rows(3)->columnSpanFull(),
             CustomFieldType::Number => TextInput::make($name)->integer(),
             CustomFieldType::Decimal => TextInput::make($name)->numeric(),
-            CustomFieldType::Currency => TextInput::make($name)->numeric()->prefix((string) config('lite-crm.base_currency', 'USD')),
+            CustomFieldType::Currency => TextInput::make($name)->numeric()->prefix(LiteCrm::baseCurrency()),
             CustomFieldType::Percentage => TextInput::make($name)->numeric()->minValue(0)->maxValue(100)->suffix('%'),
             CustomFieldType::Date => DatePicker::make($name),
             CustomFieldType::Boolean => Toggle::make($name),

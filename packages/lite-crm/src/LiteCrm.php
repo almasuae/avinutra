@@ -26,6 +26,7 @@ use LiteCrm\Models\Quotation;
 use LiteCrm\Models\Sample;
 use LiteCrm\Models\Task;
 use LiteCrm\Models\Trial;
+use LiteCrm\Support\CrmSettings;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Traits\HasRoles;
@@ -185,6 +186,37 @@ class LiteCrm
             ->all();
 
         return $options;
+    }
+
+    /**
+     * The currencies in use: CRM settings (set by an Admin or a preset), else config.
+     *
+     * @return list<string>
+     */
+    public static function currencies(): array
+    {
+        /** @var list<string> $configured */
+        $configured = (array) config('lite-crm.currencies', ['USD']);
+        $currencies = app(CrmSettings::class)->get(CrmSettings::CURRENCIES);
+        $currencies = is_array($currencies) && $currencies !== [] ? array_values(array_map('strval', $currencies)) : $configured;
+
+        $base = static::baseCurrency();
+
+        return in_array($base, $currencies, true) ? $currencies : [$base, ...$currencies];
+    }
+
+    public static function baseCurrency(): string
+    {
+        $base = app(CrmSettings::class)->get(CrmSettings::BASE_CURRENCY);
+
+        return is_string($base) && $base !== '' ? $base : (string) config('lite-crm.base_currency', 'USD');
+    }
+
+    public static function quotationPrefix(): string
+    {
+        $prefix = app(CrmSettings::class)->get(CrmSettings::QUOTATION_PREFIX);
+
+        return is_string($prefix) && $prefix !== '' ? $prefix : (string) config('lite-crm.quotations.number_prefix', 'Q');
     }
 
     /**

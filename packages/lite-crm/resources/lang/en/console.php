@@ -18,7 +18,7 @@ return [
     ],
     'create_admin' => [
         'invalid_email' => 'Enter a valid e-mail address.',
-        'not_installed' => 'The roles do not exist yet. Run php artisan lite-crm:install first.',
+        'not_installed' => 'The roles do not exist yet. Run php artisan lite-crm:install (or php artisan db:seed) first.',
         'exists' => 'A user with the e-mail :email already exists.',
         'ask_name' => 'Full name',
         'name_required' => 'A name is required (use --name in non-interactive mode).',

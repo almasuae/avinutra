@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'open' => 'Open',
     'fields' => [
         'owner' => 'Owner',
         'tags' => 'Tags',

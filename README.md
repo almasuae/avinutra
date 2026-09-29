@@ -46,7 +46,7 @@ npm ci
 cp .env.example .env
 php artisan key:generate
 touch database/database.sqlite     # or configure MariaDB in .env
-php artisan migrate --seed         # seeds roles and neutral lists, never users
+php artisan migrate --seed         # roles, lists, the feed-additives preset, mailboxes; never users
 php artisan lite-crm:create-admin you@example.com
 npm run dev                        # or: npm run build
 php artisan serve
@@ -59,6 +59,12 @@ with `php artisan lite-crm:create-admin {email}` (it asks for a password of at l
 12 characters, or sends an invitation with `--invite`). Admins must set up
 authenticator-app MFA at their first sign-in; further users are invited from
 CRM › CRM settings › Users.
+
+Background work: the scheduler (`php artisan schedule:run`, every minute via cron on
+the server; `php artisan schedule:work` locally) sends digests and weekly reports,
+cleans the audit log and drains the queue (`queue:work --stop-when-empty`), because
+the server has no Supervisor. Imports, exports and e-mails are queued. Run
+`php artisan lite-crm:doctor` to check the installation.
 
 ## Deployment and backups: the APP_KEY
 

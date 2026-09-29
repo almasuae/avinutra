@@ -29,6 +29,7 @@ use LiteCrm\Models\Concerns\LogsCrmActivity;
  * @property int|null $invited_by
  * @property Carbon|null $invitation_accepted_at
  * @property Carbon|null $last_login_at
+ * @property Carbon|null $last_digest_on
  * @property string|null $app_authentication_secret
  * @property array<string>|null $app_authentication_recovery_codes
  */
@@ -37,7 +38,7 @@ class UserProfile extends Model
     use LogsCrmActivity;
 
     /** @var list<string> */
-    protected array $activityLogExcept = ['last_login_at', 'app_authentication_secret', 'app_authentication_recovery_codes'];
+    protected array $activityLogExcept = ['last_login_at', 'last_digest_on', 'app_authentication_secret', 'app_authentication_recovery_codes'];
 
     protected $fillable = [
         'user_id', 'job_title', 'city', 'country', 'time_zone', 'phone', 'whatsapp', 'territory_id',
@@ -68,6 +69,7 @@ class UserProfile extends Model
             'invited_at' => 'datetime',
             'invitation_accepted_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'last_digest_on' => 'date',
             'app_authentication_secret' => 'encrypted',
             'app_authentication_recovery_codes' => 'encrypted:array',
         ];

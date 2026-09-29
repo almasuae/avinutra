@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace LiteCrm\Notifications;
 
+use Filament\Actions\Action;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -12,6 +14,7 @@ use Illuminate\Support\Str;
 use LiteCrm\Filament\Resources\Enquiries\EnquiryResource;
 use LiteCrm\LiteCrm;
 use LiteCrm\Models\Enquiry;
+use LiteCrm\Notifications\Concerns\InAppAndMail;
 use Throwable;
 
 /**
@@ -23,12 +26,21 @@ class NewEnquiryNotification extends Notification implements ShouldQueue
 
     public function __construct(public Enquiry $enquiry) {}
 
-    /**
-     * @return list<string>
-     */
-    public function via(object $notifiable): array
+    use InAppAndMail;
+
+    protected function toInApp(): FilamentNotification
     {
-        return ['mail'];
+        $notification = FilamentNotification::make()->title(__('lite-crm::enquiries.mail.new.subject', ['type' => $this->enquiry->type->label ?? __('lite-crm::enquiries.label'), 'from' => $this->enquiry->displayName()]))->info();
+
+        try {
+            $notification->actions([
+                Action::make('open')->label(__('lite-crm::common.open'))->url(EnquiryResource::getUrl('view', ['record' => $this->enquiry], panel: LiteCrm::panelId()))->markAsRead(),
+            ]);
+        } catch (Throwable) {
+            // No panel routes available: no link.
+        }
+
+        return $notification;
     }
 
     public function toMail(object $notifiable): MailMessage

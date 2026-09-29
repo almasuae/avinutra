@@ -113,7 +113,7 @@ class OpportunityBoard extends Page
 
             foreach ($cards as $card) {
                 if ($card->value !== null) {
-                    $currency = $card->currency ?? (string) config('lite-crm.base_currency', 'USD');
+                    $currency = $card->currency ?? LiteCrm::baseCurrency();
                     $totals[$currency] = ($totals[$currency] ?? 0) + (float) $card->value;
                 }
             }

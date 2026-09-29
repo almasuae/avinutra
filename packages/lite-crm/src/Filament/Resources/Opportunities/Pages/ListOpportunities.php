@@ -10,6 +10,8 @@ use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Icons\Heroicon;
 use LiteCrm\Filament\Pages\OpportunityBoard;
 use LiteCrm\Filament\Resources\Opportunities\OpportunityResource;
+use LiteCrm\ImportExport\CrmExporters;
+use LiteCrm\ImportExport\OpportunityExporter;
 
 class ListOpportunities extends ListRecords
 {
@@ -23,6 +25,7 @@ class ListOpportunities extends ListRecords
                 ->icon(Heroicon::OutlinedViewColumns)
                 ->color('gray')
                 ->url(fn (): string => OpportunityBoard::getUrl()),
+            CrmExporters::exportAction(OpportunityExporter::class, 'opportunities'),
             CreateAction::make(),
         ];
     }
