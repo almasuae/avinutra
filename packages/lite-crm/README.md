@@ -402,7 +402,9 @@ Managers) can filter the dashboard by owner, territory and period.
 Pipeline and won/lost totals are converted into the base currency with the rate valid
 on the day (CRM settings › Exchange rates: one row per currency and "valid from"
 date, meaning 1 unit = rate × base currency). Values in a currency without a rate
-are left out of the totals, with a warning. The currencies, base currency and
+are left out of the totals, with a warning. Because rates are entered by hand, the
+pipeline widget and the weekly report also warn when a rate in use is older than
+`exchange_rates.stale_after_days` (default 30). The currencies, base currency and
 quotation number prefix are CRM settings; the config values are fallbacks.
 
 ## Notifications and digests
@@ -415,6 +417,9 @@ quotation number prefix are CRM settings; the config values are fallbacks.
   new enquiries. It is sent at `notifications.digest_hour` in each user's time zone,
   at most once a day, and only when there is something to report. Users can opt out
   (`receives_digest`).
+- **Enquiry acknowledgement:** says "We aim to reply :time." only when a response time
+  is set, either in `enquiries.response_time` (e.g. `within one working day`) or by the
+  host with `LiteCrm::resolveEnquiryResponseTimeUsing(fn () => ...)`.
 - **Weekly report** (`lite-crm:send-weekly-reports`): my documents expiring within
   `notifications.expiry_warning_days`, and my open opportunities with no change or
   activity for `notifications.stale_opportunity_days`. It fires the
@@ -501,7 +506,7 @@ in CRM settings › Audit log.
 | `currencies`, `base_currency`, `territories` | `['USD']`, `USD`, `[]` | Commercial settings |
 | `enquiry_api` | disabled, `crm-api/enquiries`, 30/min | Token-protected HTTP intake endpoint (token managed in CRM › Settings) |
 | `enquiries` | 3 s, 5 per 10 min, Admin + Manager, acknowledge, no response time, 5 uploads | Spam timing and per-IP limit, who is notified, acknowledgement, upload count |
-| `notifications` | 08:00, 21 days, 60 days | Digest hour, stale-opportunity and expiry windows |
+| `notifications` | 08:00 (`LITE_CRM_DIGEST_HOUR`), 21 days, 60 days | Digest hour, stale-opportunity and expiry windows |
 | `auth` | 12 chars, 480 min, 72 h, `admin`, `['admin']` | Password length, session limit, invitation expiry, super-admin role, roles that must use MFA |
 | `documents` | `local`, `crm/documents`, 10 MB, five types, 5 min | Private disk, folder, size limit, accepted MIME types, download-link lifetime |
 | `custom_field_entities` | six entities | Entities that accept custom fields |
@@ -510,6 +515,7 @@ in CRM settings › Audit log.
 | `dashboard_widgets` | all `true` | Switch dashboard widgets on or off |
 | `dashboard.pipelines` | `2` | How many pipelines the pipeline widget shows |
 | `preset_paths` | `[]` | Extra folders searched for presets |
+| `exchange_rates.stale_after_days` | `30` | Warn (pipeline widget, weekly report) when a rate in use is older than this |
 | `audit_log_days` | `730` (`LITE_CRM_AUDIT_LOG_DAYS`) | Audit entries older than this are removed daily |
 | `prefix_third_party_tables` | `true` | Keep spatie's roles/permissions/audit tables `crm_`-prefixed; set `false` to share the host's own |
 

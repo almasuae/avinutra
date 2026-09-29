@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification;
 use LiteCrm\Events\DocumentExpiring;
 use LiteCrm\Models\Document;
+use LiteCrm\Models\ExchangeRate;
+use LiteCrm\Models\Opportunity;
+use LiteCrm\Models\Pipeline;
 use LiteCrm\Models\Setting;
 use LiteCrm\Models\Task;
 use LiteCrm\Notifications\DailyDigest;
@@ -115,4 +118,23 @@ it('reports problems with lite-crm:doctor', function (): void {
         ->assertSuccessful();
 
     expect($admin)->not->toBeNull();
+});
+
+it('warns in the weekly report when a rate in use is older than 30 days', function (): void {
+    Notification::fake();
+    $owner = $this->crmUser(['commercial']);
+    $pipeline = Pipeline::query()->where('is_active', true)->firstOrFail();
+    ExchangeRate::query()->create(['currency' => 'EUR', 'rate' => 1.1, 'valid_from' => now()->subDays(40)->toDateString()]);
+    Opportunity::query()->create([
+        'name' => 'Euro deal', 'pipeline_id' => $pipeline->getKey(), 'stage_id' => $pipeline->stages()->firstOrFail()->getKey(),
+        'value' => 1000, 'currency' => 'EUR', 'owner_id' => $owner->getKey(),
+    ]);
+
+    $this->artisan('lite-crm:send-weekly-reports')->assertSuccessful();
+
+    Notification::assertSentTo($owner, WeeklyReport::class, function (WeeklyReport $report) use ($owner): bool {
+        $mail = (string) $report->toMail($owner)->render();
+
+        return str_starts_with($report->staleRates, 'EUR (') && str_contains($mail, 'older than 30 days');
+    });
 });

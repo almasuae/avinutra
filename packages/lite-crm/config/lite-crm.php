@@ -113,7 +113,9 @@ return [
     | are stored with the Spam status for review; submissions over the limit are
     | refused. New enquiries are e-mailed to the roles below and to the mailbox
     | set on the enquiry type (meta "mailbox"). The acknowledgement mentions a
-    | response time only when one is configured here.
+    | response time only when one is set, as a phrase such as "within one
+    | working day" ("We aim to reply :time."). Hosts can supply it from their
+    | own settings with LiteCrm::resolveEnquiryResponseTimeUsing().
     |
     */
 
@@ -136,7 +138,7 @@ return [
     */
 
     'notifications' => [
-        'digest_hour' => 8,
+        'digest_hour' => (int) env('LITE_CRM_DIGEST_HOUR', 8),
         'stale_opportunity_days' => 21,
         'expiry_warning_days' => 60,
     ],
@@ -304,6 +306,20 @@ return [
     */
 
     'preset_paths' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Exchange rates
+    |--------------------------------------------------------------------------
+    |
+    | Rates are entered by hand. The pipeline widget and the weekly report warn
+    | when a rate in use is older than this many days.
+    |
+    */
+
+    'exchange_rates' => [
+        'stale_after_days' => 30,
+    ],
 
     /*
     |--------------------------------------------------------------------------

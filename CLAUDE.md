@@ -10,6 +10,7 @@ Claude Code reads this file at the start of every session. Keep it current: when
 - `docs/Prompt-AviNutra-Laravel-Build-v5.md` — technical build spec. It **wins on technical points**.
 - `docs/AviNutra-Website-Content-v3.md` — website content and page spec.
 - `CONTENT-GAPS.md` — missing facts, and where the site omits or uses neutral wording.
+- `docs/design/DESIGN-BRIEF.md` (v1.1) — brand and design. It **supersedes v5 §E1** and the visual-identity and imagery parts of Content Blueprint v3 (§4). The master logo is `docs/design/logo-source.svg`; `homepage-mockup.png` is the approved look (never reuse its pictures). SVGO and sharp / @resvg/resvg-js are approved npm dev dependencies for `npm run brand:build`.
 
 ## Stack
 - PHP 8.3 · latest stable Laravel supporting PHP 8.3 · Filament v4+ · Livewire · Alpine.js · Tailwind (Vite) · MariaDB 11.4 (`DB_CONNECTION=mariadb`) · Pest · Orchestra Testbench · Pint · Larastan level 5.

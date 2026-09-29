@@ -19,8 +19,9 @@ class WeeklyReport extends Notification implements ShouldQueue
     /**
      * @param  list<string>  $documents
      * @param  list<string>  $stale
+     * @param  string  $staleRates  e.g. "EUR (1 Aug 2026)", empty when all rates are recent
      */
-    public function __construct(public array $documents, public array $stale) {}
+    public function __construct(public array $documents, public array $stale, public string $staleRates = '') {}
 
     /**
      * @return list<string>
@@ -48,6 +49,10 @@ class WeeklyReport extends Notification implements ShouldQueue
             foreach ($this->stale as $line) {
                 $mail->line('• '.$line);
             }
+        }
+
+        if ($this->staleRates !== '') {
+            $mail->line(__('lite-crm::digest.weekly.stale_rates', ['days' => (int) config('lite-crm.exchange_rates.stale_after_days', 30), 'rates' => $this->staleRates]));
         }
 
         return $mail->action(__('lite-crm::digest.open_crm'), url((string) config('lite-crm.path', 'crm')));

@@ -15,6 +15,7 @@ use LiteCrm\Models\Document;
 use LiteCrm\Models\Enquiry;
 use LiteCrm\Models\Opportunity;
 use LiteCrm\Models\Task;
+use LiteCrm\Support\Money;
 use LiteCrm\Support\Permissions;
 use LiteCrm\Support\Visibility;
 
@@ -85,12 +86,16 @@ class DigestBuilder
      * Documents the user owns that expire within the warning window, and the
      * user's open opportunities with no change or activity for N days.
      *
-     * @return array{documents: list<Document>, stale: list<Opportunity>}
+     * Also lists exchange rates older than the stale-rate limit that convert the
+     * user's visible open opportunities.
+     *
+     * @return array{documents: list<Document>, stale: list<Opportunity>, stale_rates: array<string, string>}
      */
     public function weekly(Model&CrmUser $user): array
     {
         $documents = [];
         $stale = [];
+        $staleRates = [];
 
         if ($this->uses('documents', $user)) {
             /** @var list<Document> $documents */
@@ -114,9 +119,18 @@ class DigestBuilder
                 ->orderBy('updated_at')
                 ->get()
                 ->all();
+
+            $currencies = Visibility::apply(LiteCrm::model(Opportunity::class)::query(), $user)
+                ->whereNull('closed_at')
+                ->whereNotNull('value')
+                ->distinct()
+                ->pluck('currency')
+                ->all();
+
+            $staleRates = Money::staleRates($currencies);
         }
 
-        return ['documents' => $documents, 'stale' => $stale];
+        return ['documents' => $documents, 'stale' => $stale, 'stale_rates' => $staleRates];
     }
 
     public static function isEmpty(array $sections): bool

@@ -38,4 +38,7 @@
     @if ($missingRates)
         <p style="margin-top:0.5rem; font-size:0.8rem; color:rgb(217 119 6);">{{ __('lite-crm::dashboard.missing_rates') }}</p>
     @endif
+    @if ($staleRates !== '')
+        <p style="margin-top:0.5rem; font-size:0.8rem; color:rgb(217 119 6);">{{ __('lite-crm::dashboard.stale_rates', ['days' => $staleDays, 'rates' => $staleRates]) }}</p>
+    @endif
 </x-filament-widgets::widget>

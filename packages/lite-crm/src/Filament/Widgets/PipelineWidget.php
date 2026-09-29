@@ -41,6 +41,7 @@ class PipelineWidget extends Widget
         $territory = $this->filter('territory_id');
         $summaries = [];
         $missingRates = false;
+        $currencies = [];
 
         foreach ($pipelines as $pipelineId => $name) {
             $opportunities = $this->scoped(Opportunity::class)
@@ -49,6 +50,7 @@ class PipelineWidget extends Widget
                 ->when($territory, fn (Builder $query) => $query->whereHas('organisation', fn (Builder $organisations) => $organisations->where('territory_id', $territory)))
                 ->get();
 
+            $currencies = [...$currencies, ...$opportunities->whereNotNull('value')->pluck('currency')->all()];
             $rows = [];
             $totals = ['count' => 0, 'value' => 0.0, 'weighted' => 0.0];
 
@@ -79,6 +81,12 @@ class PipelineWidget extends Widget
             $summaries[] = ['name' => $name, 'rows' => $rows, 'totals' => $totals];
         }
 
-        return ['summaries' => $summaries, 'base' => LiteCrm::baseCurrency(), 'missingRates' => $missingRates];
+        return [
+            'summaries' => $summaries,
+            'base' => LiteCrm::baseCurrency(),
+            'missingRates' => $missingRates,
+            'staleRates' => Money::describeStaleRates(Money::staleRates($currencies)),
+            'staleDays' => (int) config('lite-crm.exchange_rates.stale_after_days', 30),
+        ];
     }
 }

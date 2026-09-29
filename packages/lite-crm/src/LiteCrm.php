@@ -157,6 +157,30 @@ class LiteCrm
         return is_string($entity) && $entity !== '' ? $entity : null;
     }
 
+    /** @var (Closure(): ?string)|null */
+    protected static ?Closure $enquiryResponseTimeResolver = null;
+
+    /**
+     * Lets the host supply the response-time promise in the enquiry
+     * acknowledgement (e.g. "within one working day") from its own settings.
+     * Pass null to fall back to lite-crm.enquiries.response_time.
+     *
+     * @param  (Closure(): ?string)|null  $resolver
+     */
+    public static function resolveEnquiryResponseTimeUsing(?Closure $resolver): void
+    {
+        static::$enquiryResponseTimeResolver = $resolver;
+    }
+
+    public static function enquiryResponseTime(): ?string
+    {
+        $time = static::$enquiryResponseTimeResolver !== null
+            ? (static::$enquiryResponseTimeResolver)()
+            : config('lite-crm.enquiries.response_time');
+
+        return is_string($time) && trim($time) !== '' ? trim($time) : null;
+    }
+
     /**
      * Store an enquiry from host code and fire {@see EnquiryCaptured} (which
      * e-mails the team). Code is trusted: no spam checks apply.

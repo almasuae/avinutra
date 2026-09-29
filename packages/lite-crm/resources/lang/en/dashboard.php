@@ -6,6 +6,7 @@ return [
     'title' => 'Dashboard',
     'total' => 'Total',
     'no_reason' => 'No reason given',
+    'stale_rates' => 'Exchange rates older than :days days are in use: :rates. Update them in CRM settings › Exchange rates.',
     'missing_rates' => 'Some values are left out of the totals because their currency has no exchange rate yet (CRM settings › Exchange rates).',
     'filters' => [
         'user' => 'User',

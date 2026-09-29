@@ -200,9 +200,22 @@ it('mentions a response time only when one is configured', function (): void {
     $enquiry = LiteCrm::captureEnquiry(['email' => 'sara@example.com', 'message' => 'Hi'], 'general');
 
     $without = (new EnquiryAcknowledgement($enquiry))->toMail(new AnonymousNotifiable)->render();
-    config(['lite-crm.enquiries.response_time' => 'two working days']);
+    config(['lite-crm.enquiries.response_time' => 'within two working days']);
     $with = (new EnquiryAcknowledgement($enquiry))->toMail(new AnonymousNotifiable)->render();
 
     expect((string) $without)->not->toContain('aim to reply')
-        ->and((string) $with)->toContain('two working days');
+        ->and((string) $with)->toContain('We aim to reply within two working days.');
+});
+
+it('lets the host supply the response time', function (): void {
+    $enquiry = LiteCrm::captureEnquiry(['email' => 'sara@example.com', 'message' => 'Hi'], 'general');
+
+    LiteCrm::resolveEnquiryResponseTimeUsing(fn (): string => 'within one working day');
+    $mail = (string) (new EnquiryAcknowledgement($enquiry))->toMail(new AnonymousNotifiable)->render();
+    LiteCrm::resolveEnquiryResponseTimeUsing(fn (): string => '  ');
+    $blank = (string) (new EnquiryAcknowledgement($enquiry))->toMail(new AnonymousNotifiable)->render();
+    LiteCrm::resolveEnquiryResponseTimeUsing(null);
+
+    expect($mail)->toContain('We aim to reply within one working day.')
+        ->and($blank)->not->toContain('aim to reply');
 });

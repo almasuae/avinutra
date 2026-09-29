@@ -132,7 +132,7 @@ return [
             'greeting_name' => 'Hello :name,',
             'received' => 'Thank you for contacting :app. We have received your enquiry.',
             'reference' => 'Your reference: :reference.',
-            'response_time' => 'We aim to reply within :time.',
+            'response_time' => 'We aim to reply :time.',
             'no_reply' => 'This message was sent automatically; please do not reply to it.',
         ],
     ],

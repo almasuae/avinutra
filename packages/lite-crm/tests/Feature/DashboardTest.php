@@ -113,3 +113,26 @@ it('lets only users who manage settings maintain exchange rates', function (): v
     $this->actingAs($this->withMfa($this->crmUser(['commercial'])));
     expect(ExchangeRateResource::canViewAny())->toBeFalse();
 });
+
+it('warns on the pipeline widget when a rate in use is older than 30 days', function (): void {
+    $user = $this->withMfa($this->crmUser(['admin']));
+    $this->actingAs($user);
+    $pipeline = Pipeline::query()->where('is_active', true)->firstOrFail();
+    ExchangeRate::query()->create(['currency' => 'EUR', 'rate' => 1.1, 'valid_from' => now()->subDays(45)->toDateString()]);
+    ExchangeRate::query()->create(['currency' => 'SGD', 'rate' => 0.75, 'valid_from' => now()->subDays(5)->toDateString()]);
+
+    foreach (['EUR', 'SGD'] as $currency) {
+        Opportunity::query()->create([
+            'name' => 'Deal '.$currency, 'pipeline_id' => $pipeline->getKey(), 'stage_id' => $pipeline->stages()->firstOrFail()->getKey(),
+            'value' => 1000, 'currency' => $currency, 'owner_id' => $user->getKey(),
+        ]);
+    }
+
+    expect(Money::staleRates(['EUR', 'SGD', 'USD', 'PKR', null]))->toBe(['EUR' => now()->subDays(45)->toDateString()]);
+
+    Livewire::test(PipelineWidget::class)
+        ->assertSee(__('lite-crm::dashboard.stale_rates', ['days' => 30, 'rates' => 'EUR ('.now()->subDays(45)->format('j M Y').')']));
+
+    config(['lite-crm.exchange_rates.stale_after_days' => 60]);
+    expect(Money::staleRates(['EUR']))->toBe([]);
+});

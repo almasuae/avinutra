@@ -18,5 +18,6 @@ return [
         'subject' => 'Your weekly CRM report — :app',
         'documents' => 'Documents expiring within :days days',
         'stale' => 'Opportunities with no change or activity for :days days',
+        'stale_rates' => 'Exchange rates older than :days days are in use: :rates. They are entered by hand; please update them in CRM settings › Exchange rates.',
     ],
 ];

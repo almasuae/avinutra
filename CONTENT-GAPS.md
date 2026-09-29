@@ -22,10 +22,11 @@ and move the row to "Resolved" with the date.
 | 8 | For Suppliers › Pakistan market | Sourced, dated aggregate market figures | Page not published or linked | Owner |
 | 9 | Legal pages | Review by a qualified lawyer | Published as sensible drafts | Owner / lawyer |
 | 10 | Knowledge | Authors and reviewers for articles 2–8 | Articles kept as CRM drafts | Nutrition panel |
-| 11 | Header, favicon | Logo approval (or acceptance of the wordmark) | Wordmark and abstract mark used | Owner |
-| 12 | Enquiry acknowledgement e-mail | The response time AviNutra commits to (e.g. "two working days") | Acknowledgement sent without a response-time line (`lite-crm.enquiries.response_time` = null) | Owner |
+| 11 | Header, favicon, CRM, e-mails | A true vector master logo. The supplied `logo-source.svg` (29 Sep 2026) only wraps the PNG, so variants cannot be derived as vectors (Design Brief §2.1) | Wordmark and abstract mark used until a vector master is supplied or the PNG route (§2.4) is chosen | Owner |
+| 13 | Home hero, purpose block, page hero strips | Approved, licensed photos (poultry, feed ingredients, an additive/QC scene, port/ship) with credits in `docs/design/IMAGE-CREDITS.md` (Design Brief §4) | Brand shapes only (circles, leaves, gradient panels, map outline); no photos, no grey boxes | Owner |
 
 ## Resolved
 
 | # | Page(s) | What was missing | Resolved on |
 |---|---|---|---|
+| 12 | Enquiry acknowledgement e-mail | The response time AviNutra commits to: "within one working day", now the Site Setting `enquiry_response_time` (editable in CRM › Website › Site settings from Phase 7) | 29 Sep 2026 |

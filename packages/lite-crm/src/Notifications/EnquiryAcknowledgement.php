@@ -8,6 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use LiteCrm\LiteCrm;
 use LiteCrm\Models\Enquiry;
 
 /**
@@ -31,7 +32,7 @@ class EnquiryAcknowledgement extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $app = (string) config('app.name');
-        $responseTime = config('lite-crm.enquiries.response_time');
+        $responseTime = LiteCrm::enquiryResponseTime();
 
         $mail = (new MailMessage)
             ->subject(__('lite-crm::enquiries.mail.acknowledgement.subject', ['app' => $app]))
@@ -41,7 +42,7 @@ class EnquiryAcknowledgement extends Notification implements ShouldQueue
             ->line(__('lite-crm::enquiries.mail.acknowledgement.received', ['app' => $app]))
             ->line(__('lite-crm::enquiries.mail.acknowledgement.reference', ['reference' => $this->enquiry->id]));
 
-        if (is_string($responseTime) && $responseTime !== '') {
+        if ($responseTime !== null) {
             $mail->line(__('lite-crm::enquiries.mail.acknowledgement.response_time', ['time' => $responseTime]));
         }
 

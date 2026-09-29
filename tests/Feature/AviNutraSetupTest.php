@@ -9,9 +9,11 @@ use Database\Seeders\AviNutraSeeder;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\AnonymousNotifiable;
 use LiteCrm\LiteCrm;
 use LiteCrm\Models\CustomField;
 use LiteCrm\Models\Lookup;
+use LiteCrm\Notifications\EnquiryAcknowledgement;
 
 uses(RefreshDatabase::class);
 
@@ -63,4 +65,19 @@ it('drains the queue from the scheduler, as the server has no Supervisor', funct
 
     expect($commands)->toContain('queue:work --stop-when-empty')
         ->toContain('lite-crm:send-digests');
+});
+
+it('promises the response time from the site settings in the enquiry acknowledgement', function (): void {
+    $this->seed(DatabaseSeeder::class);
+    $enquiry = LiteCrm::captureEnquiry(['email' => 'buyer@example.com', 'message' => 'Hello'], 'general');
+    $render = fn (): string => (string) (new EnquiryAcknowledgement($enquiry))->toMail(new AnonymousNotifiable)->render();
+
+    expect(app(SiteSettings::class)->enquiry_response_time)->toBe('within one working day')
+        ->and($render())->toContain('We aim to reply within one working day.');
+
+    $site = app(SiteSettings::class);
+    $site->enquiry_response_time = null;
+    $site->save();
+
+    expect($render())->not->toContain('aim to reply');
 });

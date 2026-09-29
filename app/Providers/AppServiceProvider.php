@@ -25,6 +25,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         LiteCrm::resolveContractingEntityUsing(fn (): ?string => self::contractingEntity());
+        LiteCrm::resolveEnquiryResponseTimeUsing(fn (): ?string => self::enquiryResponseTime());
+    }
+
+    /**
+     * The response time promised in the enquiry acknowledgement, from the site settings.
+     */
+    public static function enquiryResponseTime(): ?string
+    {
+        try {
+            return app(SiteSettings::class)->enquiry_response_time;
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     /**

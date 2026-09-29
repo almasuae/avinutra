@@ -41,6 +41,9 @@ class SiteSettings extends Settings
 
     public ?string $pk_partner_role;
 
+    /** Phrase used in the enquiry acknowledgement ("We aim to reply …"); null = no promise. */
+    public ?string $enquiry_response_time;
+
     public static function group(): string
     {
         return 'site';

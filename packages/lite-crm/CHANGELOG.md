@@ -6,6 +6,17 @@ package uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (after the Phase 6 review)
+- Stale exchange-rate warning on the pipeline widget and in the weekly report when a
+  rate in use is older than `exchange_rates.stale_after_days` (default 30).
+- `LiteCrm::resolveEnquiryResponseTimeUsing()` / `LiteCrm::enquiryResponseTime()`, so
+  hosts can supply the acknowledgement's response-time promise from their settings.
+- `LITE_CRM_DIGEST_HOUR` environment variable for `notifications.digest_hour`.
+
+### Changed
+- `enquiries.response_time` is now a whole phrase ("within one working day"); the
+  acknowledgement line reads "We aim to reply :time.".
+
 ### Added (dashboard, notifications, import/export, presets)
 - **Dashboard** (`CrmDashboard`) with eleven widgets: my day, enquiries, pipelines,
   won/lost, activity by user, expiring documents, price watch, samples & trials, team

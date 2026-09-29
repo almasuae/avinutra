@@ -13,6 +13,7 @@ use LiteCrm\Models\Document;
 use LiteCrm\Models\Opportunity;
 use LiteCrm\Notifications\WeeklyReport;
 use LiteCrm\Reports\DigestBuilder;
+use LiteCrm\Support\Money;
 
 /**
  * Runs weekly: tells each owner about their documents that expire soon
@@ -59,6 +60,7 @@ class SendWeeklyReportsCommand extends Command
             $user->notify(new WeeklyReport(
                 documents: array_map(fn (Document $document): string => $document->title.' — '.$document->expires_on?->setTimezone($timezone)->format('j M Y'), $report['documents']),
                 stale: array_map(fn (Opportunity $opportunity): string => $opportunity->name.' — '.$opportunity->updated_at?->setTimezone($timezone)->format('j M Y'), $report['stale']),
+                staleRates: Money::describeStaleRates($report['stale_rates']),
             ));
             $sent++;
         }
