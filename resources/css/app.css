@@ -8,10 +8,47 @@
 @source '../../storage/framework/views/*.php';
 @source '../../packages/lite-crm/resources/views/**/*.blade.php';
 
+/*
+ * Metric-matched fallbacks (no layout shift when the web fonts arrive late). A local
+ * Arial is resized to the web font's average width (size-adjust, measured in the
+ * browser on the site's own text, 1 Oct 2026) and given the web font's vertical
+ * metrics (Inter 0.96875 / 0.2412 em, Lato 0.987 / 0.213 em, divided by size-adjust).
+ * Helvetica and Liberation Sans share Arial's metrics.
+ */
+@font-face {
+    font-family: 'Inter Fallback';
+    font-weight: 100 549;
+    src: local('Arial'), local('ArialMT'), local('Helvetica'), local('Liberation Sans');
+    size-adjust: 107.54%;
+    ascent-override: 90.08%;
+    descent-override: 22.43%;
+    line-gap-override: 0%;
+}
+
+@font-face {
+    font-family: 'Inter Fallback';
+    font-weight: 550 900;
+    src: local('Arial Bold'), local('Arial-BoldMT'), local('Helvetica Bold'), local('Liberation Sans Bold');
+    size-adjust: 101.3%;
+    ascent-override: 95.63%;
+    descent-override: 23.81%;
+    line-gap-override: 0%;
+}
+
+@font-face {
+    font-family: 'Lato Fallback';
+    font-weight: 900;
+    src: local('Arial Bold'), local('Arial-BoldMT'), local('Helvetica Bold'), local('Liberation Sans Bold');
+    size-adjust: 95.72%;
+    ascent-override: 103.11%;
+    descent-override: 22.25%;
+    line-gap-override: 0%;
+}
+
 @theme {
-    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-sans: 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
     --font-serif: 'Source Serif 4 Variable', ui-serif, Georgia, serif;
-    --font-heading: 'Lato', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Lato', 'Lato Fallback', 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
 
     /* AviNutra palette (Design Brief §3, sampled from the logo). */
     --color-green-900: #013b32;
@@ -199,45 +236,23 @@
 
 /* Print layout (v3 §7.8): the tools and other pages print their content only. */
 /*
- * Header / hero separation (owner's design request, 30 Sep 2026). One setting picks the
- * look: config('site.hero_style') → <html data-hero="…">. Both the home hero and the
- * inner-page hero band use .site-hero; the header uses .site-header.
- *   current  white → surface gradient (the look before the request), shadow when scrolled
- *   A        pale green tint, header line, shadow when scrolled
- *   B        surface grey, header line, shadow when scrolled
- *   C        pale green → white gradient with faint leaf lines, header line, shadow when scrolled
- *   D        white hero, header line and shadow always
+ * Header / hero look (owner's decision, 1 Oct 2026: option A on every public page).
+ * One setting picks it: config('site.hero_style') → <html data-hero="…">. Every page's
+ * top section is <x-page.hero-band> (.site-hero); the header is .site-header.
+ *   A         pale green tint #F2F7EF, 1 px header line, soft header shadow when scrolled
+ *   original  the earlier white → surface gradient, no header line (kept as the one alternative)
+ * To change the look later, edit the variables below; nothing else needs to change.
  */
-:root {
-    --hero-bg: linear-gradient(to bottom right in oklab, #fff 0%, #fff 50%, var(--color-surface) 100%);
-    --header-line: transparent;
-    --header-shadow: 0 0 #0000;
-    --header-shadow-scrolled: 0 6px 24px -12px rgb(1 59 50 / 0.25);
-}
-
+:root,
 [data-hero='A'] {
     --hero-bg: var(--color-hero-tint);
     --header-line: var(--color-line);
+    --header-shadow-scrolled: 0 6px 24px -12px rgb(1 59 50 / 0.25);
 }
 
-[data-hero='B'] {
-    --hero-bg: var(--color-surface);
-    --header-line: var(--color-line);
-}
-
-[data-hero='C'] {
-    /* Leaf lines: thin diagonal strokes in the brand green at 1.5% opacity (kept this faint
-       so the orange eyebrow stays at WCAG AA where it crosses a line: 4.55:1). */
-    --hero-bg:
-        repeating-linear-gradient(135deg, rgb(2 94 61 / 0.015) 0 2px, transparent 2px 30px),
-        linear-gradient(135deg, var(--color-hero-tint) 0%, #fff 100%);
-    --header-line: var(--color-line);
-}
-
-[data-hero='D'] {
-    --hero-bg: #fff;
-    --header-line: var(--color-line);
-    --header-shadow: 0 6px 24px -12px rgb(1 59 50 / 0.25);
+[data-hero='original'] {
+    --hero-bg: linear-gradient(to bottom right in oklab, #fff 0%, #fff 50%, var(--color-surface) 100%);
+    --header-line: transparent;
 }
 
 .site-hero {
@@ -246,7 +261,7 @@
 
 /* The 1 px line is drawn as an inset shadow, so the header keeps its height. */
 .site-header {
-    box-shadow: inset 0 -1px 0 var(--header-line), var(--header-shadow);
+    box-shadow: inset 0 -1px 0 var(--header-line);
 }
 
 .site-header[data-scrolled] {

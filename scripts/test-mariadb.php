@@ -92,6 +92,9 @@ foreach ($suites as $name => $suite) {
         'DB_USERNAME' => $username,
         'DB_PASSWORD' => $password,
         'DB_URL' => '',
+        // Own compiled-view folder: never the local site's storage/framework/views, and
+        // never shared with a SQLite run at the same time (Windows rename collisions).
+        'VIEW_COMPILED_PATH' => $root.'/storage/framework/testing/views-mariadb-'.strtolower((string) $name),
     ]);
 
     echo "\n== {$name} tests on MariaDB ({$suite['database']}) ==\n";

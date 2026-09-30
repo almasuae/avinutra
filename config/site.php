@@ -49,9 +49,9 @@ return [
         ['label' => 'Technical Disclaimer', 'route' => 'legal.technical-disclaimer'],
     ],
 
-    // Header / hero separation: 'current' (unchanged), 'A' pale green, 'B' warm grey,
-    // 'C' soft gradient, 'D' header edge only. See App\Support\HeroStyle and app.css.
-    'hero_style' => env('SITE_HERO_STYLE') ?: 'current',
+    // Header / hero look of every public page: 'A' (pale green band; owner's decision,
+    // 1 Oct 2026) or 'original'. See App\Support\HeroStyle and resources/css/app.css.
+    'hero_style' => env('SITE_HERO_STYLE') ?: 'A',
 
     // Hosts treated as internal by the link rule (App\Support\ExternalLinks), besides APP_URL's host.
     'internal_hosts' => ['avinutra.com', 'www.avinutra.com'],

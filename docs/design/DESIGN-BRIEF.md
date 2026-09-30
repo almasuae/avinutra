@@ -1,8 +1,10 @@
-# AviNutra — Design Brief (v1.2, 29 Sep 2026 — PNG is the logo master)
+# AviNutra — Design Brief (v1.3, 1 Oct 2026 — hero band option A; v1.2: PNG is the logo master)
 
 **Status:** approved by the owner. This file **supersedes v5 §E1** (brand and design) and the "Visual identity" and imagery parts of Content Blueprint v3 §4. Where they conflict, follow this file.
 
 **Owner's decision (29 Sep 2026):** the public website names no country and shows no company-status details (no Singapore, Pakistan, PKR, Karachi, Lahore, Punjab, Sindh, SBP, FBR or "Pte. Ltd."). Wording in this brief is adjusted accordingly: the feature strip reads "International Reach — Connecting global producers with feed manufacturers worldwide", the pillar reads "Global Sourcing — Established international manufacturers, with documentation you can verify", and the footer carries no status statement (© line and legal links only). See Content Blueprint v3 (decisions of 29 Sep 2026).
+
+**Owner's decision (1 Oct 2026) — header / hero separation, option A on every public page:** the top section of every public page (home hero and the inner-page band with breadcrumb, eyebrow, H1 and intro) has the pale green background `hero-tint` `#F2F7EF`; the white header has a 1 px bottom line in `line` `#E3E7E4` and the soft shadow once the page scrolls. Options B (warm grey), C (soft gradient) and D (header edge only) were considered and rejected; see `screens/hero-options/` and the final look in `screens/hero-A-final/`. One setting (`site.hero_style`) controls it.
 
 **Source files** (in `docs/design/`):
 - `logo-source.png` — **master logo**, 2048×682 px, transparent background (owner's decision, 29 Sep 2026; see §2.1).
@@ -75,7 +77,8 @@ Colours sampled from the PNG logo and the mockup, and confirmed against the logo
 | `ink` | `#1C2226` | Body text |
 | `muted` | `#5B6770` | Secondary text |
 | `surface` | `#F7F8F6` | Section backgrounds, cards |
-| `line` | `#E3E7E4` | Dividers, card borders |
+| `line` | `#E3E7E4` | Dividers, card borders, the header's bottom line |
+| `hero-tint` | `#F2F7EF` | Background of every page's top section (hero band; decision of 1 Oct 2026). Orange eyebrow 4.65:1, body text 14.8:1, muted 5.34:1 on it |
 
 - **Brand gradient** (decorative only; never behind body text): `linear-gradient(180deg, #FD9302, #FC6B01)`.
 - **Contrast:** white text on `orange-600` is borderline for small text. Use it only on large, bold button labels (≥ 18 px bold) or put dark text on orange. Verify every text/background pair meets WCAG AA.
@@ -118,7 +121,7 @@ The owner wants photographic imagery as in the mockup: chickens, chicks, feed in
 
 ## 5. Header and navigation
 
-- **Layout as in the mockup:** logo left; nav centre-right; search icon; a dark-green pill CTA on the right. The white header becomes sticky with a subtle shadow on scroll. The active item has a green underline.
+- **Layout as in the mockup:** logo left; nav centre-right; search icon; a dark-green pill CTA on the right. The white header becomes sticky, with a 1 px `line` bottom edge and a subtle shadow on scroll; below it, every page starts with the pale green hero band (decision of 1 Oct 2026). The active item has a green underline.
 - **Nav items** — use the v3 structure, with the mockup's friendlier labels where equivalent:
 
 | Mockup label | Use instead (v3) |

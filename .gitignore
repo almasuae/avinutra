@@ -33,6 +33,6 @@ Thumbs.db
 **/.claude/settings.local.json
 
 # Screenshot bundles made for sharing; never committed.
-/docs/design/screens/*.zip
+/docs/design/screens/**/*.zip
 /tools/lighthouse/node_modules
 /tools/lighthouse/reports

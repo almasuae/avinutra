@@ -99,6 +99,16 @@ it('describes the organisation, breadcrumbs and articles as structured data', fu
     $article = collect(jsonLd((string) $this->get('/knowledge/how-to-compare-methionine-sources')->getContent()))->firstWhere('@type', 'Article');
     expect($article['headline'])->toBe('How to Compare Methionine Sources: Cost per kg of Effective Methionine')
         ->and($article['author']['name'])->toBe(Article::COMPANY_AUTHOR);
+
+    // Every block names the vocabulary; Blade must not compile the key as its context directive.
+    foreach (['/', '/nutrition-services/feed-economics', '/knowledge/how-to-compare-methionine-sources'] as $path) {
+        $html = (string) $this->get($path)->getContent();
+
+        expect($html)->not->toContain('__contextArgs');
+        foreach (jsonLd($html) as $block) {
+            expect($block['@context'] ?? null)->toBe('https://schema.org', "{$path}: JSON-LD without @context");
+        }
+    }
 });
 
 it('keeps Open Graph and canonical tags on every page', function (): void {
