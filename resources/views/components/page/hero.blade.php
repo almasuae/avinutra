@@ -3,7 +3,7 @@
     Hero band for inner pages (Design Brief §6 "Other pages"): breadcrumb, title,
     lead and a brand-shape strip. The page's single H1.
 --}}
-<section class="relative overflow-hidden border-b border-line bg-gradient-to-br from-white via-white to-surface">
+<section class="site-hero relative overflow-hidden border-b border-line">
     <svg viewBox="0 0 400 300" class="pointer-events-none absolute -top-24 -right-24 hidden size-[26rem] opacity-90 md:block" aria-hidden="true" role="presentation">
         <defs>
             <linearGradient id="hero-leaf" x1="0" y1="0" x2="1" y2="1">

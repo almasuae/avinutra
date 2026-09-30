@@ -1,7 +1,8 @@
 @props(['preview' => false])
 {{--
     Site header (Design Brief §5): logo left, navigation centre-right, a dark-green
-    pill CTA. Sticky, with a soft shadow once the page scrolls. Below 1280px the
+    pill CTA. Sticky, with a soft shadow once the page scrolls; its edge line and
+    shadow follow the hero style (site.hero_style, see .site-header in app.css). Below 1280px the
     navigation moves into a full-height drawer with the CTA pinned at the bottom.
     Links appear only when their page exists ($preview shows all, for design review).
 --}}
@@ -15,7 +16,7 @@
     $cta = config('site.cta');
     $ctaHref = $link($cta);
 @endphp
-<header data-site-header class="sticky top-0 z-40 bg-white transition-shadow duration-200 data-[scrolled]:shadow-[0_6px_24px_-12px_rgb(1_59_50/0.25)]">
+<header data-site-header class="site-header sticky top-0 z-40 bg-white transition-shadow duration-200">
     <div class="mx-auto flex h-[4.5rem] max-w-[84rem] items-center gap-6 px-4 sm:px-6 xl:h-[5.5rem] xl:px-8">
         <a href="{{ url('/') }}" class="shrink-0">
             <x-brand.logo variant="compact" class="h-9 w-auto xl:h-11" />

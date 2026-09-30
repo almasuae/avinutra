@@ -1,5 +1,5 @@
 <x-layouts.site title="Page not found — AviNutra">
-    <section class="bg-gradient-to-br from-white via-white to-surface">
+    <section class="site-hero">
         <div class="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
             <p class="eyebrow">Error 404</p>
             <h1 class="mt-3 text-4xl sm:text-5xl">This page could not be found</h1>

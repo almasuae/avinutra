@@ -25,6 +25,7 @@ class BrandPalette
         'muted' => '#5b6770',
         'surface' => '#f7f8f6',
         'line' => '#e3e7e4',
+        'hero-tint' => '#f2f7ef',
         'on-dark' => '#ffffff',
         'on-dark-muted' => '#c9d6cf',
     ];
@@ -51,6 +52,19 @@ class BrandPalette
         ['#ffffff', 'green-800', 4.5, 'Header CTA, dark footer headings'],
         ['green-800', '#ffffff', 4.5, 'Secondary button'],
         ['on-dark-muted', 'green-800', 4.5, 'Dark footer text and links'],
+        // Hero options A and C (pale green tint); #eef5ec = the tint under a 1.5% leaf line of option C.
+        ['ink', 'hero-tint', 4.5, 'Hero text, options A/C'],
+        ['muted', 'hero-tint', 4.5, 'Breadcrumb, options A/C'],
+        ['green-900', 'hero-tint', 4.5, 'Hero heading, options A/C'],
+        ['green-700', 'hero-tint', 4.5, 'Breadcrumb links, options A/C'],
+        ['orange-text', 'hero-tint', 4.5, 'Hero eyebrow, options A/C'],
+        ['green-800', 'hero-tint', 4.5, 'Secondary button, options A/C'],
+        ['ink', '#eef5ec', 4.5, 'Hero text on a leaf line, option C'],
+        ['muted', '#eef5ec', 4.5, 'Breadcrumb on a leaf line, option C'],
+        ['orange-text', '#eef5ec', 4.5, 'Hero eyebrow on a leaf line, option C'],
+        ['green-900', '#eef5ec', 4.5, 'Hero heading on a leaf line, option C'],
+        // Option B uses surface (pairs above); option D keeps the hero white.
+        ['green-800', 'surface', 4.5, 'Secondary button, option B'],
     ];
 
     public static function hex(string $token): string

@@ -29,6 +29,8 @@
     --color-muted: #5b6770;
     --color-surface: #f7f8f6;
     --color-line: #e3e7e4;
+    /* A very light tint of the brand greens, for hero options A and C. */
+    --color-hero-tint: #f2f7ef;
     /* Text on the dark-green footer. */
     --color-on-dark: #ffffff;
     --color-on-dark-muted: #c9d6cf;
@@ -196,6 +198,61 @@
 }
 
 /* Print layout (v3 §7.8): the tools and other pages print their content only. */
+/*
+ * Header / hero separation (owner's design request, 30 Sep 2026). One setting picks the
+ * look: config('site.hero_style') → <html data-hero="…">. Both the home hero and the
+ * inner-page hero band use .site-hero; the header uses .site-header.
+ *   current  white → surface gradient (the look before the request), shadow when scrolled
+ *   A        pale green tint, header line, shadow when scrolled
+ *   B        surface grey, header line, shadow when scrolled
+ *   C        pale green → white gradient with faint leaf lines, header line, shadow when scrolled
+ *   D        white hero, header line and shadow always
+ */
+:root {
+    --hero-bg: linear-gradient(to bottom right in oklab, #fff 0%, #fff 50%, var(--color-surface) 100%);
+    --header-line: transparent;
+    --header-shadow: 0 0 #0000;
+    --header-shadow-scrolled: 0 6px 24px -12px rgb(1 59 50 / 0.25);
+}
+
+[data-hero='A'] {
+    --hero-bg: var(--color-hero-tint);
+    --header-line: var(--color-line);
+}
+
+[data-hero='B'] {
+    --hero-bg: var(--color-surface);
+    --header-line: var(--color-line);
+}
+
+[data-hero='C'] {
+    /* Leaf lines: thin diagonal strokes in the brand green at 1.5% opacity (kept this faint
+       so the orange eyebrow stays at WCAG AA where it crosses a line: 4.55:1). */
+    --hero-bg:
+        repeating-linear-gradient(135deg, rgb(2 94 61 / 0.015) 0 2px, transparent 2px 30px),
+        linear-gradient(135deg, var(--color-hero-tint) 0%, #fff 100%);
+    --header-line: var(--color-line);
+}
+
+[data-hero='D'] {
+    --hero-bg: #fff;
+    --header-line: var(--color-line);
+    --header-shadow: 0 6px 24px -12px rgb(1 59 50 / 0.25);
+}
+
+.site-hero {
+    background: var(--hero-bg);
+}
+
+/* The 1 px line is drawn as an inset shadow, so the header keeps its height. */
+.site-header {
+    box-shadow: inset 0 -1px 0 var(--header-line), var(--header-shadow);
+}
+
+.site-header[data-scrolled] {
+    box-shadow: inset 0 -1px 0 var(--header-line), var(--header-shadow-scrolled);
+}
+
 @media print {
     [data-site-header],
     footer,

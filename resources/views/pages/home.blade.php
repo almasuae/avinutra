@@ -32,7 +32,7 @@
     description="International feed nutrition, consulting and ingredient supply for efficient and profitable poultry production."
 >
     {{-- 1. Hero --}}
-    <section class="overflow-hidden bg-gradient-to-br from-white via-white to-surface">
+    <section class="site-hero overflow-hidden">
         <div class="mx-auto grid max-w-[84rem] items-center gap-10 px-4 pt-10 pb-14 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pt-16 lg:pb-20 xl:px-8">
             <div>
                 <p class="eyebrow lg:text-[0.8125rem] lg:tracking-[0.03em] lg:whitespace-nowrap">Poultry Feed Experts · Nutrition Consultants · Feed Ingredient Suppliers</p>

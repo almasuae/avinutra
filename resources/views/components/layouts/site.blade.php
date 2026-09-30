@@ -11,7 +11,7 @@
     $siteHost = preg_replace('/^www\./', '', (string) parse_url((string) config('app.url'), PHP_URL_HOST));
 @endphp
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en-GB" data-hero="{{ \App\Support\HeroStyle::current() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
