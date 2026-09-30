@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LiteCrm\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -30,6 +31,9 @@ class DoctorCommand extends Command
 
     public const FAIL = 'fail';
 
+    /** Used by the queue worker (Illuminate\Queue\Worker) for timeouts and signals. */
+    public const PCNTL_FUNCTIONS = ['pcntl_signal', 'pcntl_async_signals', 'pcntl_alarm'];
+
     protected $signature = 'lite-crm:doctor';
 
     protected $description = 'Check the CRM installation: cron, queue, mail, private disk, security';
@@ -49,7 +53,9 @@ class DoctorCommand extends Command
         $this->check(__('lite-crm::doctor.roles'), fn () => LiteCrm::roleModel()::query()->where('name', LiteCrm::superAdminRole())->exists() ? [self::OK, ''] : [self::FAIL, __('lite-crm::doctor.roles_missing')]);
         $this->check(__('lite-crm::doctor.admin'), fn () => $this->admins());
         $this->check(__('lite-crm::doctor.scheduler'), fn () => $this->scheduler($production));
+        $this->check(__('lite-crm::doctor.scheduler_locks'), fn () => $this->schedulerLocks());
         $this->check(__('lite-crm::doctor.queue'), fn () => $this->queue($production));
+        $this->check(__('lite-crm::doctor.pcntl'), fn () => $this->pcntl());
         $this->check(__('lite-crm::doctor.mail'), fn () => $this->mail($production));
         $this->check(__('lite-crm::doctor.private_disk'), fn () => $this->privateDisk());
         $this->check(__('lite-crm::doctor.enquiry_api'), fn () => $this->enquiryApi());
@@ -171,6 +177,98 @@ class DoctorCommand extends Command
         }
 
         return [$status, implode('; ', $details)];
+    }
+
+    /**
+     * The queue worker needs these pcntl functions for its timeouts and signals. When the
+     * extension is loaded but they are disabled for command-line PHP (disable_functions,
+     * as on a default HestiaCP server), the worker crashes at once, without any error
+     * in the application log, and jobs pile up.
+     *
+     * @return array{0: string, 1: string}
+     */
+    protected function pcntl(): array
+    {
+        if ((string) config('queue.default') === 'sync') {
+            return [self::OK, __('lite-crm::doctor.queue_sync')];
+        }
+
+        return static::pcntlStatus(extension_loaded('pcntl'), (string) ini_get('disable_functions'), php_ini_loaded_file() ?: 'php.ini');
+    }
+
+    /**
+     * @param  (callable(string): bool)|null  $functionExists
+     * @return array{0: string, 1: string}
+     */
+    public static function pcntlStatus(bool $extensionLoaded, string $disableFunctions, string $ini, ?callable $functionExists = null): array
+    {
+        if (! $extensionLoaded) {
+            return [self::WARN, __('lite-crm::doctor.pcntl_missing')];
+        }
+
+        $functionExists ??= 'function_exists';
+        $disabled = array_map(trim(...), explode(',', $disableFunctions));
+        $missing = array_values(array_filter(
+            self::PCNTL_FUNCTIONS,
+            fn (string $function): bool => in_array($function, $disabled, true) || ! $functionExists($function),
+        ));
+
+        return $missing === []
+            ? [self::OK, implode(', ', self::PCNTL_FUNCTIONS)]
+            : [self::FAIL, __('lite-crm::doctor.pcntl_disabled', ['functions' => implode(', ', $missing), 'ini' => $ini])];
+    }
+
+    /**
+     * Scheduled commands that run "without overlapping" hold a lock while they run. If the
+     * process dies, the lock stays until it expires (24 hours by default) and the command
+     * silently stops running. Reports locks held far longer than their command should run.
+     *
+     * @return array{0: string, 1: string}
+     */
+    protected function schedulerLocks(): array
+    {
+        $store = (string) config('cache.default');
+        $config = (array) config("cache.stores.{$store}", []);
+
+        if (($config['driver'] ?? null) !== 'database') {
+            return [self::OK, __('lite-crm::doctor.locks_not_checked', ['store' => $store])];
+        }
+
+        $table = (string) ($config['lock_table'] ?? null ?: 'cache_locks');
+        $connection = DB::connection($config['lock_connection'] ?? $config['connection'] ?? null);
+
+        if (! $connection->getSchemaBuilder()->hasTable($table)) {
+            return [self::OK, ''];
+        }
+
+        $prefix = (string) ($config['prefix'] ?? config('cache.prefix'));
+        $now = Date::now()->getTimestamp();
+        $stuck = [];
+
+        foreach (app(Schedule::class)->events() as $event) {
+            if (! $event->withoutOverlapping) {
+                continue;
+            }
+
+            $expiration = $connection->table($table)->where('key', $prefix.$event->mutexName())->value('expiration');
+
+            if ($expiration === null || (int) $expiration <= $now) {
+                continue;
+            }
+
+            // Held since = expiry - lifetime. Every-minute commands (the queue worker) should
+            // finish within a minute; anything else within an hour.
+            $heldMinutes = intdiv($now - ((int) $expiration - $event->expiresAt * 60), 60);
+            $limit = $event->expression === '* * * * *' ? 15 : 60;
+
+            if ($heldMinutes > $limit) {
+                $stuck[] = Str::limit((string) ($event->command ?? $event->description ?? $event->mutexName()), 60).' ('.$heldMinutes.' min)';
+            }
+        }
+
+        return $stuck === []
+            ? [self::OK, '']
+            : [self::FAIL, __('lite-crm::doctor.locks_stuck', ['commands' => implode('; ', $stuck)])];
     }
 
     /**

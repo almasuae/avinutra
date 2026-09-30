@@ -34,6 +34,14 @@ if (header) {
     }
 }
 
+// The print-only header shows the date of printing (not of loading the page).
+window.addEventListener('beforeprint', () => {
+    const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    document.querySelectorAll('[data-print-date]').forEach((element) => {
+        element.textContent = date;
+    });
+});
+
 // Print buttons on the tools (no inline handlers: the Content-Security-Policy forbids them).
 document.addEventListener('click', (event) => {
     if (event.target instanceof Element && event.target.closest('[data-print]')) {

@@ -13,7 +13,8 @@ return [
     |
     */
 
-    'path' => env('LITE_CRM_PATH', 'crm'),
+    // An empty value in .env falls back to the default (never an empty path).
+    'path' => env('LITE_CRM_PATH') ?: 'crm',
 
     /*
     |--------------------------------------------------------------------------
@@ -38,7 +39,7 @@ return [
     |
     */
 
-    'user_model' => env('LITE_CRM_USER_MODEL', 'App\\Models\\User'),
+    'user_model' => env('LITE_CRM_USER_MODEL') ?: 'App\\Models\\User',
 
     'models' => [
         //
@@ -177,7 +178,7 @@ return [
     */
 
     'notifications' => [
-        'digest_hour' => (int) env('LITE_CRM_DIGEST_HOUR', 8),
+        'digest_hour' => (int) (env('LITE_CRM_DIGEST_HOUR') ?: 8),
         'stale_opportunity_days' => 21,
         'expiry_warning_days' => 60,
     ],
@@ -213,7 +214,7 @@ return [
     */
 
     'documents' => [
-        'disk' => env('LITE_CRM_DOCUMENTS_DISK', 'local'),
+        'disk' => env('LITE_CRM_DOCUMENTS_DISK') ?: 'local',
         'directory' => 'crm/documents',
         'max_size_kb' => 10240,
         'accepted_mime_types' => [
@@ -370,6 +371,6 @@ return [
     |
     */
 
-    'audit_log_days' => (int) env('LITE_CRM_AUDIT_LOG_DAYS', 730),
+    'audit_log_days' => (int) (env('LITE_CRM_AUDIT_LOG_DAYS') ?: 730),
 
 ];

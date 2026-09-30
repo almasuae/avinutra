@@ -1,5 +1,6 @@
 {{-- Tool 2 page: universal landed cost (owner's specification of 29 Sep 2026). --}}
 <x-layouts.site
+    :print-notice="true"
     title="Landed Cost Calculator — AviNutra"
     description="Calculate the landed cost of an imported feed additive per kg, per tonne and per shipment, in any currency, with duties, taxes and local charges."
 >

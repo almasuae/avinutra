@@ -35,7 +35,8 @@ return [
         // Nightly backups (spatie/laravel-backup), on the server only; outside the web root.
         'backups' => [
             'driver' => 'local',
-            'root' => env('BACKUP_PATH', storage_path('app/backups')),
+            // An empty BACKUP_PATH= must not become an empty root: fall back to the default.
+            'root' => env('BACKUP_PATH') ?: storage_path('app/backups'),
             'serve' => false,
             'throw' => true,
         ],

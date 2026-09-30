@@ -56,6 +56,13 @@ it('sends HSTS over HTTPS in production', function (): void {
     $this->get('https://localhost/')->assertHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 });
 
+it('leaves HSTS to the web server when SECURITY_HSTS is false', function (): void {
+    app()->instance('env', 'production');
+    config(['security.hsts' => false]);
+
+    $this->get('https://localhost/')->assertHeaderMissing('Strict-Transport-Security');
+});
+
 it('keeps the CRM out of search engines', function (): void {
     $robots = (string) $this->get('/robots.txt')->getContent();
 

@@ -1,6 +1,6 @@
 {{-- A published article (v3 §7.9): byline, reviewer, last reviewed, sources, related tool, "Ask Our Nutrition Team". --}}
 @php($related = $article->related_route ? \App\Support\SiteLinks::url($article->related_route) : null)
-<x-layouts.site :title="$article->title.' — AviNutra'" :description="$article->summary" type="article">
+<x-layouts.site :title="$article->title.' — AviNutra'" :description="$article->summary" type="article" :print-notice="true">
     @push('head')
         <x-seo.json-ld :data="array_filter([
             '@type' => 'Article',

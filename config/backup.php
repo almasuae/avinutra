@@ -23,7 +23,7 @@ return [
         // AviNutra: nightly backups of the database and the uploaded files, kept on the
         // server (disk "backups" = storage/app/backups). The code is in git and is not
         // backed up here; neither is .env (keep APP_KEY and secrets off-server, see README).
-        'name' => env('BACKUP_NAME', 'AviNutra'),
+        'name' => (env('BACKUP_NAME') ?: 'AviNutra'),
 
         'source' => [
             'files' => [
@@ -187,7 +187,7 @@ return [
          * The password to be used for archive encryption.
          * Set to `null` or leave it empty to disable encryption.
          */
-        'password' => env('BACKUP_ARCHIVE_PASSWORD'),
+        'password' => env('BACKUP_ARCHIVE_PASSWORD') ?: null,
 
         /*
          * The encryption algorithm to be used for archive encryption.
@@ -241,7 +241,7 @@ return [
         'notifiable' => Notifiable::class,
 
         'mail' => [
-            'to' => env('BACKUP_NOTIFICATION_EMAIL', 'info@avinutra.com'),
+            'to' => (env('BACKUP_NOTIFICATION_EMAIL') ?: 'info@avinutra.com'),
 
             'from' => [
                 'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
@@ -301,7 +301,7 @@ return [
      */
     'monitor_backups' => [
         [
-            'name' => env('BACKUP_NAME', 'AviNutra'),
+            'name' => (env('BACKUP_NAME') ?: 'AviNutra'),
             'disks' => ['backups'],
             'health_checks' => [
                 MaximumAgeInDays::class => 1,

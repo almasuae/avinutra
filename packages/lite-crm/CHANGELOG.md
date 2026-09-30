@@ -6,6 +6,20 @@ package uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added (lite-crm:doctor)
+- "Queue worker (pcntl)": fails when the pcntl extension is loaded but `pcntl_signal`,
+  `pcntl_async_signals` or `pcntl_alarm` are disabled for command-line PHP
+  (`disable_functions`); the queue worker then crashes at once and jobs pile up. Warns
+  when the extension is missing (the worker runs without job timeouts).
+- "Scheduler locks": fails when a scheduled command's overlap lock (database cache store)
+  has been held far longer than the command should run (15 minutes for every-minute
+  commands, 60 otherwise), and names the fix: `php artisan schedule:clear-cache`.
+
+### Fixed (configuration)
+- An empty value in `.env` (`LITE_CRM_PATH=`, `LITE_CRM_USER_MODEL=`, `LITE_CRM_DIGEST_HOUR=`,
+  `LITE_CRM_DOCUMENTS_DISK=`, `LITE_CRM_AUDIT_LOG_DAYS=`) now falls back to the default
+  instead of an empty string or 0.
+
 ### Changed (form layout for long text)
 - `LiteCrm\Filament\FormLayout`: forms with long text open in a 7xl modal (`FormLayout::wide()`)
   instead of the default width; applied to Activities, Announcements (also view), Custom

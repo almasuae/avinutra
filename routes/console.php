@@ -11,7 +11,9 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // No Supervisor on the server: the scheduler (cron, every minute) drains the queue.
-Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->withoutOverlapping();
+// The overlap lock expires after 10 minutes (not the default 24 hours), so a worker that
+// crashes (e.g. pcntl disabled for CLI PHP) cannot block the queue for a day.
+Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->withoutOverlapping(10);
 
 // Backups (spatie/laravel-backup, v5 §F3): nightly database + uploaded files to the
 // server's own "backups" disk; weekly clean-up of old backups; a daily health check

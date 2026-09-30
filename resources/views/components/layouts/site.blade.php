@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null, 'preview' => false, 'type' => 'website'])
+@props(['title' => null, 'description' => null, 'preview' => false, 'type' => 'website', 'printNotice' => false])
 @php
     $brandVersion = config('brand.version');
     // CRM › Website › Page SEO overrides the page's own title and description.
@@ -8,6 +8,7 @@
     $site = app(\App\Settings\SiteSettings::class);
     $whatsapp = \App\Support\SiteLinks::whatsapp($site->whatsapp_sales);
     $isHome = request()->routeIs('home');
+    $siteHost = preg_replace('/^www\./', '', (string) parse_url((string) config('app.url'), PHP_URL_HOST));
 @endphp
 <!DOCTYPE html>
 <html lang="en-GB">
@@ -78,11 +79,21 @@
 
     <x-site.header :preview="$preview" />
 
+    {{-- Print only: the screen header and footer are hidden when printing (app.css). --}}
+    <div class="hidden items-center justify-between gap-6 border-b border-line pb-3 mb-6 print:flex" data-print-header>
+        <x-brand.logo variant="compact" class="h-8 w-auto" />
+        <p class="text-sm text-muted">{{ $siteHost }} · Printed <span data-print-date>{{ now()->format('j F Y') }}</span></p>
+    </div>
+
     <main id="main" class="flex-1">
         {{ $slot }}
     </main>
 
     <x-site.footer :preview="$preview" />
+
+    @if ($printNotice)
+        <p class="hidden mt-8 border-t border-line pt-3 text-xs text-muted print:block" data-print-notice>Technical Notice: this information is for education and preliminary evaluation only; final formulation and feeding decisions should be made by qualified animal-nutrition professionals using validated product data.</p>
+    @endif
 
     @if ($whatsapp)
         {{-- Sticky WhatsApp button on phones, once a number is set in Site settings (v3 §7.10). --}}

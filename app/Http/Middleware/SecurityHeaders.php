@@ -40,7 +40,8 @@ class SecurityHeaders
         $headers->set('Cross-Origin-Opener-Policy', 'same-origin');
         $headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()');
 
-        if ($request->isSecure() && app()->isProduction()) {
+        // One HSTS header only: Laravel sends it unless SECURITY_HSTS=false (then the web server must).
+        if (config('security.hsts', true) && $request->isSecure() && app()->isProduction()) {
             $headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
 

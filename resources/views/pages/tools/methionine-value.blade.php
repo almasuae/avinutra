@@ -1,5 +1,6 @@
 {{-- Tool 1 page (v5 §E3). --}}
 <x-layouts.site
+    :print-notice="true"
     title="Methionine Value Calculator — AviNutra"
     description="Compare DL-Methionine, L-Methionine and MHA on cost per kg of effective methionine and cost per tonne of feed."
 >
